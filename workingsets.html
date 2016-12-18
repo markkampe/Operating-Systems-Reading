@@ -1,0 +1,231 @@
+<HTML>
+<HEAD>
+<TITLE>Working Sets</TITLE>
+</HEAD>
+<BODY>
+<center><h1>Working Sets</h1></center>
+<UL>
+	<P><strong>
+	Annual income twenty pounds, annual expenditure nineteen </strong>[pounds], 
+	<strong>nineteen </strong>[shillings]<strong> and six </strong>[pence]<strong>
+	... result happiness.<br>
+	Annual income twenty pounds, annual expenditure twenty pounds ought 
+	and six ... result misery.
+	</strong></P>
+	<center><em>Wilkins Micawber (Charles Dickens)</em></center>
+</UL>
+<h2>LRU is not enough</h2>
+<P>
+The success of LRU (Least Recently Used) replacement algorithms is the stuff
+of legends.  Nobody knows what tomorrow will bring, but for most purposes our 
+best guess is that the near future will be like the recent past.
+Unless you have inside information (i.e. references are not random, and
+you know understand the pattern) it is generally held that
+there is little profit to be gained from trying to out-smart LRU.
+The reason LRU works so well is that most programs exhibit
+some degree of temporal and spatial locality:
+<UL>
+    <LI> if they use some code or data, they are likely
+         to come back to access the same locations again.</LI>
+    <LI> If they access code or data in a particular page,
+    	 they are likely to reference other code
+	 (or data) in the same vicinity.</LI>
+</UL>
+But these are statements about a single program or process.
+If we are doing Round-Robin time-sharing with multiple processes
+we give each process a brief opportunity to run, after which we 
+run all the other processes before running it again.  With
+the exception of shared text segments, separate processes
+seldom access the same pages. 
+<UL>
+   <LI>	the most recently used pages in memory belong to the
+   	process that will not be run for a long time.</li>
+   <LI>	the least recently used pages in memory belong to
+   	the process that is just about to run again.</li>
+   <LI> this destroys strict temporal and spatial locality,
+        as reference behavior becomes periodic (rather than continuous).</li>
+</UL>
+<P>
+In the absence of temporal and spatial locality, Global LRU
+will make poor decisions.  Global LRU and Round-Robin scheduling
+are great algorithms, but they do not work well as a team.
+It might make sense to give each process its own
+dedicated set of page frames.  When that process needed a new
+page, we would LRU replace the oldest page in that set.
+This would be <em>per-process</em> LRU, and that might work 
+very well with Round-Robin scheduling.
+</P>
+<h2>The concept of a Working Set</h2>
+<P>
+As we discovered in our discussion of paging:
+<UL>
+   <li>	We do not need to give each process as many pages 
+	of physical memory as appear in the virtual address 
+	space.</li>
+   <li>	We do not even need to give each process as many
+   	pages of its virtual address as it will ever access.</li>
+</UL>
+<P>
+It is a good thing if a process experiences occasional page
+faults, and has to replace old (no longer interesting) pages
+with new ones.  What we want to avoid is page faults due
+to running a process in too little memory.
+We want to keep the page-faults down to a manageable rate. 
+The ideal mean-time-between-page-faults
+would be equal to the time-slice length.  
+As we give a process fewer
+and fewer page frames in which to operate, the page fault
+rate rises and our performance gets worse (as we spend less
+time doing useful computation and more time processing
+page faults).  
+</P>
+<P>
+The dramatic degradation in system performance associated
+with not having enough memory to efficiently run all of
+the ready processes is called <em>thrashing</em>.
+</P>
+<UL>
+   <LI> If we think that we can have 25 processes in the 
+   	ready queue, then we had better have enough memory
+	for all 25 of those processes.</LI>
+   <LI> If we only have enough memory to run 15 of those
+        processes, then we should take the other 10 out 
+	of the ready queue (e.g. by swapping them out).</li>
+   <LI> The improved performance resulting from reducing
+   	the number of page faults will more than make up
+	for the delays processes experience while being
+	swapped between primary and secondary storage.</li>
+</UL>
+<P>
+There is, for any given computation, at any given time, a
+number of pages such that:
+<UL>
+   <li> if we increase the number of page frames allocated
+        to that process, it makes very little difference
+	in the performance.</li>
+   <li> if we reduce the number of page frames allocated
+        to that process, the performance suffers noticeably.</li>
+</UL>
+We will call that number the process' <em>working set size</em>
+(at that particular time).
+</p>
+<center>
+<img src="thrashing.png" alt="Page Faults vs Working Set Size">
+</center>
+<h2>How large is a working set</h2>
+<P>
+Different computations require different amounts of memory.
+A tight loop operating on a few variables might need only two
+pages.  Complex combinations of functions applied to large
+amounts of data could require hundreds of thousands of pages.
+Not only are different programs likely to require different
+amounts of memory, a single program may require different
+amounts of memory at different points during its execution.
+</P>
+<P>
+Requiring more memory is not necessarily a bad thing ... it merely
+reflects the costs of that particular computation.  When we explored
+scheduling we saw that different processes have different degrees
+of interactivity, and that if we could characterize the interactivity
+of each process we could more efficiently schedule it.  The same is 
+true of working set size.
+We can infer a process' working set size by observing its behavior.  
+If a process is experiencing many page faults, its working set
+is larger than the memory currently allocated to it.
+If a process is not experiencing page faults, it may have
+too much memory allocated to it.
+If we can allocate the right amount of memory to each process,
+we will minimize our page faults (overhead) and maximize our 
+throughput (efficiency).
+</P>
+<h2>Implementing Working Set replacement</h2>
+<P>
+Regularly scanning all of memory to identify the least recently used
+page is a very expensive process.  With global LRU, we saw that a 
+clock-like scan was a very inexpensive way to achieve a very 
+similar affect.  The clock hand position was a surrogate for age:
+</P>
+<ul>
+   <li>the most recently examined pages are immediately behind the hand.</li>
+   <li>the pages we examined longest ago are immediately in front of the hand.</li>
+   <li>if the page immediately in front of the hand has not be referenced since
+       the last time it has been scaned, it must be very old ... even if it
+       is not actually the oldest page in memory.</li>
+</ul>
+<P>
+We can use a very similar approach to implement working sets. 
+But we will need to maintain a little bit more information:
+<UL>
+   <li> each page frame is associated with an <em>owning process</em></li>
+   <li> each process has an <em>accumulated CPU time</em></li>
+   <li> each page frame will have a <em>last referenced</em> time,
+        value, taken from the <em>accumulated CPU</em> timer of 
+	its <em>owning process</em>.
+   <li> we maintain a <em>target age</em> parameter ... which 
+        is <em>keep in memory</em> goal for all pages.</li>
+</UL>
+The new scan algorithm will be:
+</p>
+<pre><code>
+	while ...
+	{
+		// see if this page is old enough to replace
+		owningProc = page->owner;
+		if (page->referenced) {
+			// assume it was just referenced
+			page->lastRef = owningProc->accumulatedTime;
+			page->referenced = 0;
+		} else {
+			// has it gone unreferenced long enough?
+			age = owningProc->accumulatedTime - page->lastRef;
+			if (age > targetAge)
+				return(page);
+		}
+	}
+</code></pre>
+<P>
+The key elements of this algorithm are:
+</p>
+<ul>
+   <li> Age decisions are not made on the basis of clock time, but
+        accumulated CPU time in the owning process.  Pages only age
+	when their owner runs without referencing them.</li>
+   <li> If we find a page that has been referenced since the last scan,
+        we assume it was just referenced.</li>
+   <li> If a page is younger than the target age, we do not want to replace
+        it ... since recycling of young pages indicates we may be thrashing.</li>
+   <li> If a page is older than the target age, we take it away from its
+        current owner, and give it to a new (needy) process.</li>
+   <li> If there are no pages older than the target age, we 
+        probably have too many processes to fit in the available
+	memory, and we need to start swapping some of them out.</li>
+</ul>
+
+<h2>Dynamic Equilibrium to the rescue</h2>
+<P>
+This is often referred to as a <em>page stealing</em> algorithm, because
+a process that needs another page <em>steals</em> it from a process that
+does not seem to need it as much.
+<ul>
+   <li> Every process is continuously losing pages that it has not
+        recently refrenced.</li>
+   <li> Every process is continuously stealing pages from other processes.</li>
+   <li> Processes that reference more pages more often, will accumulate
+        larger working sets.</li> 
+   <li> Processes that reference fewer pages less often will find their
+        working sets reduced.</li>
+   <li> When programs change their behavior, their allocated working sets
+        adjust promptly and automatically.</li>
+</ul>
+</P>
+<P>
+This is a dynamic equilibrium mechanism.  
+The continuously opposing processes of stealing and being stolen from
+will automatically allocate the available memory to the running processes
+in proportion to their working set sizes.  It does not try to manage 
+processes to any pre-configured notion of a reasonable working set size.
+Rather it manages memory to minimize the number of page faults, and 
+to avoid thrashing.
+</P>
+</BODY>
+</HTML>

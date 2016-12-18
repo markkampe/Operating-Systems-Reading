@@ -1,0 +1,252 @@
+<HTML>
+<HEAD>
+<TITLE>Load and Stress Testing</TITLE>
+</HEAD>
+<BODY>
+<CENTER>
+<H1>Load and Stress Testing</H1>
+Mark Kampe<br>
+$Id: loadstress.html 7 2007-08-26 19:52:08Z Mark $<br>
+</CENTER>
+
+<H2>1. Introduction</H2>
+<P>
+Load and Stress Testing is very different from most other testing activities.
+<P>
+For most products, the vast majority of all tests exercise
+positive functional assertions (if situation x, the program will y).
+Such assertions may describe either positive (functionality) or 
+negative (error handling) behavior.
+A typical suite is collection of test cases, each of which has
+the general form:
+<UL>
+    <LI> establish conditions (c<sub>1</sub>, c<sub>2</sub>, ... c<sub>n</sub>)
+    <LI> perform operations (o<sub>1</sub>, o<sub>2</sub>, ... o<sub>n</sub>)
+    <LI> ascertain that assertions (a<sub>1</sub>, a<sub>2</sub>, ... a<sub>n</sub>) are satisfied.
+</UL>
+The art of creating such a test suite is being able to define a set of 
+test cases that simultaneously:
+<OL type=a>
+    <LI> adequately exercises the program's capabilities
+    <LI> adequately captures and verifies the program's behavior
+    <LI> is small enough to be practically implementable
+</ol>
+<P>
+If all operations are performed, and all of the required assertions were
+satisfied, the program has passed the test.  
+Such "functional validation" suites form the foundation for automated
+software testing, and are the primary basis for determining whether
+or not a product "works".  As such, repeatability of results is 
+considered to be very important.
+<P>
+Load and stress testing are quite different:
+<UL>
+    <LI> the number of enumerated test cases is relatively small,
+	 and the particulars of each test case may be particularly
+	 important.
+    <LI> we will run these test cases in pseudo-random orders
+	 for unspecified periods of time.
+    <LI> we have no expectation that results will be repeatable
+	 (we are, in fact, depending on this).
+    <LI> in many cases, there is no definitive pass indication.
+	 Rather, we can only say that the test has run for a 
+	 period of time.
+    <LI> we may not take the trouble to define a complete set of
+	 assertions to determine the correctness with which any
+	 particular operation has been performed.  In some cases
+	 we may not even look at returned results.
+</UL>
+<P>
+This note is a brief introduction to the goals and methods of load
+and stress testing.
+<P>
+
+<H2>2. Load Testing</h3>
+<P>
+The initial (and perhaps still primary) purpose of load testing is
+to measure the ability of a system to provide service at a specified
+load level.  A test harness issues requests to the component under
+test at a specified rate (the offered load), and collects performance
+data.  The collected performance data depends on what is to be measured,
+but typically includes things like:
+<UL>
+    <LI> response time for each request
+    <LI> aggregate throughput
+    <LI> CPU time and utilization
+    <LI> disk I/O operations and utilization
+    <LI> network packets and utilization
+</UL>
+The resulting information can be used to:
+<UL>
+    <LI> measure the system's speed and capacity
+    <LI> analyze bottlenecks to enable improvements
+</UL>
+<P>
+The key ingredient in this process is a tool to generate the
+test traffic.  Such tools are called <strong>load generators</strong>.
+<P>
+<H3>2.1 Load Generation</h3>
+<P>
+A load generator is a system that can generate test traffic, corresponding
+to a specified profile, at a calibrated rate.  This traffic will be used
+to drive the system that is being measured.  Such testing is normally
+performed on a "whole system", and is typically performed through the
+system's primary service interfaces:
+<UL>
+    <LI> If the system to be tested is a network server, the load generator
+	 will pretend to be numerous clients, sending requests over a
+	 network.
+    <LI> If the system to be tested is an application server, the load 
+	 generator will create multiple test tasks to be run.
+    <LI> If the system to be tested is an I/O device, the load generator
+	 will generate I/O requests.
+</UL>
+<P>
+In all cases, the test load is broadly characterized in terms of:
+<UL>
+    <LI> request rate<br>
+	 the number of operations per second
+    <LI> request mix<br>
+	 Different types of clients use a system in different ways.
+	 A database might do a large number of small (and relatively
+	 random) disk reads and writes, while an streaming video 
+	 server would do a much smaller number of huge contiguous
+	 transfers, all reads.
+	 If different types of requests exercise very different
+	 code paths, 
+	 it is important that the load generator be able to accurately
+	 emulate all of the various types of clients.
+    <LI> sequence fidelity<br>
+	 In many situations, it is sufficient to merely generate the
+	 right mix of read and write operations.  In other cases it
+	 may be critical to simulate particular access patterns 
+	 (timed sequences operations on related objects). 
+	 In some situations it may be necessary to simulate realistic
+	 scenarios against pre-determined or random objects.
+</ul>
+<P>
+A good load generator will be tunable in terms of both the overall
+request rate and the mix of operations that is generated.  Some
+load generators may merely generate random requests according to
+a distribution.  Others may have rule grammars that describe typical 
+scenarios, and use these to generate complex realistic usage scenarios.
+<P>
+Most such load generators are proprietary tools, developed and maintained
+by the organizations that build the products they measure.  Some have
+been turned into products (or open source tools) and are widely used.
+Some have become so widely used that they have been adopted as
+"standard performance benchmarks".
+<P>
+<H3>2.2 Performance Measurement</h3>
+<P>
+There are a few typical ways to use a load generator for performance
+assessment:
+<OL type=1>
+   <LI> Deliver requests at a specified rate and measure the response time.
+   <LI> Deliver requests at increasing rates until a maximum throughput
+	is reached.
+   <LI> Deliver requests at a rate, and use this as a calibrated 
+	back-ground for measuring the performance other system services.
+   <LI> Deliver requests at a rate, and use this as a test load for
+	detailed studies performance bottlenecks.
+</ol>
+In the first two usages, the load generator is a measurement tool.
+In the other usages, it provides a calibrated activity mix,
+to exercise the system.
+<P>
+<H3>2.3 Accelerated Aging</h3>
+<P>
+Many errors (e.g. memory leaks) can have trivial consequences, and 
+only accumulate to measurable effects after long periods of time.
+Load generators can be used to create realistic traffic to simulate
+normal traffic for long periods of time.  Alternatively, they can be
+cranked up to much higher rates in order to simulate accelerated aging.
+It is common for test plans to require products to undergo (at least)
+months of continuous load testing to look for the accumulation of
+such problems.
+<H2>3. Stress Testing</h2>
+<P>
+Load generators are (fundamentally) intended to generate request
+sequences that are representative of what the measured system will experience
+in the field.  Accelerated Aging uses cranked up load generators
+to simulate longer periods of use.  If we go farther (into simulating
+scenarios far worse than anything that is ever expected to really
+happen) we enter the realm of stress testing.
+<P>
+Any error that results from a simple situation is likely to be
+easily recognized, tested, and (therefore) properly handled.
+In mature and well tested products, the residual errors tend
+to involve combinations of unlikely circumstances.  
+These problems are much easier to find and fix in design review
+than they are to debug, but we still need to test for them.
+But how can we test for combinations of circumstances that we
+can't even enumerate?
+<P>
+The answer is random stress testing.
+<UL>
+    <LI> use randomly generated complex usage scenarios,
+	 to increase the likelihood of encountering unlikely
+	 combinations of operations.
+    <LI> deliberately generate large numbers conflicting requests
+	 (e.g. multiple clients trying to update the same file).
+    <LI> introduce a wide range randomly generated errors,
+	 and simulated resource exhaustions, so that the system 
+	 is continuously experiencing and recovering from errors.
+    <LI> introduce wide swings in load, and regular overload
+	 situations.
+</UL>
+Such testing takes situations that might normally occur only once
+or twice per year, and makes them occur (in combinations) hundreds
+of times per minute.  Take a large number of such systems, and run
+them in this mode for several months.  
+<strong>This</strong> 
+will give us some serious confidence
+about the robustness and stability of our systems.
+Such testing is extremely demanding, and (in fact) very few software
+products receive (or survive) such testing.  This is, however, typical
+methodology for mission critical and highly available products.
+<P>
+<H2>4. Conclusions</h2>
+<P>
+In the early stages of the product, most of the bugs are found by
+reviews and functional validation tests.  These remain valuable
+(as regression tools) throughout the life of the product, but they
+are not actually expected to find many more bugs once they have
+initially succeeded.  
+<P>
+Once a product has passed this "adolescent" stage, most of the bug
+reports result from new usage scenarios associated with adoption
+by real customers.  There is a wider diversity of use here, and it
+may take a while so shake out all of these problems.  But again, 
+once the product has been brought up to the demands of every-day
+customer use, the number of bug reports resulting from this falls
+off sharply.
+<P>
+If we ignore new features (which are, in some sense, new software),
+the improvements in mature software tend to be in performance and
+robustness.  The tools and techniques for finding functionality
+problems are neither designed nor adequate for driving improvements
+in these areas. 
+Load and stress testing are very different from functional testing.
+The goals are different, the tools are different, the techniques
+are different, and the testing programs are different.
+<P>
+Functional quality starts with good design, and is then complemented
+by good review, and secured by a complete and well considered set of
+functional test suites.  Performance and robustness also start with 
+good design, are complemented by review, and secured by testing.  
+Functionality tools and testing are, for the most part, done when the
+product ships.  Load and stress testing will continue to be a critical
+element of product quality throughout its lifetime, and 
+(unlike functional test cases) the load and stress testing
+tools may receive almost as much design and development attention as 
+the tested product does. 
+<P>
+In mature products, the difference between a good product and
+a great one is often found it the seriousness of the ongoing
+performance and robustness programs.
+<strong>Performance</strong> and <strong>availability</strong> 
+don't just happen.  They must be <strong>earned</strong>.
+<P>
+</BODY>
+</HTML>

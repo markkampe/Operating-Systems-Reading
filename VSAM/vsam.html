@@ -1,0 +1,365 @@
+<HTML>
+<HEAD>
+<TITLE>An Introduction to VSAM Files and Operations</TITLE>
+</HEAD>
+
+<BODY>
+<H2>An Introduction to VSAM Files and Operations</H2>
+<H4>
+Mark Kampe
+<A HREF="mailto:markk@cs.ucla.edu">markk@cs.ucla.edu</A>
+</h4>
+
+<H4>1. Introduction</H4>
+<P>
+An indexed sequential file is comprised of a sequence of 
+records, each of which has one or more unique keys.  
+Records can be read sequentially, 
+but it is also possible to seek directly to any desired 
+record by its key value.  
+The <strong>indexed</strong>
+part of the name comes from the fact that the system 
+maintains an <strong>index</strong> that can be consulted
+(much like an index in a book)
+to find the record number, in the file, associated with
+a particular key.  
+<P>
+IBM's core business has been "Enterprise Servers" and
+commercial databases since long before anybody even knew 
+what an Enterprise Server was.  Today, when we talk about
+databases, most people think of relational databases 
+(which can be searched based on complex queries).  
+Historically, however, most business databases have been
+indexed sequential files.   IBM has been a late-adaptor in
+many Operating System technologies ... but they have always
+been the Market Leaders in indexed sequential file support.
+<P>
+IBM's flagship Indexed Sequential File product is VSAM.
+We will study it in this class because:
+<UL>
+	<LI> it is a good illustration of both the key problems
+	     in indexed sequential files, and how they can be
+	     solved.
+	<LI> it has a very rich feature set, and is in fact
+	     the standard against which other products are
+	     judged.
+	<LI> many of you are likely to encounter it in your
+	     careers.
+</UL>
+
+
+<H4>2. Features of Indexed Sequential Files</H4>
+<P>
+With ordinary sequential files, people expect to be able to read
+the file efficiently (which means a small number of large transfers,
+with minimal head movement).  With indexed sequential files we have
+a few additional expectations:
+<UL>
+	<LI>
+	To be able to locate a given record, based on its key,
+	and fetch it with minimal I/O (ideally a single read).
+	<LI>
+	To be able to insert new records into an existing file,
+	with minimal impact on the average access time for 
+	both sequential and indexed access.
+	<LI>
+	To be able to delete records from a file with minimal
+	impact on the average access time for both sequential
+	and indexed access.
+	<LI>
+	When the database is read sequentially, records are
+	returned in key order (rather than the order in which
+	they were added to the database).
+	<LI>
+	To be able to grow databases to very large numbers of 
+	records, again with minimal impact on the average access
+	time for both sequential and indexed access.
+</UL>
+<P>
+The first thing we think of with indexed sequential files is
+the index ... but it often turns out that efficient insertion,
+and scalable growth are probably the most difficult problems.
+
+There are, however, a great many secondary features that the
+customers of Indexed Sequential files often demand:
+<UL>
+	<LI>
+	In addition to the primary key (which orders records
+	within the database) records can also have additional
+	secondary keys.  Records can be fetched on the basis
+	of any of their keys.
+	<LI>
+	Records can be either fixed length or variable length.
+	VSAM even supports extremely long (i.e. multi-track) records.
+	<LI>
+	In addition to being able to locate records based on
+	key values, it is also possible to seek to records by:
+	<UL>
+		<LI> record number within the file
+		<LI> relative byte address within the file
+	</UL>
+</UL>
+
+<P>
+<H4>3. Structural Overview</H4>
+<P>
+Like all MVS files, VSAM files are comprised of multiple 
+<strong>extents</strong>, each extent being a fairly large
+chunk of contiguous space.  In VSAM each of the contiguous
+extents is called a <strong>Control Area</strong> 
+(or <strong>CA</strong>). 
+<P>
+<h4>Control Areas</h4>
+<P>
+The Control Area is the unit of space allocation, and when there
+is no more room in an existing Control Area, a new Control Area
+is added to the data set.
+<P>
+Each Control Area is divided up into multiple 
+<strong>Control Intervals</strong> (or <strong>CI</strong>s).
+Each Control Interval contains multiple records, but we will
+always read or write an entire Control Interval at a time.
+Thus, the Control Interval is the unit of I/O.
+<P>
+Control Areas are generally made up of tracks in a single cylinder, 
+which means that all of the Control Intervals within a Control
+Area are likely to reside in a single cylinder.  This means
+that seeking from one Control Interval to another (within a 
+Control Area) generally involves no head motion.  VSAM will
+take advantage of this to implement efficient record insertion.
+<P>
+
+<CENTER>
+<IMG src="vsamca.gif">
+</CENTER>
+<P>
+<h4>Control Intervals</h4>
+<P>
+A Control Interval can contain many records.  If the records are 
+not all of constant length, the number of records in each CI
+will also vary.  Also, as we will see when we discuss record
+insertion, all CIs are created with a moderate amount of free
+space (to leave room for newly inserted records).
+<P>
+All of the records in a CI (along with their keys) are packed 
+at the beginning of the CI.  At the end of each CI is a descriptor
+(including a record length) for each record in the CI.  The area
+between the records and their descriptors is free space ... to 
+accommodate new records.
+<P>
+<CENTER>
+<IMG src="vsamci.gif">
+</CENTER>
+<P>
+<H4>VSAM Indices</h4>
+<P>
+The "key" to random access is an index.  
+All VSAM files have at least one primary index (for the primary key).
+If records have multiple keys, there may be multiple indices
+(one for each key).
+<P>
+A VSAM index contains one entry for each active Control Interval.
+The entries are sorted in key order, and each entry contains:
+<UL>
+	<LI> The address of the Control Interval.
+	<LI> The highest key value found in that Control Interval.
+</UL>
+This requires only a few bytes of information per track. 
+This means that VSAM indices tend to be very small, can be
+kept in memory, and can be searched very quickly.
+<P>
+<CENTER>
+<IMG src="vsamix.gif">
+</CENTER>
+<P>
+Note that keys may be sparse (e.g. the existence of records with keys
+A104JM326 and A104JM328 does not imply there is a record A104JM327).
+If the index says that CI #124 contains records up to A104JL300 and
+that CI #125 contains records up to A104JM400, we can infer that
+if there is a record A104JM327, it should be found in CI #125.  If
+we look in CI #125 and do not find it, we can safely infer that
+there is no such record in the file.
+<P>
+
+<H4>4. Finding a Desired Record</h4>
+<P>
+To find a desired record we must search the Index to find the
+first Control Interval that contains a key greater than or 
+equal to the one we want.  Because the index is made up of
+fixed-sized entries, we can do a binary search to find the
+desired entry very quickly.
+<P>
+Once we find the appropriate index entry, it will point us to the
+Control Interval that <strong>should</strong> contain the record
+we want.  We can then read in that CI, and search it for the
+desired record.
+<P>
+The records, within the Control Interval, are in key-order, so
+we can stop our search as soon as we find either the key we want
+or a key value higher than the one we want.  In the latter case
+we can infer that the requested record does not (yet) exist.
+<P>
+If we keep the index in memory, this entire operation can be
+done with one disk reads, and two quick in-memory searches.  This
+satisfies our goal of efficient random-access.
+<P>
+
+<H4>5. Record Insertion</h4>
+<P>
+When we insert a new record into the file, our primary goal is
+to insure that any changes we make to the file organization do
+not significantly slow down sequential or random-access processing.
+Our secondary goal is to minimize the time and I/O required to
+perform the insertion.  VSAM uses the CA/CI organization to
+help it achieve both of these goals.
+<P>
+In the simplest case, we read in the appropriate Control Interval,
+and insert the new record into it (shifting higher-keyed records
+forward into the free-space), and then write the Control Interval
+back out to disk again.  One read, and one write.
+<P>
+What if there is insufficient room, in that Control Interval, for
+the new record?  In this case we find an unallocated Control Interval
+in the same Control Area, and we then move half of the records in
+the current (full) Control Interval into the new one.  After this,
+each of the two Control Intervals will be only half-full, and there
+should be ample room for inserting the desired record into the
+appropriate CI.  This requires one read and two writes to update
+the CIs ... and we will also have to update the index (to know
+about the new Control Interval).   After this overflow, it will
+take one extra read to process the database (to read the new
+Control Interval) but (because the new CI is in the same cylinder
+as the old one) there should be no additional head motion.
+<P>
+What if there are no free CIs left in the current CA?  This is
+a bigger problem.  In this case, we allocate a whole new extent
+to the file and create it as a new Control Area.  We then take
+half of the Control Intervals in the current (full) CA (e.g.
+the lowest keyed half), and move them into the new CA.  Once
+this is done, there will be ample free CIs in both CAs, and
+it should be a long time before another such overflow occurs.
+CA overflow involves a lot of I/O, followed by a lot of index 
+updating.  Note, however, that CIs for closely related keys are
+still in the same CA, so there will not be much additional 
+head motion when processing the file sequentially.
+<P>
+
+
+<H4>6. Sequential File Access</h4>
+<P>
+To process the file sequentially, we merely read in the Control Intervals,
+in the order in which they are listed in the index.  If there have been
+many insertions and overflows, there may be considerable seeking back
+and forth between Control Intervals.
+Seeking back and forth between Control Intervals may involve some
+rotational latency delays, but will not involve any head motion
+(because all CIs in a CA are usually in the same cylinder).
+After processing
+all of the Control Intervals within one Control Area, we will have to 
+reposition the heads to access the next Control Area, but there will
+be no further head motion until we have processed all of its Control Intervals.
+<P>
+Thus, even after numerous insertions and overflows, we are still able
+to sequentially read the entire file in large reads (one CI or track
+at a time) and with minimal head movement.  This satisfies our goal
+of efficient sequential access.
+<P>
+
+<H4>7. VSAM Free Space Management</h4>
+<P>
+The CA/CI structure of VSAM makes it possible to handle insertion
+overflows with minimal head motion ... but any time we overflow a
+CI we will have to do extra I/O (to a new CI).  The I/O associated
+with overflowing a CA is horrendous ... but fortunately this doesn't
+happen very often.  The way to minimize this extra I/O is to 
+minimize insertion overflows:
+<UL>
+	<LI> Don't fill up the Control Intervals.  
+	Leave free space in each CI to accommodate new record
+	insertions without overflowing into another CI.
+	<LI> Don't fill up the Control Areas.
+	Leave several unallocated Control Intervals in each
+	Control Area, so that when a CI does overflow, we can
+	find overflow space in the same Control Area, and avoid
+	having to allocate and overflow into a new Control Area.
+</UL>
+<P>
+Leaving empty space in each Control Interval reduces I/O efficiency.
+If 20 records would fit in a track, but we decide to leave 50% free
+space in each Control Interval, we would double the number of tracks
+we have to read in order to process the database.
+Leaving unallocated Control Intervals in a Control Area further
+increases the disk space required to hold our database.
+<P>
+Thus there is tradeoff to be made between the database size, 
+sequential processing time, and the efficiency of new record 
+insertions.  If we leave very little free space in the database,
+it will be smaller and faster to process sequentially, but it
+will experience many expensive insertion overflows.  If we leave
+a great deal of free space we can greatly reduce the number of
+insertion overflows, but we will pay for it in greatly increased
+disk space and sequential processing time.  TANSTAAFL!
+<P>
+Data base administrators have to weigh these trade-offs, and decide
+what the optimum free space margin is, given their expectations for
+database size, growth, and processing.
+<P>
+We can create a database with nicely distributed free-space, and
+well allocated Control Intervals ... but after a few million record
+insertions and deletions the free space distribution will not be
+as good, and processing time will steadily increase.  For this
+reason, VSAM database administrators periodically recreate their
+databases ... writing out all the records to tape, and then reading
+them back into a brand-new database, with well distributed free space.  
+This has many of the same
+advantages as defragmentation in FAT file systems.
+<P>
+
+<H4>8. Summary</h4>
+<P>
+For many years IBMs <strong>Indexed Sequential Access Method</strong>
+(<strong>ISAM</strong>) was the industry standard for databases.  Its
+successor (<strong>VSAM</strong>) remains a strong force in the market,
+even after the advent of more sophisticated relational databases.
+<P>
+The structure of VSAM files, and the record insertion process may
+seem very complex when compared with simpler (e.g. DOS FAT) file 
+systems ... but DOS FAT files don't support keyed access or record
+insertion, and are significantly slower than VSAM files even
+for simple sequential reading.  Given the problems to be solved, the
+VSAM mechanisms are elegantly simple.
+<P>
+While indexed sequential files have some unique requirements, 
+almost all modern file systems are designed to mitigate the 
+unique performance characteristics of movable head rotating 
+magnetic media.  
+VSAM was designed to ensure efficient sequential processing (large
+transfers with few seeks), and is capable of delivering this even
+after record insertions have increased the size of the database by 
+an order of magnitude.  
+Until rotating magnetic media is replaced by a new technology
+with very different access time characteristics, the lessons
+of VSAM will continue to be a good foundation for understanding 
+almost any other file system.
+<P>
+The basic technique of leaving free space in each cylinder so that
+related records can be inserted without introducing gratuitous head
+motion is a key principle in file system design.  When Bill Joy
+at UC Berkeley set out to improve the performance of UNIX file
+systems, the Cylinder Clusters he introduced were very similar
+in principle to VSAM's Control Areas.
+<P>
+
+<H4>9. References</h4>
+<P>
+
+IBM VSE/VSAM V6R1 User's Guide<br>
+Document SC33-6632-00, 
+<A Href=http://publibz.boulder.ibm.com/cgi-bin/bookmgr_OS390/BOOKS/IESVUE00>
+	IBM Library Server, book IESVUE00</A>
+
+
+</BODY>
+</HTML>
+
+

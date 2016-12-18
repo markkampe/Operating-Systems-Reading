@@ -1,0 +1,318 @@
+<html>
+<head>
+<title>Software Interface Standards</title>
+</head>
+<body>
+<center> <H1>
+Software Interface Standards
+</H1></center>
+<h2>Introduction</h2>
+<P>
+Over two-thousand years ago, Carthage defined standard component sizes for their naval vessels, 
+so that parts from one ship could be used to repair another.  Slightly more recently, George 
+Washington gave Eli Whitney a contract to build 12,000 muskets with interchangeable parts.
+The standardization of component interfaces makes it possible to successfully combine or 
+recombine components made at different times by different people.
+</P>
+<P>
+In the last half-century we have seen tremendous advances in both electronics and software, 
+many of which are attributable to the availability of powerful, off-the-shelf components 
+(integrated circuits, and software packages) that can be used to design and 
+develop new products.  We no longer have to reinvent the wheel for each new 
+project, freeing us to focus our time and energy on the novel elements of 
+each new design.  As with ship and musket parts, the keys to this 
+are interchangeability and interoperability: confidence that independently 
+manufactured components will fit and work together.   
+This confidence comes from the availability of and compliance with detailed component specifications.
+</P>
+<P>
+In the early days of the computer industry, much key software (operating systems, 
+compilers) was developed by hardware manufacturers, for whom compatibility was an 
+anti-goal.  If a customer's applications could only run on their platform, 
+it would be very expensive/difficult for that customer to move to a competing 
+platform.  Later, with the rise of Independent Software Vendors (ISVs) 
+and <em>killer applications</em>, the situation was reversed:
+<ul>
+	<li>The cost of building different versions of an application for different 
+	hardware platforms was very high, so the ISVs wanted to do as few ports as possible.</li>
+
+	<li>Computer sales were driven by the applications they could support.  
+	If the ISVs did not port their applications to your platform, you would 
+	quickly lose all of your customers.</li>
+
+	<li>Software Portability became a matter of life and death for both the 
+	hardware manufacturers and the software vendors.</li>
+</ul>
+If applications are to be readily ported to all platforms, all platforms must 
+support the same services.  This means that we need detailed specifications for 
+all services, and comprehensive compliance testing to ensure the correctness 
+and compatability of those implementations.
+</P>
+<P>
+The other big change was in who the customers for computers and software were.  
+In the 1960s, most computers were used in business and technology, and the 
+people who used computers were professional programmers: trained and prepared 
+to deal with the adverse side effects of new software releases.  Today, most 
+computers are in tablets, phones, cars, televisions, and appliances; and 
+the people who use them are ordinary consumers who expect them 
+to just work. These changes imply that:
+<ul>
+	<li> New applications have to work on both old and new devices.  </li>
+
+	<li> Software upgrades (e.g. to the underlying operating system) 
+	cannot break existing applications.</li>
+</ul>
+But the number of available applications, and the independent development 
+and delivery of OS upgrades and new applications make it impossible to 
+test every application with every OS version (or vice versa).  
+If the combinatorics of the problem render complete testing impossible, 
+we have to find another way to ensure that whatever combination of 
+software components wind up on a particular device will work together.  
+And again, the answer is detailed specifications and comprehensive compliance testing.
+</P>
+<P>
+The last forty years have seen a tremendous growth in software standards 
+organization participation (both by technology providers and consumers) and the 
+the scope, number, and quality of standards.
+
+<h2> Challenges of Software Interface Standardization</h2>
+Interface standards are a two-edged sword:
+<ul>
+	<li>On the positive side, they give technology suppliers 
+	considerable freedom to explore alternative implementations 
+	(to improve reliability, performance, portability, maintainability), 
+	as long as they maintain the specified external behavior.  
+	Any implementation that conforms to the standard should work with all 
+	existing and future clients.</li>
+
+	<li>At the same time, they greatly constrain the range of 
+	possible implementations.  An interface will specify who provides 
+	what information, in what form, at what time.  
+	It might be possible to provide a much better implementation of 
+	that functionality, if slightly different information could be provided at 
+	a different time.  But if the new interfaces are not 100% upwards 
+	compatible with the old ones, the improved design would be non-compliant.</li>
+
+	<li>Interface standards also impose constraints on their consumers.  
+	An application that has been written to a well-supported standard 
+	can have high confidence of working on any compliant platform.  
+	But this warrantee is voided if the application uses any feature 
+	in any way that is not explicitly authorized by the standard.  
+	An application that uses non-standard features (or standard features 
+	in non-standard ways) is likely to encounter problems on new platforms 
+	or with new releases of the software providing those features.</li>
+</ul>
+</P>
+<P>
+These trade-offs are fundamental to all standards.  But there are additional 
+considerations that make software interface standards particularly difficult.
+
+<h3>Confusing interfaces with Implementations</h3>
+
+Engineers are inclined to think in terms of design: 
+how we will solve a particular problem?  
+But interface standards should not specify design.  
+Rather they should specify behavior, in as implementation-neutral 
+a way as possible.  But true implementation neutrality is very 
+difficult, because existing implementations often provide the 
+context against which we frame our problem statements.  
+It is common to find that a standard developed ten years ago 
+cannot reasonably be extended to embrace a new technology 
+because it was written around a particular set of implementations.
+</P>
+<P>
+The other way this problem comes about is when the interface specifications are written after the fact (or worse by reverse engineering):
+<ul>
+	<li>Since the implementation was not developed to or tested 
+	    against the interface specification, it may not actually 
+	    comply with it.</li>
+	<li>In the absence of specifications, it may be difficult to 
+	    determine whether particular behavior is a fundamental part 
+	    of the interface or a peculiarity of the current implementation.</li>
+</ul>
+</P>
+<P>
+A common piece of Management 1A wisdom is: 
+<ul>
+"If it isn't in writing, it doesn't exist"  
+</ul>
+This is particularly true of interface specifications.
+
+<h3>The rate of evolution, for both technology and applications</h3>
+
+The technologies that go into computers are evolving quickly 
+(e.g. Wifi, Bluetooth, USB, power-management, small screen 
+mobile devices), and our software must evolve to exploit them.  
+The types of applications we develop are also evolving dramatically 
+(e.g. from desk-top publishing to social networking).   
+Nobody would expect to be able to pull the engine out of an 
+old truck and drop-in replace it with a new hybrid electric motor.  
+Yet everybody expects to be able to run the latest apps on their 
+ancient phone, laptop or desktop for as long as it keeps running.
+</P>
+<P>
+Maintaining stable interfaces in the face of fast and dramatic evolution is 
+extremely difficult.  Microsoft Windows was designed as a single-user 
+Personal Computer operating system - making it very difficult to extend its 
+OS service APIs to embrace the networked applications and large servers 
+that dominate today's world.  
+When faced with such change we find ourselves forced to choose between:
+<ul>
+	<li>Maintaining strict compatibility with old interfaces, 
+	    and not supporting new applications and/or platforms.  
+	    This is (ultimately) the path to obsolescence.</li>
+	<li>Developing new interfaces that embrace new technologies 
+	    and uses, but are incompatible with older interfaces and 
+	    applications.  This choice sacrifices existing customers 
+	    for the chance to win new ones.</li>
+	<li>A compromise that partially supports new technologies and 
+	    applications, while remaining mostly compatible with old 
+	    interfaces.   This is the path most commonly taken, but 
+	    it often proves to be both un-competitive and incompatible.</li>
+</ul>
+</P>
+<P>
+There is a fundamental conflict between stable interfaces and embracing change.
+
+<h3>Proprietary vs Open Standards</h3>
+A <em>Proprietary</em> interface is one that is developed and controlled by
+a single organization (e.g. the Microsoft Windows APIs).  An <em>Open Standard</em>
+is one that is developed and controlled by a consortium of providers and/or 
+consumers (e.g. the IETF network protocols).
+Whenever a technology provider develops a new technology they must make a decision:
+<ul>
+   <li>Should they open their interface definitions to competitors, 
+       to achieve a better standard, more likely to be widely adopted?  
+       This costs of this decision are:
+   <ul>
+	<li>Reduced freedom to adjust interfaces to respond 
+	    to conflicting requirements.</li>
+	<li>Giving up the competitive advantage that might come 
+	    from being the first/only provider.</li>
+	<li>Being forced to re-engineer existing implementations 
+	    to bring them into compliance with committee-adopted interfaces.</li>
+   </ul>
+   </li>
+   <li>Should they keep their interfaces proprietary, perhaps under 
+       patent protection, to maximize their competitive advantage?  
+       The costs of this decision are:
+       <ul>
+	<li>If a competing, open standard evolves, and ours is not 
+	    clearly superior, it will eventually lose and our market 
+	    position will suffer as a result.
+	<li>Competing standards fragment the market and reduce adoption.
+	<li>With no partners, we will have to shoulder the full costs of 
+	    development and evangelization.  In an open standards consortium, 
+	    these costs would be distributed over many more participants.
+       </ul>
+    </li>
+</ul>
+</P>
+<P>
+This dilemma often complicates the development of interface standards.  
+The participants may not only be trying to develop strong standards;  
+Many are also trying to gain market position and protect prior investments.
+
+<H2>Application Programming Interfaces</h2>
+Most of the time, when we look up and exploit some service, we are 
+working with Application Programming Interfaces (APIs).  
+A typical API specification is <em>open(2)</em>, which includes:
+<ul>
+	<li>A list of included routines/methods, and their signatures (parameters, return types)</li>
+	<li>A list of associated macros, data types, and data structures</li>
+	<li>A discussion of the semantics of each operation, and how it should be used</li>
+	<li>A discussion of all of the options, what each does, and how it should be used</li>
+	<li>A discussion of return values and possible errors</li>
+</ul>
+The specifications may also include or refer to sample usage scenarios.
+</P>
+<P>
+The most important thing to understand about API specifications is that they are written at the source programming level (e.g. C, C++ , Java, Python).  They describe how source code should be written in order to exploit these features.  API specifications are a basis for software portability, but applications must be recompiled for each platform:
+<ul>
+	<li>The benefit for applications developers is that an application written to a 
+	    particular API should easily recompile and correctly execute on any platform that supports that API.</li>
+	<li>The benefit for platform suppliers is that any application 
+	    written to supported APIs should easily port to their platform.</li>
+</ul>
+</P>
+<P>
+But this promise can only be delivered if the API has been defined in a platform-independent way:
+<ul>
+	<li>An API that defined some type as int (implicitly assuming that 
+	    to be at least 64 bits wide) might not work on a 32 bit machine.</li>
+	<li>An API that accessed individual bytes within an int might 
+	    not work on a big-endian machine.</li>
+	<li>An API that assumed a particular feature implementation 
+	    (e.g. <em>fork(2)</em>) might not be implementable on some platforms (e.g. Windows).</li>
+</ul>
+</P>
+<P>
+One of the many advantages of an Open Standard is that diverse participants will 
+find and correct these problems.
+
+<H2> Application Binary Interfaces</h2>
+Well defined and widely supported Application Programming Interfaces 
+are very good things, but they are not enough.  If you are reading 
+this, you are probably fully capable of re-compiling an application 
+for a new platform, given access to the sources.  But most users do 
+not have access to the sources for most of the software they use, 
+and probably couldn't successfully compile it if they did.   
+Most people just want to download a program and run it.
+</P>
+<P>
+But (if we ignore interpreted languages like Java and Python) executable 
+programs are compiled (and linkage edited) for a particular instruction 
+set architecture and operating system.  How is it possible to build 
+a binary application that will (with high confidence) run on any 
+Android phone, or any x86 Linux?  This problem is not addressed by 
+(source level) Application Programming Interfaces.  This problem is addressed 
+by Application Binary Interfaces (ABIs):
+</P>
+<UL>
+	<u>An Application Binary Interface is the binding of an
+	Application Programming Interface to an Instruction Set Architecture.</u>
+</UL>
+<P>
+An API defines subroutines, what they do, and how to use them.  
+An ABI describes the machine language instructions and conventions that are used 
+(on a particular platform) to call routines.  A typical ABI contains things like:
+<ul>
+	<li>The binary representation of key data types</li>
+	<li>The instructions to call to and return from a subroutine</li>
+	<li>Stack-frame structure and respective responsibilities of the caller and callee</li>
+	<li>How parameters are passed and return values are exchanged</li>
+	<li>Register conventions (which are used for what, which must be saved and restored)</li>
+	<li>The analogous conventions for system calls, and signal deliveries</li>
+	<li>The formats of load modules, shared objects, and dynamically loaded libraries</li>
+</ul>
+</P>
+<P>
+The portability benefits of an ABI are much greater than those for an API.  
+If an application is written to a supported API, and compiled and 
+linkage edited by ABI-compliant tools, the resulting binary load 
+module should correctly run, unmodified, on any platform that supports that ABI.  
+A program compiled for the x86 architecture on an Intel P6 running Ubuntu 
+can reasonably be expected to execute correctly on an AMD processor running 
+FreeBSD or (on a good day) even Windows.  As long as the CPU and 
+Operating System support that ABI, there should be no need to recompile 
+a program to be able to run it on a different CPU, Operating System, 
+distribution, or release.  This much stronger portability to a much wider 
+range of platforms makes it practical to build and distribute binary 
+versions of applications to large and diverse markets (like PC or Android users).
+
+<h3>Who actually uses the Application Binary Interfaces</h3>
+Most programmers will never directly deal with an ABI, as it is primarily used by:
+<ul>
+	<li>the compiler, to generate code for procedure entry, exit, and calls</li>
+	<li>the linkage editor, to create load modules</li>
+	<li>the program loader, to read load modules into memory</li>
+	<li>the operating system (and low level libraries) to process system calls</li>
+</ul>
+</P>
+<P>
+But it is occasionally used by programmers who need to write assembly 
+language subroutines (for efficiency or privileged operations) that 
+can be called from a higher level language (e.g. C or C++).
+
+</body>
+</html>

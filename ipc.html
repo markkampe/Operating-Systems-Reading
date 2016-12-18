@@ -1,0 +1,268 @@
+<html>
+<head>
+<title>Inter-Process Communication</title>
+</head>
+<body>
+<center><h1>Inter-Process Communication</h1></center>
+<H2>Introduction</h2>
+
+We can divide process interactions into a two broad categories:
+<ol>
+   <li> the coordination of operations with other processes:</li>
+   <ul>
+       <li>synchronization (e.g. mutexes and condition variables)</li>
+       <li>the exchange of signals (e.g. <em>kill(2)</em>)</li>
+       <li>control operations (e.g. <em>fork(2)</em>, <em>wait(2)</em>, <em>ptrace(2)</em>)</li>
+   </ul>
+   <li> the exchange of data between processes: </li>
+   <ul>
+       <li>uni-directional data processing pipelines</li>
+       <li>bi-directional interactions</li>
+   </ul>
+</ol>
+The first of these are discussed in other readings and lectures.
+This is an introduction to the exchange of data between processes.
+
+<H2>Simple Uni-Directional Byte Streams</H2>
+<P>
+These are easy to create and trivial to use.
+A pipe can be opened by a parent and inherited by a child, who simply
+reads standard input and writes standard output.
+Such pipelines can be used as part of a standard processing model:
+</P>
+<pre>
+	macro-processor | compiler | assembler > output
+</pre>
+or as custom constructions for one-off tasks:
+<pre>
+	find . -newer $TIMESTAMP | grep -v '*.o' | tar cfz archive.tgz -T -
+</pre>
+All such uses have a few key characteristics in common:
+<UL>
+   <li> Each program accepts a byte-stream input, and produces a
+        byte-stream output that is a well defined function of
+	the input.</li>
+   <li> Each program in the pipe-line operates independently, and
+        is unaware that the others exist or what they might do.</li>
+   <li> Byte streams are inherently unstructured.  If there is any 
+        structure to the data they carry (e.g. newline-delimited 
+	lines or comma-separated-values) these conventions are
+	implemented by parsers in the affected applications.</li>
+   <li> Ensuring that the output of one program is suitable input
+        to the next is the responsibility of the agent who creates
+	the pipeline.</li>
+   <li> Similar results could be obtained by writing
+        the output of each program into a (temporary) file, and 
+	then using that file as input to the next program.
+	</li>
+</UL>
+<P>
+Pipes are temporary files with a few special features, that
+recognize the difference between a file (whose contents
+are relatively static) and an inter-process data stream:
+<UL>
+   <li>If the reader exhausts all of the data in the pipe,
+       but there is still an open write file descriptor, 
+       the reader does not get an <em>End of File</em>(EOF).
+       Rather the reader is blocked until more data becomes
+       available, or the write side is closed.</li>
+   <li>The available buffering capacity of the pipe may
+       be limited.  If the writer gets too far ahead of 
+       the reader, the operating system may block the
+       writer until the reader catches up.  This is
+       called <em>flow control</em>.</li>
+   <li>Writing to a pipe that no longer has an open
+       read file descriptor is illegal, and the writer
+       will be sent an exception signal (SIGPIPE).</li>
+   <li>When the read and write file descriptors are both
+       closed, the file is automatically deleted.</li>
+</UL>
+</P>
+<P>
+Because a pipeline (in principle) represents a closed system, the
+only data privacy mechanisms tend to be the protections on the 
+initial input files and final output files.  There is generally
+no authentication or encryption of the data being passed between
+successive processes in the pipeline.
+</P>
+<H2>Named Pipes and Mail-Boxes</H2>
+<P>
+A named-pipe (<em>fifo(7)</em>) is a baby-step towards explicit connections.
+It can be thought of as a persistent pipe, whose reader and writer(s) can
+open it by name, rather than inheriting it from a <em>pipe(2)</em> system
+call.  
+A normal pipe is custom-plumbed to interconnect processes started
+by a single user.
+A named pipe can be used as a rendezvous point for unrelated processes.
+Named pipes are almost as simple to use as ordinary pipes, but ...
+</P>
+<UL>
+   <li>Readers and writers have no way of authenticating one-another's identities.</li>
+   <li>Writes from multiple writers may be interspersed, with no indications of
+       which bytes came from whom.</li>
+   <li>They do not enable clean fail-overs from a failed reader to its successor.</li>
+   <li>All readers and writers must be running on the same node.</li>
+</UL>
+Recognizing these limitations, some operating systems have crated more
+general inter-process communication mechanisms, often called <em>mailboxes</em>.
+While implementations differ, common features include:
+<ul>
+   <li>Data is not a byte-stream.  Rather each write is stored and delivered 
+       as a distinct message.</li>
+   <li>Each write is accompanied by authenticated identification information
+       about its sender.</li>
+   <li>Unprocessed messages remain in the mailbox after the death of a
+       reader and can be retrieved by the next reader.</li>
+</ul>
+<P>
+But mailboxes still subject to single node/single operating system restrictions,
+and most distributed applications are now based on general and widely standardized
+network protocols.
+</P>
+<H2>General Network Connections</H2>
+<P>
+Most operating systems now provide a fairly standard set of network
+communications APIs.  The associated Linux APIs ar:
+<UL>
+   <li><em>socket(2)</em> ... create an inter-process communication end-point
+   	with an associated protocol and data model.
+   </li>
+   <li><em>bind(2)</em> ... associate a <em>socket</em> with a local network address.
+   </li>
+   <li><em>connect(2)</em> ... establish a connection to a remote network address.
+   </li>
+   <li><em>listen(2)</em> ... await an incoming connection request.
+   </li>
+   <li><em>accept(2)</em> ... accept an incoming connection request.
+   </li>
+   <li><em>send(2)</em> ... send a message over a socket.
+   </li>
+   <li><em>recv(2)</em> ... receive a message from a socket.
+   </li>
+</UL>
+These APIs directly provide a range of different communications options:
+<UL>
+   <li> byte streams over reliable connections (e.g. TCP)</li>
+   <li> best effort data-grams (e.g. UDP)</li>
+</UL>
+But they also form a foundation for higher level communication/service models.
+A few examples include:
+<UL>
+   <LI>Remote Procedure Calls ... distribued request/response APIs.</li>
+   <LI>RESTful service models ... layered on top of HTTP GETs and PUTs.</li>
+   <LI>Publish/Subscribe services ... content based information flow.</li>
+</UL>
+<P>
+Using more general networking models enables processes to interact with
+services all over the world, but this adds considerable complexity:
+<UL>
+   <LI>Ensuring interoperability with software running under differerent
+       operating systems on computers with different instruction set architectures.</li>
+   <LI>Dealing with the security issues associated with exchanging data and
+       services with unknown systems over public networks.</li>
+   <LI>Discovering the addresses of (a constantly changing set of) servers.</li>
+   <LI>Detecting and recovering from (relatively common) connection and node failures.</li>
+</UL>
+<P>
+Applications are forced to choose between a simple but strictly
+local model (pipes) or a general but highly complex model
+(network communications).  
+But there is yet another issue: performance.
+Protocol stacks may be many
+layers deep, and data may be processed and copied many times.
+Network communication may have limited throughput, and high
+latencies.
+</P>
+
+<H2>Shared Memory</H2>
+<P>
+Sometimes performance is more important than generality.
+<UL>
+   <li>The network drivers, MPEG decoders, and video rendering
+       in a set top box are guaranteed to be local.  Making
+       these operations more efficient can greatly reduce
+       the required processing power, resulting in a smaller
+       form-factor, reduced heat dissipation, and a lower
+       product cost.</li>
+   <li>The network drivers, protocol interpreters, write-back
+       cache, RAID implementation, and back-end drivers in a 
+       storage array are guaranteed to be local.  Significantly
+       reducing the execution time per write operation is
+       the difference between an industry leader and road-kill.</li>
+</UL>
+High performance for Inter-Process Communication means generally means:
+<UL>
+   <li>efficiency ... low cost (instructions, nano-seconds, watts) per byte transferred.</li>
+   <li>throughput ... maximum number of bytes (or messages) per second that can be transferred.</li>
+   <li>latency ... minimum delay between sender write and receiver read.</li>
+</UL>
+If we want ultra high performance Inter-Process Communication
+between two local processes, buffering the data through the
+operating system and/or protocol stacks is not the way to get it.
+The fastest and most efficient way to move data between processes
+is through shared memory:
+</p>
+<ul>
+   <li> create a file for communication.</li>
+   <li> each process maps that file into its virtual address space.</li>
+   <li> the shared segment might be locked-down, so that it is never paged out.</li>
+   <li> the communicating processes agree on a set of data structures
+        (e.g. polled lock-free circular buffers) in the shared segment.</li>
+   <li> anything written into the shared memory segment will be immediately
+        visible to all of the processes that have it mapped in to their
+	address spaces.</li>
+</ul>
+<P>
+Once the shared segment has been created and mapped into the participating
+process' address spaces, the Operating System plays no role in the
+subsequent data exchanges.
+Moving data in this way is extremely efficient and blindingly fast ... 
+but (like all good things) this performance comes at a price:
+</p>
+<ul>
+   <li>This can only be used between processes on the same memory bus.</li>
+   <li>A bug in one of the processes can easily destroy the communications
+       data structures.</li>
+   <li>There is no authentication (beyond access control on the shared file)
+       of which data came from which process.</li>
+</ul>
+
+<H2>Network Connections and Out-of-Band Signals</H2>
+<P>
+In most cases, event completions can be reported simply by sending
+a message (announcing the completion) to the waiter.  
+But what if there are megabytes of queued requests, and we want to 
+send a message to abort those queued requests?
+Data sent down a network connection is FIFO ... and one of the
+problems with FIFO schdeduling is the delays 
+waiting for the processing of earlier but longer messages.
+Occasionally, we would like to make it possible for an
+important message to go directly to front of the line.
+</P>
+<P>
+If the recipient was local, we might consider sending a
+signal that could invoke a registered handler, and flush
+(without processing) all of the bufferred data.  This
+works because the signals travel over a different
+channel than the buffered data.  Such communication
+is often called <em>out-of-band</em>, because it
+does not travel over the normal data path.
+</P>
+We can achieve a similar effect with network based
+services by opening multiple communications channels:
+<ul>
+   <li>one heavily used channel for normal requests</li>
+   <li>another reserved for out-of-band requests</li>
+</ul>
+The server on the far end periodically polls the
+out-of-band channel before taking requests from the
+normal communications channel.  This adds a little
+overhead to the processing, but makes it possible
+to preempt queued operations.  The choosen polling
+interal represents a trade-off between added overhead
+(to check for out-of-band messages) and how long
+we might go (how much wasted work we might do)
+before noticing an out-of-band message.
+</P>
+</body>
+<html>

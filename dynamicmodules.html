@@ -1,0 +1,269 @@
+<html>
+<head>
+<title>Dynamically Loadable Kernel Modules</title>
+</head>
+<body>
+<center><h1>Dynamically Loadable Kernel Modules</h1></center>
+<H2>Introduction</h2>
+<P>
+We often design systems to provide a common framework, 
+but that expect problem-specific implementations to be
+provided at a later time.
+This approach is embraced by several standard design patterns (e.g.
+<a href="https://en.wikipedia.org/wiki/Strategy_pattern">Strategy</A>,
+<a href="https://en.wikipedia.org/wiki/Factory_method_pattern">Factory</A>,
+<a href="http://martinfowler.com/eaaCatalog/plugin.html">Plug-In</A>).
+These approaches have a few key elements in common:
+<ul>
+   <li> all implementations provide similar functionality in accordance with
+        a common <em>interface</em>.</li>
+   <li> the selection of a particular implementation can be deffered until run time.</li>
+   <li> decoupling the overarching service from the plug-in implementations
+        makes it possible for a system to work with a potentially open-ended 
+	set of of algorithms or adaptors.
+</ul>
+</P>
+<P>
+In most programs the set of available implementations is locked in at build-time.
+But many systems have the ability to select and load new implementations at
+run time as <em>dynamically loadable modules</em>.  We see this with
+browser plug-ins.  Operating systems may also support many different types
+of dynamically loadable modules (e.g. file systems, network protocols,
+device drivers).  Device drivers are a particularly important and rich class 
+of dynamically loadable modules ...  and therefore a good example to study.
+</p>
+<P>
+There are several compelling reasons for wanting device drivers to be dynamically 
+loadable:
+<ul>
+   <li> the number of possible I/O devices is far too large to
+        build all of them in to the operating system. </li>
+   <li> if we want an operating system to automatically work on any
+   	computer, it must have the ability to automatically identify 
+	and load the required device drivers.</li>
+   <li> many devices (e.g. USB) are hot-pluggable, and we cannot know
+   	what drivers are required until the the associated device is
+	plugged in to the computer.</li>
+   <li> new devices become available long after the operating
+    	system has been shipped, and so must be <em>after market</em> addable.</li>
+   <li> most device drivers are developed by the hardware manufacturers,
+        and delivered to customers independently from the operating system.</li>
+</ul>
+</p>
+
+<H2>Choosing Which Module to Load</h2>
+<P>
+In the abstract, a program needs an implementation and calls a <em>Factory</em> to
+obtain it.  But how does the Factory know what implementation class to instantiate?
+<UL>
+   <li>	for a browser plugin, there might be a MIME-type assocated with the
+   	data to be handled, and the browser can consult a registry to find
+	the plug-in associated with that MIME-type.  This is a very general
+	mechanism ... but it presumes that data is tagged with a type, and
+	that somebody is maintaining a tag-to-plugin registery.</li>
+   <li>	at the other extreme, the Factory could load all of the known
+   	plug-ins and call a <em>probe</em> method in each to see which (if any)
+	of the plug-ins could identify the data and claim responsibility for
+	handling it.</li>
+</UL>
+</P>
+<P>
+Long ago, dynamically loadable device drivers used the probing process, but 
+this was both unreliable (might incorrectly accept the wrong device) and
+dangerious (touching random registers in random devices).  Today most
+I/O busses support self-identifying devices.  Each device has type,
+model, and even serial number information that can be queried in a 
+standard way (e.g. by <em>walking the configuration space</em>).  
+This information can be used, in combination with a 
+device driver registry, to automatically select a driver
+for a given device.  These registries may support precedence
+rules that can chose the best from among multiple competing drivers
+(e.g. a generic VGA driver, a GeForce driver, and a GeForce GTX 980 driver).
+</P>
+<H2>Loading a New Module</H2>
+<P>
+In many cases, the module to be loaded may be entirely self-contained (it 
+makes no calls outside of itself) or uses only standard shared libraries
+(which are expected to be mapped in to the address space at well known
+locations).  In these cases loading a new module is as simple as allocating
+some memory (or address space) and reading the new module into it.
+</P>
+<P>
+In many cases (including device drivers and file systems) the dynamically
+loaded module may need to make use of other functions (e.g. memory allocation,
+synchronization, I/O) in the program into which it is being added.
+This means that the module to be loaded will (like an object module)
+have unresolved external
+references, and requires a <em>run-time loader</em> (a simplified linkage
+editor) that can look up and adjust all of those references as the
+new module is being loaded.
+</P>
+<P>
+Note, however, that these references can only be 
+<u>from the dynamically 
+loaded module into the program into which it is loaded</u>
+(e.g.  the operating system).  The main program can never have any direct
+references into the dynamically loaded module ... because the 
+dynamically loaded module may not always be there.
+</P>
+<H2>Initialization and Registration</h2>
+<P>
+If the operating system is not allowed to have any direct references
+into a dynamically loadable module, how can the new module be used?
+When the run-time loader is invoked to load a new dynamically loadable
+module, it is common for it to return a vector that contains a pointer
+to at least one method: an initialization function.
+</P>
+<P>
+After the module has been loaded into memory, the main program calls
+its initialization method.  
+For a dynamically loaded device driver, the initialization method might:
+<ul>
+   <li>allocate memory and initialize driver data structures.</li>
+   <li>allocate I/O resources (e.g. bus addresses, interrupt levels, DMA channels)
+       and assign them to the devices to be managed.</li>
+   <li>register all of the device instances it supports.
+   	Part of this registration would involve providing a vector
+	(of pointers to standard device drvier entry points) that client
+	software could call in order to use these device instances.
+   </li>
+</ul>
+</P>
+<P>
+Device instance configuration and initialization
+is another area where self-identifying devices have made it much
+easier to implement dynamically loaded device drivers:
+<ul>
+   <li>	Long ago, devices were configured for particular bus addresses
+   	and interrupt levels with mechanical switches, that would be
+	set before the card was plugged in to the bus.  These resource
+	assignments would be recorded in a system configuration table,
+	which would be compiled (or read during system start-up) into 
+	the operating system, and used to select and configure 
+	corresponding device driver instances.</li>
+   <li>	More contemporary busses (like PCIe or USB) provide mechanisms
+   	to discover all of the available devices and learn what
+	resources (e.g. bus addresses, DMA channels, interrupt levels)
+	they require.  The device driver can then allocate these
+	resources from the associated bus driver, and assign the
+	required resources to each device.</li>
+</ul>
+</P>
+<H2>Using a Dynamically Loaded Module</h2>
+<P>
+The operating system will provide some means by which processes can
+open device instances.  In Linux the OS exports a pseudo file system
+(/dev) that is full of <em>special files</em>, each one associated 
+with a registered device instance.  When a process attempts to open
+one of those special files, the operating system creates a reference
+from the open file instance to the registered device instance.  From
+then on, when ever the process issues a <em>read(2)</em>,
+<em>write(2)</em>, or <em>ioctl(2)</em> system call on that file
+descriptor, the operating system forwards that call to the
+appropriate device driver entry point.
+</P>
+<P>
+A similar approach is used when higher level frameworks
+(e.g. terminal sessions, network protocols or file systems) are
+implemented on top of a device.  Each of those services maintains
+open references to the underlying devices, and when they need
+to talk to the device (e.g. to queue an I/O request or send
+a packet) the OS forwards that call to the appropriate device
+driver entry point.
+</P>
+<P>
+The system often maintains a table of all registered device instances
+and the associated device driver entry points for each standard operation.
+When ever a request is to be made for any device, the operating system
+can simply index into this table by a device identifier to look up
+the address of the entry point to be called.  Such mechanisms for 
+registering heterogenous implementations and forwarding requests to
+the correct entry point are often referred to as
+<em>federation frameworks</em> because they combine a set of 
+independent implementations into a single unified framework.
+</P>
+<H2>Unloading</h2>
+<P>
+When all open file descriptors into those devices have been closed
+and the driver is no-longer needed, the operating system can call an
+shut-down method that will cause the driver to:
+<ul>
+    <li>un-register itself as a device driver</li>
+    <li>shut down the devices it had been managing</li>
+    <li>return all allocated memory and I/O resources back to the operating system.</li>
+</ul>
+After which, the module can be safely unloaded and that memory freed as well.
+</p>
+<H2>The Criticality of Stable Interfaces</h2>
+<P>
+All of this his completely dependent on stable and well specified interfaces:
+<ul>
+   <li> the set of entry-points for any class of device driver must
+   	be well defined, and all drivers must compatably implement
+	all of the relevant interfaces.</li>
+   <li> the set of functions within the main program (OS) that the
+   	dynamically loaded modules are allowed to call must be well
+	defined, and the interfaces to each of those functions must be
+	stable.</li>
+</ul>
+</p>
+<p>
+If one device driver did not implement a standard entry point in the standard
+way, clients of that device would not work.  Some functionality may be
+optional, and it may be acceptable for a device driver to refuse some requests.
+But this may make the application responsible for dealing with version
+some incompatabilities.
+</p>
+<P>
+If an operating system does not implement some standard service function
+(e.g. memory allocation) in the standard way, a device driver written
+to that interface standard may not work when loaded into the non-compliant
+operating system.
+</P>
+<P>
+There is often a tension between the conflicting needs to support new
+hardware and software features while retaining compatability
+with old device drivers.
+</P>
+<H2>Hot-Pluggable Devices and Drivers</H2>
+<P>
+One of the major advantages of dynamically loadable modules is that they
+can be loaded at any time; not merely during start-up.
+Hot-plug busses (e.g. USB) can generate events whenever a device is added to, or
+removed from the bus.  In many systems a hot-plug manager:
+<ul>
+   <li>	subscribes to hot-plug events.</li>
+   <li>	when a new device is inserted, walks the configuration space to
+   	identify the new device, finds, and loads the appropriate driver.</li>
+   <li>	when a device is removed, finds the associated driver and calls 
+   	its <em>removal</em> method to inform it that the device is no
+	longer on the bus.</li>
+</ul>
+</P>
+<P>
+Hot-plugable busses often have multiple power levels, and a newly inserted
+device may receive only enough power to enable it to be queried and configured.
+When the driver is ready to start using the device, it can instruct the bus
+to fully power the device.
+Some hot-pluggable busses also have mechanical safety interlocks to prevent
+a device from being removed while it is still in use.  In these cases the
+driver must shut down and release the device before it can be removed.
+</P>
+<H2>Summary</h2>
+<P>
+This discussion has focused on dynamically loadable device drivers, but most of the
+issues (selecting the module to be loaded, dependencies of the loaded
+module on the host program, initializing and shutting down dynamically
+loaded modules, binding clients to dynamically loaded modules, and defining
+and managing the interfaces between the loaded and hosting modules) are
+applicable to a much wider range of dynamically loadable modules.
+</P>
+<P>
+Stable and well standardized interfaces are critical to any such framework:
+<ul>
+   <li>	the methods to be implemented by the dynamically loaded modules.</li>
+   <li> the services that can be used by the dynamically loaded modules.</li>
+</ul>
+</P>
+</body>
+<html>

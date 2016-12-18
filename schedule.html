@@ -1,0 +1,437 @@
+<html>
+<head>
+<title>UCLA CS111 Schedule: Lectures, Reading, Quizes, Exams, Projects</title>
+</head>
+
+<body>
+<center>
+<h1> UCLA CS111, Section 1, Spring 2016<br>
+Lectures, Reading, Quizzes, Exams, and Projects</h1>
+<P>
+Last updated: May 26, 2016
+</P>
+</center>
+<P>
+</P>
+
+<table align=center border cellspacing=0 cellpadding=5>
+
+<tr>
+  <th>Week</th>
+  <th>Day</th>
+  <th>Date</th>
+  <th>Lecture/Lab Topics</th>
+  <th>Assigned Reading</th>
+  <th>Quiz</th>
+  <th>Slides</th>
+</tr>
+<tr>
+  <th rowspan=3>1</th>				 
+  <td>M</td> <td>03/28</td>
+	<td>	1A Administrative introduction to course<br>
+		1B Why study Operating Systems<br>
+		1C What is an Operating System<br>
+		1D Operating Systems principles</td>
+	<td><A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/intro.pdf">Arpaci ch 2</a><br>
+	    <A Href="http://www.sciencedirect.com/science/book/9780123749574">Saltzer ch 1-1.3</a>(from UCLA only)<br>
+	    <A Href="supp/stability.html">Interface stability</A><br>
+	</td>
+	<td>none</td>
+	<td><A Href=slides/01_intro.pdf>lect 1</A></td>
+</tr>
+
+<tr>
+  <td>W</td> <td>03/30</td>
+	<td>	2A Operating System services, layers, mechanisms<br>
+		2B Service interfaces and standards<br>
+		2C Services and abstract resources</td>
+	<td><A Href="http://www.sciencedirect.com/science/book/9780123749574">Saltzer ch 1.4-1.5</a>(from UCLA only)<br>
+	    <A Href="http://en.wikipedia.org/wiki/Dynamic_loading">Dynamic Loading</a><br>
+	    <A Href="http://en.wikipedia.org/wiki/Application_programming_interface#API_in_procedural_languages">Application Programming Interface</a><br>
+	    <!-- FIND BETTER -->
+	    <A Href="http://en.wikipedia.org/wiki/Application_binary_interface">Application Binary Interface</a><br>
+	    <A Href="http://en.wikipedia.org/wiki/X86_calling_conventions#cdecl">linkage conventions</a><br>
+	    <A Href="http://en.wikipedia.org/wiki/Library_(computing)">libraries</a><br>
+	</td>
+        <td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1073989">Quiz 2</a></td>
+	<td><A Href=slides/02_services.pdf>lect 2</A></td>
+</tr>
+
+<tr>
+  <td>Lab</td><td>04/01</td>
+  	<td><a href="projects/Project0.html">Project 0: Warmup</a></td>
+</tr>
+
+<tr>
+  <th rowspan=3>2</th>				 
+  <td>M</td> <td>04/04</td>
+	<td>	3A What is a process<br>
+		3B Implementing processes<br>
+		3C Aynchronous exceptions and events<br>
+		3D User-mode programs and exceptions</td>
+	<td>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/dialogue-virtualization.pdf">Arpaci ch 3</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-intro.pdf">Arpaci ch 4</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-api.pdf">Arpaci ch 5</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-mechanisms.pdf">Arpaci ch 6</a><br>
+	    <A Href="http://man7.org/linux/man-pages/man2/kill.2.html">kill(2)</a><br>
+	    <A Href="http://man7.org/linux/man-pages/man2/signal.2.html">signal(2)</a><br>
+	</td>
+	<td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1077100">Quiz 3</a></td>
+	<td><A Href=slides/03_process.pdf>lect 3</A></td>
+</tr>
+
+<tr>
+  <td>W</td> <td>04/06</td>
+	<td>	4A Introduction to scheduling<br>
+		4B Non-preemptive scheduling<br>
+		4C Preemptive scheduling<br>
+		4D Adaptive scheduling<br>
+		9F Performance under load</td>
+	<td><A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched.pdf">Arpaci ch 7</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched-mlfq.pdf">Arpaci ch 8</a><br>
+	    <!-- chapter 9 on proportional scheduling is strange stuff nobody uses -->
+	    <A Href="supp/realtime.html">real time scheduling</a><br>
+	</td>
+        <td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1078250">Quiz 4</a></td>
+	<td><A Href=slides/04_schedule.pdf>lect 4</A></td>
+</tr>
+
+<tr>
+  <td>Lab</td><td>04/08</td>
+  	<td><a href="https://docs.google.com/document/d/1BxX75td4DoD8FWSBqcH32K_NRjiEBhkuqjLUJPijoi0/edit#heading=h.jgnufz7gfb5d">Project 1A: I/O and IPC</a></td>
+</tr>
+
+<tr>
+  <th rowspan=3>3</th>				 
+  <td>M</td> <td>04/11</td>
+	<td>	5A Memory management and address spaces<br>
+		5B Allocation algorithms<br>
+		5C Advanced allocation techniques<br>
+		5D Segment Relocation<br>
+		5E Garbage Collection<br>
+		5F Errors and diagnostic free lists</td>
+	<td>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/dialogue-vm.pdf">Arpaci ch 12</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-intro.pdf">Arpaci ch 13</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-api.pdf">Arpaci ch 14</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-mechanism.pdf">Arpaci ch 15</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-segmentation.pdf">Arpaci ch 16</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-freespace.pdf">Arpaci ch 17</a><br>
+	</td>
+	<td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1078335">Quiz 5</a></td>
+	<td><A Href=slides/05_memory.pdf>lect 5</A></td>
+</tr>
+
+<tr>
+  <td>W</td> <td>04/13</td>
+	<td>	6A Introduction to swapping and paging<br>
+		6B Paging MMUs and Demand Paging<br>
+		6C Replacement algorithms<br>
+		6D Thrashing and Working Sets<br>
+		6E other optimizations<br>
+		<!--6F Paging and Segmentation -->
+		</td>
+	<td><A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-paging.pdf">Arpaci ch 18</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-tlbs.pdf">Arpaci ch 19</a><br>
+	    <!-- chapter 20 (large page tables) interesting, but too much reading -->
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-beyondphys.pdf">Arpaci ch 21</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/vm-beyondphys-policy.pdf">Arpaci ch 22</a><br>
+	    <!-- chapter 23 (VAX VMS) interesting, but too much reading -->
+	    <A Href="supp/workingsets.html">working set replacement</a><br>
+	</td>
+        <td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1078337">Quiz 6</a></td>
+	<td><A Href=slides/06_vmem.pdf>lect 6</A></td>
+</tr>
+
+<tr>
+  <td>Lab</td><td>04/15</td>
+  	<td><a href="https://docs.google.com/document/d/1A-RcYD95fbI9rlks971brOMtS4RyHvE9WfHP73WwJs4/edit#heading=h.jgnufz7gfb5d">Project 1B: networking & encryption</a></td>
+</tr>
+
+<tr>
+  <th rowspan=3>4</th>				 
+  <td>M</td> <td>04/18</td>
+	<td>	3E Threads<br>
+		7A Inter-Process Communication<br>
+		7B Critical Sections<br>
+		7C Asynchronous Completions</td>
+	<td>
+	    <A Href="supp/ipc.html">Inter Process Communication</A><br>
+	    <A Href="http://www.tldp.org/LDP/lpg/node15.html#SECTION00730000000000000000">named pipes</a><br>
+	    <A Href="http://man7.org/linux/man-pages/man2/send.2.html">send(2)</a><br>
+	    <A Href="http://man7.org/linux/man-pages/man2/recv.2.html">recv(2)</a><br>
+	    <A Href="http://man7.org/linux/man-pages/man2/mmap.2.html">mmap(2)</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/dialogue-concurrency.pdf">Arpaci ch 25</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-intro.pdf">Arpaci ch 26</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-api.pdf">Arpaci ch 27</a><br>
+	    <A Href="supp/usermodethreads.html">user-mode threads</td>
+	<td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1078340">Quiz 7</a></td>
+	<td><A Href=slides/07_races.pdf>lect 7</A></td>
+</tr>
+
+<tr>
+  <td>W</td> <td>04/20</td>
+	<td>	7D Mutual Exclusion operations<br>
+		7E Implementing mutual exclusion<br>
+		7F Asynchronous completion operations<br>
+		7G Implementing asynchronous completion</td>
+	<td><A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks.pdf">Arpaci ch 28</a><br>
+	</td>
+        <td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1078343">Quiz 8</a></td>
+	<td><A Href=slides/08_mutex.pdf>lect 8</A></td>
+</tr>
+
+<tr>
+  <td>F</td><td>04/22</td>
+  	<td><a href="https://docs.google.com/document/d/1P84kv3QXPM-JuqP_kAvQYvH0yiLp8NFfiGe5oZc6swU/edit#heading=h.b4spxv7nnjbn">Project 2A: atomic operations</a></td>
+</tr>
+
+<tr>
+  <th rowspan=3>5</th>				 
+  <td>M</td> <td>04/25</td>
+	<td>	7H Synchronization problems<br>
+		7I Semaphores<br>
+		7J Object level locking<br>
+		7K bottlenecks and contention</td>
+	<td>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks-usage.pdf">Arpaci ch 29</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-cv.pdf">Arpaci ch 30</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-sema.pdf">Arpaci ch 31</a><br>
+	    <A Href="http://man7.org/linux/man-pages/man2/flock.2.html">flock(2)</a><br>
+	    <A Href="http://man7.org/linux/man-pages/man3/lockf.3.html">lockf(3)</a><br>
+	</td>
+	<td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1078345">Quiz 9</a></td>
+	<td><A Href=slides/09_sync.pdf>lect 9</A></td>
+</tr>
+
+<tr>
+  <td>W</td> <td>04/27</td>
+	<td>MIDTERM</td>
+	<td>weeks 1-5</td>
+	<td></td>
+	<td><A Href="supp/x1o.html">solns</a></td>
+</tr>
+
+<tr>
+  <td>Lab</td><td>04/29</td>
+  	<td><a href="https://docs.google.com/document/d/1Twlc8nCFx6idOSDclwL2R2_oXFk7PLErcAtdpER5dRA/edit?usp=sharing">Project 2B: complex critical sections</a></td>
+</tr>
+
+<tr>
+  <th rowspan=3>6</th>				 
+  <td>M</td> <td>05/02</td>
+	<td>	8A introduction to deadlocks<br>
+		8B Deadlock Avoidance<br>
+		8C Deadlock Prevention<br>
+		8D Related Problems<br>
+		7L Higher Level Synchronization</td>
+	<td>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-bugs.pdf">Arpaci ch 32</a><br>
+    	    <A Href="supp/avoidance.html">Deadlock Avoidance<br>
+    	    <A Href="supp/monitoring.html">Health Monitoring/Recovery<br>
+	    <A Href="https://en.wikipedia.org/wiki/Monitor_(synchronization)">Monitors</a><br>
+	    <A Href="https://docs.oracle.com/javase/tutorial/essential/concurrency/syncmeth.html">Java synchronization</a><br>
+	    <A Href="https://docs.oracle.com/javase/tutorial/essential/concurrency/locksync.html">Java intrinsic locks</a><br>
+	</td>
+	<td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1104869">Quiz 10</a></td>
+	<td><A Href=slides/10_deadlock.pdf>lect 10</A></td>
+</tr>
+
+<tr>
+  <td>W</td> <td>05/04</td>
+	<td>	9A Performance and Metrics<br>
+		9B Load characterization and generation<br>
+		9C Performance measurement<br>
+		9D Performance analysis<br>
+		9E Performance presentation</td>
+	<td>
+	    <A Href="supp/perf.pdf">Metrics and measurement</a><br>
+	    <A Href="supp/loadstress.html">Load and Stress Testing</a><br>
+	</td>
+        <td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1111589">Quiz 11</a></td>
+	<td><A Href=slides/11_perf.pdf>lect 11</A></td>
+</tr>
+
+<tr>
+  <td>Lab</td><td>05/06</td>
+  	<td><a href="https://docs.google.com/document/d/1CeM9ZX6JkRShk4Q_4riB8LiIywQGQNggsGWwh5WScM8/edit?usp=sharing">Project 2C: lock granularity and performance</a></td>
+</tr>
+
+<tr>
+  <th rowspan=3>7</th>				 
+  <td>M</td> <td>05/09</td>
+	<td>	10A Disks<br>
+		10B Low-level I/O techniques<br>
+		10C Higher-level I/O techniques<br>
+		10D Plug-in Driver Architectures</td>
+	<td><A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/threads-events.pdf">Arpaci ch 33-33.6</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/dialogue-persistence.pdf">Arpaci ch 35</a><br>
+	    <A Href="supp/driverclasses.html">Device Drivers Classes and Services</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-devices.pdf">Arpaci ch 36</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-disks.pdf">Arpaci ch 37</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-raid.pdf">Arpaci ch 38</a><br>
+	    <A Href="supp/dynamicmodules.html">Dynamically Loadable Drivers</a><br>
+	</td>
+	<td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1111586">Quiz 12</a></td>
+	<td><A Href=slides/12_devio.pdf>lect 12</A></td>
+</tr>
+
+<tr>
+  <td>W</td> <td>05/11</td>
+	<td>	11A File semantics<br>
+		11B Namespace semantics<br>
+		11C File representation<br>
+		11D Free-space representation<br>
+		11E Namespace representation<br>
+		11F File System integration</td>
+	<td><A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-intro.pdf">Arpaci ch 39</a><br>
+	    <A Href="https://en.wikipedia.org/wiki/File_format">File Formats</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-implementation.pdf">Arpaci ch 40</a><br>
+	    <A Href="supp/dos.html">FAT File System<br>
+	    <A Href="https://en.wikipedia.org/wiki/Object_storage">Object Storage(Hist, Arch)</a><br>
+	    <A Href="https://en.wikipedia.org/wiki/Key-value_database">Key-Value Stores(Intro, types)</a><br>
+	    <A Href="https://en.wikipedia.org/wiki/Filesystem_in_Userspace">FUSE(Intro)</a><br>
+	</td>
+        <td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1112983">Quiz 13</a></td>
+	<td><A Href=slides/13_filesys.pdf>lect 13</A></td>
+</tr>
+
+<tr>
+  <td>Lab</td><td>05/13</td>
+  	<td><a href="https://docs.google.com/document/d/16agy3BiR6q_OLLnWTrVikmEvWMeW51y4724WdFCmg38/edit?usp=sharing">Project 3A: file system dump</a></td>
+</tr>
+
+<tr>
+  <th rowspan=3>8</th>				 
+  <td>M</td> <td>05/16</td>
+	<td>	11G File System performance<br>
+		11H File System robustness<br>
+		11I Check-sums<br>
+		11J Log-Structured File Systems</td>
+	<td><A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-ffs.pdf">Arpaci ch 41</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-journaling.pdf">Arpaci ch 42</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-lfs.pdf">Arpaci ch 43*</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-integrity.pdf">Arpaci ch 44</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-ssd.pdf">Arpaci appx I.6-10</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/file-dialogue.pdf">Arpaci ch 45</a><br>
+	    <!-- <A Href=FIXME>Garbage Collection and Defragmentation</A><br> -->
+    	</td>
+	<td><A Href="https://ccle.ucla.edu/mod/quiz/review.php?attempt=974123">Quiz 14</a></td>
+	<td><A Href=slides/14_filesys.pdf>lect 14</A></td>
+</tr>
+
+<tr>
+  <td>W</td> <td>05/18</td>
+	<td>	12A Operating Systems Security<br>
+		12B Authenticaiton<br>
+		12C Authorization<br>
+		12D Trust<br>
+		12E At-Rest Encryption</td>
+	<td><A Href="http://ocw.mit.edu/resources/res-6-004-principles-of-computer-system-design-an-introduction-spring-2009/online-textbook/part_ii_open_5_0.pdf">Saltzer 11.1-2</a><br>
+	    <A Href="http://ocw.mit.edu/resources/res-6-004-principles-of-computer-system-design-an-introduction-spring-2009/online-textbook/part_ii_open_5_0.pdf">Saltzer 11.6</a><br>
+	    <A Href="supp/atrest.pdf">At Rest Encryption</a><br>
+	</td>
+        <td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1123219">Quiz 15</a></td>
+	<td><A Href=slides/15_protect.pdf>lect 15</A></td>
+</tr>
+
+<tr>
+  <td>Lab</td><td>05/20</td>
+  	<td><a href="https://docs.google.com/document/d/1aNbpkNnAcmlJcfLPRZ8AGVwky0tw-AbZv7MRmzrgztk/edit?usp=sharing">Project 3B: file system analysis</a></td>
+</tr>
+
+<tr>
+  <th rowspan=3>9</th>				 
+  <td>M</td> <td>05/23</td> <td>
+  		13A Distributed Systems: Goals & Challenges<br>
+		13B Distributed Systems: Communication<br>
+		13C Distributed Systems: Security<br>
+		13D Distributed Systems: Synchronization
+  	</td>
+  	<td> <A Href="supp/distsystems.html">Distributed Systems: Goals & Challenges</a><br> 
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/dist-intro.pdf">Arpaci ch 47</a><br>
+	    <A Href="http://ocw.mit.edu/resources/res-6-004-principles-of-computer-system-design-an-introduction-spring-2009/online-textbook/part_ii_open_5_0.pdf">Saltzer 11.3-4</a><br>
+	    <A Href="https://en.wikipedia.org/wiki/Representational_state_transfer">RESTful interfaces</a><br>
+	    <A Href="https://en.wikipedia.org/wiki/Lease_(computer_science)">Resource Leases</a><br>
+	    <A Href="https://en.wikipedia.org/wiki/Consensus_(computer_science)">Distributed Consensus</a><br>
+	    <A Href="supp/ssl.html">SSL</a><br>
+        </td>
+        <td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1124232">Quiz 16</a></td>
+	<td><A Href=slides/16_distprob.pdf>lect 16</A></td>
+</tr>
+
+<tr>
+  <td>W</td> <td>05/25</td> <td>
+		14A Remote Data Architectures<br>
+		14B Remote Data Security<br>
+		14C Remote Data Robustness<br>
+		14D Remote Data Performance<br>
+		14E Remote Data Scalability
+	</td>
+	<td><A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/dist-nfs.pdf">Arpaci ch 48</a><br>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/dist-afs.pdf">Arpaci ch 49</a><br>
+	    <A Href="supp/kerberos.html">Kerberos</a><br>
+	    <A Href="https://en.wikipedia.org/wiki/ACID">ACID semantics</a><br>
+	</td>
+        <td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1124235">Quiz 17</a></td>
+	<td><A Href=slides/17_distfs.pdf>lect 17</A></td>
+</tr>
+
+<tr>
+  <td>Lab</td><td>05/27</td>
+	<td><A href="projects/Paper.html">Research Paper</a><br>
+	    <A href="projects/Edison.html">Embedded System Project</a><br>
+	</td>
+</tr>
+
+<tr>
+  <th rowspan=3>10</th>				 
+  <td>M</td> <td>05/30</td>
+	<td>MEMORIAL DAY</td>
+</tr>
+
+<tr>
+  <td>W</td> <td>06/01</td><td>
+		15A Distributed Computing<br>
+		15B Multi-Processor Systems<br>
+		15C Tightly Coupled Systems<br>
+		15D Loosely Coupled Systems<br>
+		15E Cloud Models<br>
+		3F Virtual Machines<br>
+	</td>
+	<td>
+	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/vmm-intro.pdf">Arpaci appx B<br>
+	    <A Href="supp/multiprocessor.html">Multi-Processors</a><br>
+    	    <A Href="http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched-multi.pdf">Arpaci ch 10</a><br>
+	    <A Href="supp/clusterconcepts.html">Clustering Concepts</a><br>
+	    <A Href="supp/horizontal.html">Horizontally Scaled Systems</a><br>
+	    <A Href="https://en.wikipedia.org/wiki/Eventual_consistency">Eventual Consistency</a><br>
+	</td>
+        <td><A Href="https://ccle.ucla.edu/mod/quiz/view.php?id=1124237">Quiz 18</a></td>
+	<td><A Href=slides/18_advarch.pdf>lect 18</A></td>
+</tr>
+
+<tr>
+  <td>Lab</td><td>06/03</td>
+  	<td></td>
+</tr>
+
+<tr>
+  <th>11</th>				 
+  <td>M</td> <td>06/06</td>
+	<td>11:30-14:30 FINAL EXAM<br>
+	    23:59: Paper/Project 4 due
+	</td>
+	<td>part 1: weeks 6-10<br>
+	    part 2: ALL</td>
+	<td></td>
+	<td><A Href="supp/x2o.html">solns 1</a><br>
+	    <A Href="supp/x3o.html">solns 2</a>
+	</td>
+</tr>
+
+</table>
+*Starred reading assignments contain valuable information, but do not warrant deep study.
+</body>
+</html>

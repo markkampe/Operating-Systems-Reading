@@ -1,0 +1,531 @@
+<HTML>
+<HEAD>
+<TITLE>Introduction to BSD UNIX Volumes and File Structure</TITLE>
+</HEAD>
+
+<BODY>
+<H2>Introduction to BSD UNIX Volume and File Structure</H2>
+<H4>
+Mark Kampe
+<A HREF="mailto:markk@cs.ucla.edu">markk@cs.ucla.edu</A>
+</h4>
+
+<H4>1. Introduction</H4>
+<P>
+By the time Ken Thompson and Dennis Richie wrote UNIX in the 1970s, 
+file systems with fixed-sized blocks and tree-structured directories
+were already common.  A key goal for UNIX was to provide the
+power and generality of larger timesharing systems (most notably
+Multics) with a much smaller and simpler implementation.  
+Their
+<A Href=oldunix.html>original UNIX file system</A> design 
+provided very reasonable functionality with relatively simple
+mechanisms.  Their file system implementation, like so many 
+other parts of UNIX, emphasized simplicity over functionality.
+UNIX file systems worked pretty well, and for many years the
+only changes made to them were to move to larger block sizes
+(to provide better throughput).
+<P>
+Over the next decade, many users bemoaned the 
+functional and performance limitations of the basic UNIX 
+file system.  A team of researchers at UC Berkeley decided 
+to address these issues in their (now legendary) fourth
+Software Distribution (4BSD).  
+The functionality (long file names and symbolic links) 
+and performance (cylinder clusters
+and bit-map free lists) improvements were quickly adopted
+by all of the major UNIX vendors.  Twenty years later,
+most standard UNIX file systems (including LINUX EXT-3)
+are based on the BSD (fast) file systems.
+<P>
+The BSD UNIX file system is worth studying because:
+<UL>
+	<LI> It is heavily used all over the world, and is the
+		basis for many other file systems (including
+		those on your own Linux systems).
+	<LI> It provides very good performance (large transfers
+		and well clustered allocation) without requiring
+		users to do anything special 
+		(cf <A Href=mvs.html>IBM VMS volumes</A>).
+	<LI> It provides relatively rich functionality, and
+		illustrates how these features can be implemented.
+	<LI> It is a very successful example of index block
+		file allocation.
+</UL>
+
+<H4>2. Structural Overview</H4>
+<P>
+All file systems include a few basic types of data structures:
+<UL>
+	<LI> bootstrap
+	<P>
+		code to be loaded into memory and executed when
+		the computer is powered on.  MVS volumes reserve
+		the entire first track of the first cylinder for
+		the boot strap.
+	<LI> volume descriptors
+	<P>
+		information describing the size, type, and layout
+		of the file system ... and in particular how to
+		find the other key meta-data descriptors.
+	<LI> file descriptors
+	<P>
+		information that describes a file (ownership, 
+		protection, time of last update, etc.) and
+		points where the actual data is stored on the
+		disk.
+	<LI> free space descriptors
+	<P>
+		lists of blocks of (currently) unused space
+		that can be allocated to files.
+	<LI> file name descriptors
+	<P>
+		data structures that associate user-chosen names with
+		each file.
+</UL>
+<P>
+Like most UNIX-derived file systems, BSD file systems:
+<UL>
+	<LI> Divide the volume into fixed sized blocks.  The block
+		size (typically somewhere between 512 and 64K bytes)
+		is chosen when the file system is created.  Larger
+		block sizes lead to more efficient I/O, but incur
+		higher losses do to internal fragmentation.
+	<LI> Reserve the first block of each volume for a bootstrap.
+	<LI> Place a volume descriptor (superblock, described in 
+		section 3) in the second block of the volume.
+	<LI> Use an I-node (described in section 4) to describe each file.  
+	<LI> Use directories (described in section 6) to associate 
+		names with files.
+</UL>
+<P>
+In a classic UNIX file system (UFS) the file descriptors (I-nodes)
+all appear near the begining of the volume, with the data blocks
+after them.  Disk activity instrumentation showed that the disk
+spent a great deal of time seeking back-and forth between the I-node
+area and the data blocks.  This led to one of the most significant
+changes that Berkeley made to the basic UNIX file system: the creation
+of cylinder groups.
+<P>
+Each BSD volume is divided up into a number of cylinder groups (CGs).  
+Each cylinder group is a miniature file system ... with the intent 
+that directory entries in a CG point to I-nodes in the same CG, which
+point to blocks in the same CG.  To the extent this is true, a file
+can be opened and read with minimal head motion.
+<P>
+<CENTER>
+<IMG src="bsdvol.gif">
+</CENTER>
+<P>
+The mini-file systems are not truly independent.  A directory in one cylinder
+group can refer to an I-node in another cylinder group, and an I-node can
+point to blocks on any cylinder group.  When this happens, however, the
+system incurrs additional head motion when processing those files, and
+I/O performance is reduced.
+
+<H4>3. Volume Descriptor (Super Block)</h4>
+<P>
+All UNIX-derived file systems have a superblock that identifies the
+file system and defines its key parameters.  In the BSD file systems
+(with cylinder groups) there is actually a superblock at the start of
+each cylinder group.  The additional copies are completely redundant,
+but are occasionally valuable when attempting to recover data from
+a severely damaged file system.
+<P>
+The primary superblock can be found in the second block (block 1) of
+the volume.  Realize, however, that file systems can support a wide
+range of bolck sizes ... so the superblock may be 512 bytes into the
+volume, or it may be 64K bytes into the volume (depending on what the
+file system block size is).  When opening a new file system, the OS
+may have to probe multiple locations in order to find the superblock
+and determine the file system's block size.
+<P>
+The superblock contains a few basic types of information:
+<UL>
+	<LI> file system identification
+	<LI> file system layout parameters
+	<LI> key device parameters
+	<LI> file system tuning parameters
+	<LI> file system status
+</UL>
+<P>
+<H4>3.1 File System Identification information </h4>
+<P>
+The superblock includes a <strong>magic number</strong> which identifies
+the file system type, and can be used to confirm that we have found the
+correct block size.  There are many variants of the Berkeley file system,
+and most of them have different magic numbers.  In addition to the basic
+magic number, there is usually also some version number information, 
+indicating what features this particular file system does and does not
+support.
+<P>
+The superblock also includes a file system ID number, which can be used
+by system managers to uniquely label each file system (and indicate what
+its contents is).
+<P>
+<H4>3.2 File System Layout Parameters</h4>
+<P>
+In order to interpret the bits of any UNIX file system, we need
+to know how the file system is layed out.  Because they are divided
+into cylinder groups, BSD file systems have many more layout 
+parameters than most file systems:
+<P>
+<UL>
+<LI>	the block size used by this file system (e.g. 512, 8K, 64K)
+<LI>	the size of a block fragment (discussed in section 4.1).
+<LI>	total size of the file system, in blocks
+<LI>	total number of data blocks and I-nodes in the file system
+<LI>	total number of cylinder groups in the file system.
+<LI>	the offset into each cylinder group where the key
+	areas (e.g. cylinder group summary, free block list,
+	free I-node list, I-node area, and data blocks) begin.
+</UL>
+<P>
+Without knowing these parameters it would be impossible to find a
+particular I-node, or even a block.  If a file system had 100 I-nodes,
+and 4,000 blocks per cylinder group:
+<UL>
+	I-nodes 1-100, and blocks 1-3,999 would be in cylinder group 1.
+	<P>
+	I-nodes 101-200, and blocks 4,000-7,999 would be in cylinder 
+	group 2.
+	<P>
+	etc.
+</UL>
+Thus, in order to find a particular I-node or block on disk, it is 
+necessary that we know the sizes and locations of each cylinder
+group, as well as the size of each block.
+<P>
+
+<H4>3.3 Device Parameters</h4>
+<P>
+We can greatly improve file access time by allocating consecutive
+blocks to a file.  In order to know what blocks are "consecutive",
+the operating system must know how long a track is, and how many
+tracks there are per cylinder.  It is also useful to know how fast
+the disk spins (so we can anticipate and plan for rotational latency).
+Parameters like these are recorded in the superblock to enable the
+file system implementation to more efficiently allocate and process
+files.
+<P>
+<H4>3.4 File System Tuning Parameters</h4>
+<P>
+We are often forced to make trade-offs between how rappidly we can
+perform various operations, and how efficiently we use space.  BSD
+file systems have per file system tuning paremeters that permit
+system managers to make different trade-offs on different file
+systems.  A temporary file system, for instance, might be optimized
+for allocation speed, while a project archival file system might
+be optimized for space efficiency or contiguous allocation.
+The superblock includes a collection of tunable parameters that
+permit system managers to optimize each file system for the way
+it will be used.
+<P>
+<H4>3.5 File System Status Information</h4>
+<P>
+File system superblocks also contain a small amount of information
+to reflect how the file system is currently being used (or was
+last being used). 
+<UL>
+	<LI> The name of the mount-point onto which the file system
+	     was last mounted.
+	<LI> The time at which the file system was last updated.
+	<LI> Whether or not the file system was cleanly unmounted.
+		If the system crashes with a file system still mounted,
+		it will be necessary to audit the file system to make
+		sure that the crash did not result in any corruption.
+	
+</UL>
+<P>
+<H4>3.6 Cylinder Group Summaries</h4>
+<P>
+In addition to the file system description information in the superblock,
+there is some additional (per cylinder group) information associated with
+each cylinder group:
+<UL>
+	<LI> total number of free I-nodes, blocks, and fragments in 
+		this cylinder group.
+	<LI> start-of-free-space guess pointers to optimize free-space
+		searches.
+</UL>
+
+<P>
+<H4>4. File Descriptors (I-nodes)</H4>
+<P>
+Each file in a UNIX file system is described by an I-node, and any file
+is uniquely identified by a (file system ID, I-node number) pair.
+All I-nodes are the same length (typically 128 bytes).  As described
+previously, the division of a file system into cylinder groups makes
+the process of finding a particular I-node non-trivial.
+<P>
+The UNIX/POSIX file manipulation system calls presume that the same
+basic administrative information is associated with all files, and
+consequently, all UNIX-based file systems tend to have exactly the
+same administrative information in their I-nodes:
+<P>
+<UL>
+	<LI> The type of the file.
+		In addition to ordinary files (that contain data
+		stored on disk) an I-node might represent a directory,
+		a device, or an inter-process communications port.
+	<LI> The protection information for this file.
+		The basic protection information is encoded in
+		nine bits, which denote read, write, and execute
+		access, for the owning user, the owning group,
+		and anyone else.
+	<LI> The integer user-ID of the user who owns the file.
+	<LI> The ingeger group-ID of the group who owns the file.
+	<LI> The time when the file was last accessed.
+	<LI> The time when the file was last modified.
+	<LI> The time when the I-node was last updated.
+	<LI> The length of the file (in bytes).
+	<LI> The number of currently existing links to this file.
+</UL>
+<P>
+Most UNIX-based file systems also use a block-pointer scheme with
+direct, indirect, double-indirect, and tripple-indirect blocks.
+<P>
+<CENTER>
+<IMG src="bsdinode.gif">
+</CENTER>
+<P>
+BSD file systems are fairly traditional in this respect (with twelve
+direct pointers, one indirect, one double-indirect, and one 
+tripple-indirect pointer) ... but they do introduce one interesting
+twist: fragment blocks.
+<P>
+<H4>4.1 Fragment Blocks</H4>
+<P>
+Larger block sizes improve file I/O throughput by performing a
+smaller number of larger transfers.  Traditionally, this comes
+at the cost of increased internal fragmentation (since on average,
+half of the last block is unused).  The Berkeley file system came
+up with an innovative solution to this problem.  
+<P>
+In Berkeley UFS file systems, blocks can be broken into
+smaller <strong>fragments</strong>, which are also of
+a fixed size, but typically only a fraction (e.g. 1/8)
+as large as a block.  
+If, after being written to and closed, a file does not 
+fill up its last block, the last block is replaced with
+a smaller number of contiguous block fragments.  This 
+can give us the best of both worlds: e.g. the I/O throughput
+of 8K blocks, but an average internal fragmentation loss
+of only 512 bytes per file.
+<P>
+This further complicates the allocation and addressing of blocks.
+All of the block addresses in a file are actually fragment
+addresses.  All of the pointers except for the last, however,
+refer to a full block worth of fragments.  To figure out how
+many fragments are in the last block, the system looks at the 
+file size, modulo the block size.
+This sort of complexity is probably typical of 
+the hoops people jump through to get better throughput and
+storage efficiency out of a file system.
+
+<H4>5. Free Space Descriptors</H4>
+<P>
+Each cylinder group contains blocks and I-nodes that can be allocated
+to files.  Because the number of blocks and I-nodes per cylinder
+group is fixed, the Berkeley file system keeps track of them in a
+<strong>bit-map</strong>.  A bit-map is a very compact representation
+for the state of a fixed number of objects.  Each bit in the bit-map
+corresponds to one block (fragment) or I-node in the cylinder group.
+<P>
+<CENTER>
+<IMG src="bsdbits.gif">
+</CENTER>
+<P>
+The bit-map free-list is not merely very compact.  It also makes
+it very easy to do carving (of blocks into fragments), coalescing
+(of fragments back into whole blocks), and locating new blocks that
+are very close to the existing blocks in a file.
+<P>
+<A name=directory>
+<H4>6. File Naming (directories)</H4>
+<P>
+UNIX file systems associate names with I-nodes through <strong>links</strong>
+in directories.  Each link is described by a directory entry.  
+In the original UNIX file system, directory entries were fixed
+sized (16 bytes) and pretty simple:
+<P>
+<CENTER>
+<IMG src="s5dir.gif">
+</CENTER>
+<P>
+These directory entries are called <strong>hard links</strong>
+because each entry contains a direct reference to the I-node
+for the referenced file.  The I-node for a file includes a 
+count of the number of directory links that refer to it, and
+when the last link is deleted (the reference count goes to zero)
+the I-node is actually deleted.
+<P>
+UNIX file systems have always supported modified hierarchical directory
+trees.  The directories always exist in a tree (each directory has 
+exactly one parent), but there can be multiple links to each file.
+By convention the first two entries in each directory were for
+"." a pointer to the I-node for the current directory, and ".."
+a pointer to the I-node for the parent directory.
+<P>
+<H4>6.1 Long File Names</h4>
+<P>
+A fully qualified path name can be very long (if the file is nestled
+deep in a directory hierarchy), but each element of the file name
+was limited to be 14 bytes or less.  Many people complained about
+this limitation.
+<P>
+When Microsoft confronted this problem, they came up with an
+auxiliary directory entry scheme that could represent the 
+extended filenames in a relatively upwards-compatible fashion.
+Berkeley took the opposite approach.  They had introduced enough
+changes to the file system that they decided they were willing
+to change the format of directories.  But, rather than merely
+changing all the existing UNIX programs to understand the new 
+directory entry format, they created new system calls for walking
+and searching directories.  The new system calls hid the underlying
+format of the directory entries from the applications, thus making
+it easier to make other changes in the future.  Changing programs
+not to depend on the details of on-disk file system data structures
+is a good thing.
+<P>
+The new directory format uses variable length directory
+entries that contain variable length names.  Having a separate
+length for the directory entry and the file name made it easier
+to add new information to directory entries in the future.
+<P>
+<CENTER>
+<IMG src="bsddir.gif">
+</CENTER>
+<P>
+Another extension made to the directory entries in later systems
+was to include a file type field.  At first blush, this might seem
+wrong.  The file type is clearly an attribute of the file, and so
+belongs in a file descriptor.  Why should it be included in the
+directory entry, whose purpose is to associate a name with a file?
+The answer lies in the applications that most commonly read directories.
+Directory viewers want to list, not only the names of each file,
+but their types.  Doing this involved, first, reading the directory
+to find out what files it contained, and then opening (actually
+<strong>stat</strong>ing) each file to ascertain its type.  
+Replicating the type information in the directory entry, sped up
+this process by almost an order of magnitude.  Note however that
+the type in the directory entry is only a "hint".  The true file
+type is recorded in the I-node.
+<P>
+<H4>6.2 Symbolic Links</h4>
+<P>
+The other major limitations of traditional UNIX directories involved 
+the I-node number in each directory entry:
+<UL>
+   <LI>
+	The I-node number could only refer to files in the 
+	same file system.  There was no way to create a directory
+	entry that referred to a file in another file system.
+   <LI>
+	All hard links are equivalent, and there is no way for
+	the owner of a file to delete the file if other links
+	still exist.
+</UL>
+<P>
+These problems were addressed by creating a new type of file, 
+called a <strong>symbolic link</strong>.  Note that there are
+not (in UNIX) very many file types (ordinary files, directories,
+pipes, special files) ... so creating a new one was a pretty big
+deal.
+A symbolic link looks
+very similar to an ordinary file ... but it gets very special
+treatment from the OS.  Whenever the OS opens a symbolic link
+(whether in the middle of a path name or at the end of it), it
+looks inside the file to get the name of a file that should be
+opened instead, and then opens that file.
+<P>
+<CENTER>
+<IMG src="bsdsym.gif">
+</CENTER>
+<P>
+Symbolic links addressed both of the major concerns about 
+UNIX directory entries:
+<UL>
+  <LI>
+	Since the symbolic link contains a name, rather than
+	an I-node number, the name can include the path to the
+	mount-point of another file system.  This means that
+	symbolic links can refer to files on other file systems.
+  <LI>
+	The symbolic link is not a direct reference to an I-node,
+	but rather the name of another file (which is presumably
+	a real link to some file).   If the real hard link is 
+	deleted, the symbolic link remains, but no longer refers
+	to an existing file.  A symbolic link does not prevent a
+	file from being deleted.
+</UL>
+They also created a new potential problem.  In traditional UNIX
+directories, each directory has exactly one parent, so it is
+impossible to create an infinite loop of directory references.
+Symbolic links can easily point back into the path that led to
+them, making it easy to create such loops.  In a traditional
+file system, it is fairly easy to verify the correctness of all 
+of the directory entries and I-node link counts ... since all of
+the information is within a single file system.  Symbolic links
+can contain pointers to files on other file systems, whose contents
+may change in ways that later invalidate the symbolic links.
+<P>
+Detecting loops in paths that span multiple file systems and 
+machines is both dificult and expensive.  When the Berkeley team
+added symbolic links to UNIX, they added a very simple feature
+that counts the number of I-node fetches associated with a single
+open ... and if that number gets too big (e.g. greater than 100)
+they assume that there is a loop somewhere in the symbolic links
+and abort the open.  This is an arbitrary and imperfect test, but
+it seems to work pretty well.
+<P>
+<H4>7. Summary</h4>
+<P>
+It has often been observed that every solution should be as simple
+as possible, but no simpler!  Traditional UNIX file systems were
+just a little too simple.  There are a few lessons we can learn by
+studying BSD file systems:
+<UL>
+   <LI>
+	what features, in an otherwise very spartan implementation,
+	proved to be so important that they had to be added.
+   <LI>
+	what changes, to an otherwise very simple implementation,
+	had to be made to improve cylinder locality and increase
+	transfer sizes.
+   <LI>
+	the differences between <strong>hard</strong> and 
+	<strong>symbolic</strong> links.
+   <LI>
+	that sometimes, it may be acceptable to make non-upwards
+	compatable changes ... but not very often, and they have 
+	to be made in a way that programmers will be willing to
+	adopt (e.g. using a more general mechanism to walk 
+	directory trees).
+</UL>
+<P>
+The functionality requirements that motivated the BSD changes are
+common.  The functionality, performance, and robustness supported 
+by BSD file systems is often considered the base-line against which 
+other file systems are judged.  The decision about whether or not
+new features justify non-upwards compaible extensions is one that
+most OS vendors have had to face.
+
+<H4>8. References</h4>
+<P>
+FreeBSD Sources, FFS super-block and cylinder group summaries,
+<A Href=freebsd/fs_h.txt>
+ffs/fs.h</A>
+<P>
+FreeBSD Sources, UFS on-disk I-node,
+<A Href=freebsd/dinode_h.txt>
+ufs/dinode.h</A>
+<P>
+FreeBSD Sources, directory entries,
+<A Href=freebsd/dir_h.txt>
+ufs/dir.h</a>
+<P>
+
+</BODY>
+</HTML>
+

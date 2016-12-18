@@ -1,0 +1,141 @@
+<html>
+<head>
+<title>User-Mode Thread Implementation</title>
+</head>
+<body>
+<center><h1>User-Mode Thread Implementation</h1></center>
+<H2>Introduction</h2>
+For a long time, processes were the only unit of parallel computation.
+There are two problems with this:
+<ul>
+   <li>processes are very expensive to create and dispatch, due
+       to the fact that each has its own virtual address space
+       and ownership of numerous system resources.</li>
+   <li>each process operates in its own address space, and cannot
+       share in-memory resources with parallel processes
+       (this was before it was possible to map shared segments
+       into a process' address space).</li>
+</ul>
+The answer to these needs was to create threads.  A thread ...
+<ul>
+   <li>is an independently schedulable unit of execution.</li>
+   <li>runs within the address space of a process.</li>
+   <li>has access to all of the system resources owned by that process.</li>
+   <li>has its own general registers.</li>
+   <li>has its own stack (within the owning process' address space).</li>
+</ul>
+<P>
+Threads were added to Unix/Linux as an after-thought. In Unix, a process
+could be scheduled for execution, and could create threads for
+additional parallelism.
+Windows NT is a newer operating system, and it was designed
+with threads from the start ... and so the abstractions are cleaner:
+<ul>
+   <li>a process is a container for an address space and resources.</li>
+   <li>a thread is <strong>the</strong> unit of scheduled execution.</li>
+</ul>
+</P>
+
+<H2>A Simple Threads Library</H2>
+<P>
+When threads were first added to Linux they were entirely implemented
+in a user-mode library, with no assistance from the operating system.
+This is not merely historical trivia, but interesting as an examination
+of what kinds of problems can and cannot be solved without operating
+system assistance.
+</P>
+The basic model is:
+<ul>
+    <li>Each time a new thread was created:</li>
+    <ul>
+	<li>we allocate memory for a (fixed size) thread-private stack from the heap.</li>
+	<li>we create a new thread descriptor that contains identification information,
+	    scheduling information, and a pointer to the stack.</li>
+	<li>we add the new thread to a ready queue.</li>
+    </ul>
+    <li>When a thread calls <em>yield()</em> or <em>sleep()</em> we save its
+	general registers (on its own stack), and then select the next thread
+	on the ready queue.</li>
+    <li>To dispatch a new thread, we simply restore its saved registers
+        (including the stack pointer), and return from the call that 
+	caused it to <em>yield</em>.</li>
+    <li>If a thread called <em>sleep()</em> we would remove it from the
+        ready queue.  When it was re-awakened, we would put it back onto
+	the ready queue.</li>
+    <li>When a thread exited, we would free its stack and thread descriptor.</li>
+</ul>
+Eventually people wanted preemptive scheduling to ensure good interactive 
+response and prevent buggy threads from tieing up the application:
+<ul>
+    <li>Linux processes can schedule the delivery of (SIGALARM) timer
+        signals and register a handler for them.</li>
+    <li>Before dispatching a thread, the we can schedule a SIGALARM
+        that will interrupt the thread if it runs too long.</li>
+    <li>If a thread runs too long, the SIGALARM handler can 
+        <em>yield</em> on behalf of that thread, saving
+	its state, moving on to the next thread in the ready queue.</li>
+</ul>
+But the addition of preemptive scheduling created new problems for
+critical sections that required before-or-after, all-or-none serialization.
+Fortunately Linux processes can temporarily block signals (much as it is
+possible to temporarily disable an interrupt) via the <em>sigprocmask(2)</em>
+system call.
+<H2>Kernel implemented threads</H2>
+There are two fundamental problems with implementing threads in a user mode
+library: 
+<ul>
+   <li> what happens when a system call blocks<br>
+	<P>
+        If a user-mode thread
+        issues a system call that blocks (e.g. <em>open</em> or <em>read</em>),
+        the process is blocked until that operation completes.  This means that
+        when a thread blocks, all threads (within that process) stop executing.  
+        Since the threads
+        were implemented in user-mode, the operating system has no knowledge
+        of them, and cannot know that other threads (in that process) might still
+        be runnable.
+	</p></li>
+   <li> exploiting multi-processors<br>
+	<p>
+   	If the CPU has multiple execution cores, the operating system 
+	can schedule processes on each to run in parallel.  But if the
+	operating system is not aware that a process is comprised of
+	multiple threads, those threads cannot execute in parallel
+	on the available cores.
+	</p></li>
+</ul>
+<P>
+Both of these problems are solved if threads are implemented by
+the operating system rather than by a user-mode thread library.
+</P>
+<H2>Performance Implications</H2>
+<P>
+If non-preemptive scheduling can be used, user-mode threads operating
+in with a <em>sleep/yield</em> model are much more efficient than
+doing context switches through the operating system.  
+There are, today, <em>light weight thread</em> implementations to 
+reap these benefits.
+</P>
+<P>
+If preemptive scheduling is to be used, the costs of setting
+alarms and servicing the signals may well be greater than the
+cost of simply allowing the operating system to do the scheduling.
+</P>
+<P>
+If the threads can run in parallel on a multi-processor, the added
+throughput resulting from true parallel execution may be far greater
+than the efficiency losses associated with more expensive context
+switches through the operating system.  Also, the operating system knows
+which threads are part of the same process, and may be able to schedule them
+to maximize cache-line sharing.
+</P>
+<P>
+Like preemptive scheduling, the signal disabling and reenabling
+for a user-mode mutex or condition variable implementation may
+be more expensive than simply using the kernel-mode implementations.
+But it may be possible to get the best of both worlds with a user-mode
+implementation that uses an atomic instruction to attempt to get a
+lock, but calls the operating system if that allocation fails
+(somewhat like the <em>futex(7)</em> approach).
+</body>
+<html>

@@ -1,0 +1,266 @@
+<html>
+<head>
+<title>Health Monitoring and Recovery</title>
+</head>
+<body>
+<style type="text/css">
+dt {font-weight: bold}
+</style>
+<center><h1>Health Monitoring and Recovery</h1></center>
+<H2>Introduction</h2>
+<P>
+Suppose that a system seems to have locked up ... it has not recently
+made any progress.  How would we determine if the system was deadlocked?
+</p>
+<ul>
+    <li> identify all of the blocked processes.</li>
+    <li> identify the resource on which each process is blocked.</li>
+    <li> identify the owner of each blocking resource.</li>
+    <li> determine whether or not the implied dependency graph contains any loops.</li>
+</ul>
+<P>
+How would we determine that the system might be wedged, so that
+we could invoke deadlock analysis?
+</p>
+<P>
+It may not be possible to identify the owners of all 
+of the involved resources, or even all of the resources.
+</p>
+<P>
+Worse still, a process may not actually be blocked, but merely waiting 
+for a message or event (that has, for some reason, not yet been sent).<br>
+</p>
+<P>
+If we did determine that a deadlock existed, what would we do?
+Kill a random process?  This might break the circular dependency, but
+would the system continue to function properly after such an action?
+</p>
+Formal deadlock detection in real systems ...
+<ol type="a">
+    <li> is difficult to perform</li>
+    <li> is inadequate to diagnose most hangs</li>
+    <li> does not enable us to fix the problem</li>
+</ol>
+<p>
+Fortunately there are better techniques that are far more
+effective at detecting, diagnosing, and repairing a much 
+wider range of problems: health monitoring and managed
+recovery.
+</P>
+<H2>Health Monitoring</h2>
+<P>
+We said that we could invoke deadlock detection whenever we thought
+that the system might not be making progress.  How could we know 
+whether or not the system was making progress?  There are many
+ways to do this:
+<ul>
+    <li> by having an internal monitoring agent watch
+         message traffic or a transaction log to determine whether or 
+	 not work is continuing</li>
+    <li> by asking clients to submit failure reports to
+    	a central monitoring service when a server appears
+	to have become unresponsive</li>
+    <li> by having each server send periodic heart-beat
+    	 messages to a central health monitoring service.</li>
+    <li> by having an external health monitoring service
+    	 send periodic test requests to the service that
+	 is being monitored, and ascertain that they are
+	 being responded to correctly and in a timely fashion.</li>
+</ul>
+<P>
+Any of these techiques could alert us of a potential deadlock,
+livelock, loop, or a wide range of other failures.  But each
+of these techniques has different strengths and weaknesses:
+<ul>
+    <li> heart beat messages can only tell us that the node and
+         application are still up and running.  They cannot
+	 tell us if the application is actually serving
+	 requests.</li>
+    <li> clients or an external health monitoring service can determine
+    	 whether or not the monitored application is responding 
+	 to requests.  But this does not mean that some other
+	 requests have not been deadlocked or otherwise wedged.</li>
+    <li> an internal monitoring agent might be able to monitor
+         logs or statistics to determine that the service is
+	 processing requests at a reasonable rate (and perhaps
+	 even that no requests have been waiting too long).
+	 But if the internal monitoring agent fails, it may
+	 not be able to detect and report errors.</li>
+</ul>
+Many systems use a combination of these methods:
+<ul>
+    <li> the first line of defense is an internal monitoring
+         agent that closely watches key applications to 
+	 detect failures and hangs.</li>
+    <li> if the internal monitoring agent is responsible for
+         sending heart-beats (or health status reports) to
+	 a central monitoring agent, a failure of the internal
+	 monitoring agent will be noticed by the central monitoring
+	 agent.</li>
+    <li> an external test service that periodically generates
+         test transactions provides an independent assessment
+	 that might include external factors (e.g. switches, load
+	 balancers, network connectivity) that would not be tested
+	 by the internal and central monitoring services.</li>
+</ul>
+
+<H2>Managed Recovery</h2>
+<P>
+Suppose that some or all of these monitoring mechanisms determine
+that a service has hung or failed.  What can we do about it?
+Highly available services must be designed for restart,
+recovery, and fail-over:
+</P>
+<UL>
+   <li> The software should be designed so that any process
+   	in the system can be killed and restarted at any time.
+	When a process restarts, it should be able to reestablish 
+	communiction with the other processes and resume working
+	with minimal disruption. </li>
+    <li>The software should be designed to support multiple
+        levels of restart. Examples might be:
+	<ul>
+		<li> warm-start ... restore the last saved
+		     state (from a database or from information
+		     obtained from other processes) and resume
+		     service where we left off.</li>
+		<li> cold-start ... ignore any saved state
+		     (which may be corrupted) and restart
+		     new operations from scratch.</li>
+		<li> reset and reboot ... reboot the
+		     entire system and then cold-start
+		     all of the applications.</li>
+	</ul>
+    </li>
+    <li>The software might also designed be for progressively
+        escalating scope of restarts:
+	<ul>
+		<li> restart only a single process, and expect
+		     it to resync with the other processes when
+		     it comes back up.</li>
+		<li> maintain a list of all of the processes 
+		     involved in the delivery of a service, and
+		     restart all processes in that group.</li>
+		<li> restart all of the software on a single node.</li>
+		<li> restart a group of nodes, or the entire system.</li>
+	</ul>
+    </li>
+</ul>
+<P>
+Designing software in this way gives us the opportunity to begin
+with minimal disruption, restarting only the process that seems
+to have failed.  In most cases this will solve the problem, but
+perhaps:
+<ul>
+   <li>	process A failed as a result of an incorrect request
+        received from process B.</li>
+   <li> the operation that caused process A to fail is still
+   	listed in the database, and when process A restarts,
+	it may attempt to re-try the same operation and fail
+	agian.</li>
+   <li> the operation that caused process A to fail may have
+        been mirrored to other systems, that will also 
+	experience or cause additional failures.</li>
+</ul>
+For all of these reasons it is desirable to have the ability to
+escalate to progressively more complete restarts of a progressively
+wider range of components.  
+</P>
+<H2>False Reports</h2>
+<P>
+Ideally a problem will be found by the internal monitoring agent on the
+affected node, which will automatically trigger a restart of the
+affected software on that node.  Such prompt local action has the
+potential to fix the problem before other nodes even notice that
+there was a problem.
+</P>
+<P>
+But suppose a central monitoring service notes that it has not received
+a heart-beat from process A.  What might this mean?
+<UL>
+   <li>It might mean that process A's node has failed.</li>
+   <li>It might mean that the process A has failed.</li>
+   <li>It might mean that the process A's system is loaded and the heart-beat message was delayed.</li>
+   <li>It might mean that a network error prevented or delayed the delivery 
+       of a heart-beat message.</li>
+   <li>It might mean there is a problem with the central monitoring service.</li>
+</UL>
+<P>
+Declaring a process to have failed can potentially be a very expensive operation.
+It might cause the cancellation and retransmission of all requests that had been
+sent to the failed process or node.  It might cause other servers to start trying
+to recover work-in-progress from the failed process or node.  This recovery
+might involve a great deal of network traffic and system activity.  We don't
+want to start an expensive fire-drill unless we are pretty certain that a process
+has actually failed.
+</p>
+<UL>
+   <li> the best option would be for a failing system to detect its own 
+        problem, inform its partners, and shut-down cleanly.</li>
+   <li> if the failure is detected by a missing heart-beat, it may be 
+        wise to wait until multiple heart-beat messages have been missed
+	before declaring the process to have failed.</li>
+   <li> to distinguish a problem with a monitored system from a problem
+   	in the monitoring infrastructure, we might want to wait for multiple 
+	other processes/nodes to notice and report the problem.
+</UL>
+<P>
+There is a trade-off here:
+<ul>
+   <li> If we do not take the time to confirm suspected failures, we may 
+   	suffer unnecessary service disruptions from forcing 
+	unnecessary fail-overs from healthy servers.</li>
+   <li> If we mis-diagnose the cause of the problem and restart the
+   	wrong components we may make the problem even worse.</li>
+   <li> If we wait too long before initiating fail-overs, we are prolonging 
+        the service outage.</li>
+</ul>
+These so-called "mark-out thresholds" often require a great deal of tuning.
+Many systems evolve complex decision algorithms to filter and reconcile potentially
+conflicting reports to attempt to infer what the most likely cause of of
+a problem is, and the most effective means of dealing with it.
+</P>
+<H2>Other Managed Restarts</h2>
+<P>
+As we consider failure and restart, there are two other interesting types
+of restart to note:
+<dl>
+   <dt>non-disruptive rolling upgrades</dt>
+	<dd>
+	<P>
+	If a system is capable of operating without some of its nodes, it
+	is possible to achieve non-disruptive rolling software upgrades.
+   	We take nodes down, one-at-a-time, upgrade each to a new software 
+	release, and then reintegrate them into the service.  There are
+	two tricks associated with this:
+	</p>
+	<ul>
+	   <li> the new software must be up-wards compatible with
+	   	the old software, so that new nodes can interoperate
+		with old ones.</li>
+	   <li> if the rolling upgrade does not seem to be working,
+	   	there needs to be an automatic <em>fall-back</em> option
+		to return to the previous (working) release.</li>
+	</ul>
+   	</dd>
+   <dt> prophylactic reboots</dt>
+	<dd>
+	<p>
+   	It has long been observed that many software systems become
+	slower and more error prone the longer they run.  The most 
+	common problem is memory leaks, but there are other types of
+	bugs that can cause software systems to degrade over time.
+	The right solution is probably to find and fix the bugs ...
+   	but many organizations seem unable to do this.  One popular
+	alternative is to automatically restart every system at
+	a regular interval (e.g. a few hours or days).
+	</p>
+	<P>
+	If a system can continue operating in the face of node failures,
+	it should be fairly simple to shut-down and restart nodes
+	one at a time, on a regular schedule.
+   	</p>
+   	</dd>
+</dl>
+</body>
+<html>

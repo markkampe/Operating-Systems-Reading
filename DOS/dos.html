@@ -1,0 +1,626 @@
+<HTML>
+<HEAD>
+<TITLE>An Introduction to DOS FAT Volumes and File Structure</TITLE>
+</HEAD>
+
+<BODY>
+<H2>An Introduction to DOS FAT Volume and File Structure</H2>
+<H4>
+Mark Kampe
+<A HREF="mailto:markk@cs.ucla.edu">markk@cs.ucla.edu</A>
+</h4>
+
+<H4>1. Introduction</H4>
+<P>
+When the first personal computers with disks became available, 
+they were very small (a few megabytes of disk and a few dozen
+kilobytes of memory).  A file system implementation for such
+machines had to impose very little overhead on disk space, 
+and be small enough to fit in the BIOS ROM.
+BIOS stands for <strong>BASIC I/O Subsystem</strong>.  
+Note that the first word is all upper-case.  The purpose of
+the BIOS ROM was to provide run-time support for a BASIC
+interpreter (which is what Bill Gates did for a living before
+building DOS).  DOS was never intended to provide the features 
+and performance of real timesharing systems.  
+<P>
+Disk and memory size have increased in the last thirty years,
+People now demand state-of-the-art power and functionality from 
+their PCs.  Despite the evolution that the last decades have
+seen, old standards die hard.  Much as European train tracks
+maintain the same wheel spacing used by Roman chariots, most
+modern OSs still support DOS FAT file systems.  DOS file systems
+are not merely around for legacy reasons.  The ISO 9660 CDROM
+file system format is a descendent of the DOS file system.
+<P>
+The DOS FAT file system is worth studying because:
+<UL>
+	<LI> It is heavily used all over the world, and is the
+		basis for more modern file system (like 9660).
+	<LI> It provides reasonable performance (large transfers
+		and well clustered allocation) with a very simple
+		implementation.
+	<LI> It is a very successful example of "linked list"
+	     space allocation.
+</UL>
+
+
+<H4>2. Structural Overview</H4>
+<P>
+All file systems include a few basic types of data structures:
+<UL>
+	<LI> bootstrap
+	<P>
+		code to be loaded into memory and executed when
+		the computer is powered on.  MVS volumes reserve
+		the entire first track of the first cylinder for
+		the boot strap.
+	<LI> volume descriptors
+	<P>
+		information describing the size, type, and layout
+		of the file system ... and in particular how to
+		find the other key meta-data descriptors.
+	<LI> file descriptors
+	<P>
+		information that describes a file (ownership, 
+		protection, time of last update, etc.) and
+		points where the actual data is stored on the
+		disk.
+	<LI> free space descriptors
+	<P>
+		lists of blocks of (currently) unused space
+		that can be allocated to files.
+	<LI> file name descriptors
+	<P>
+		data structures that user-chosen names with
+		each file.
+</UL>
+<P>
+DOS FAT file systems divide the volume into fixed-sized (physical)
+blocks, which are grouped into larger fixed-sized (logical) 
+block clusters.
+<P>
+The first block of DOS FAT volume contains the bootstrap, along
+with some volume description information.
+After this comes a much longer 
+<strong>File Allocation Table</strong> (FAT from which
+the file system takes its name).  The File Allocation Table is
+used, both as a free list, and to keep track of which blocks have
+been allocated to which files.
+<P>
+The remainder of the volume is data clusters, which can be allocated
+to files and directories.  The first file on the volume is the root
+directory, the top of the tree from which all other files and directories
+on the volume can be reached.
+<P>
+<CENTER>
+<IMG src="dosvol.gif">
+</CENTER>
+<P>
+
+<H4>3. Boot block BIOS Parameter Block and FDISK Table </h4>
+<P>
+Most file systems separate the first block (pure bootstrap code) from
+volume description information.  DOS file systems often combine these
+into a single block.  The format varies between (partitioned) hard
+disks and (unpartitioned) floppies, and between various releases 
+of DOS and Windows ... but conceptually, the boot record:
+<UL>
+	<LI> begins with a branch instruction 
+		(to the start of the real boostrap code).
+	<LI> followed by a volume description (BIOS Parameter Block)
+	<LI> followed by the real bootstrap code
+	<LI> followed by an optional disk partitioning table
+	<LI> followed by a signature (for error checking).
+</UL>
+
+<CENTER>
+<IMG src="dosboot.gif">
+</CENTER>
+<P>
+</UL>
+<H4>3.1 BIOS Parameter Block</h4>
+<P>
+After the first few bytes of the bootstrap comes the BIOS parameter
+block, which contains a brief summary of the device and file system.  
+It describes the device geometry:
+	<UL>
+		<LI> number of bytes per (physical) sector
+		<LI> number of sectors per track
+		<LI> number of tracks per cylinder
+		<LI> total number of sectors on the volume
+	</UL>
+It also describes the way the file system is layed out on the volume:
+	<ul>
+		<LI> number of sectors per (logical) cluster
+		<LI> the number of reserved sectors (not part of file system)
+		<LI> the number of Alternate File Allocation Tables
+		<LI> the number of entries in the root directory
+	</UL>
+<P>
+These parameters enable the OS to interpret the remainder of the
+file system.
+<P>
+<H4>3.2 FDISK Table</h4>
+<P>
+As disks got larger, the people at MicroSoft figured out that their
+customers might want to put multiple file systems on each disk.  This
+meant they needed some way of partitioning the disk into logical sub-disks.
+To do this, they added a small partition table (sometimes called the FDISK
+table, because of the program that managed it) to the end of the boot
+strap block. 
+<P>
+This FDISK table has four entries, each capable of describing one disk
+partition.  Each entry includes
+<UL>
+	<LI> A partition type (e.g. Primary DOS partition, UNIX partition).
+	<LI> An ACTIVE indication (is this the one we boot from).
+	<LI> The disk address where that partition starts and ends.
+	<LI> The number of sectors contained within that partition.
+</UL>
+<P>
+<TABLE BORDER>
+<TR> 
+	<TH> Partn
+	<TH> Type
+	<TH> Active
+	<TH> Start (C:H:S)
+	<TH> End (C:H:S)
+	<TH> Start (logical)
+	<TH> Size (sectors)
+</TR>
+<TR>
+	<TD ALIGN=CENTER> 1	
+	<TD ALIGN=CENTER> LINUX		<TD ALIGN=CENTER>True
+	<TD ALIGN=CENTER> 1:0:0		<TD ALIGN=CENTER>199:7:49
+	<TD ALIGN=CENTER> 400		<TD ALIGN=CENTER>79,600
+</TR>
+<TR>
+	<TD ALIGN=CENTER>2
+	<TD ALIGN=CENTER> Windows NT	<TD>
+	<TD ALIGN=CENTER> 200:0:0	<TD ALIGN=CENTER>349:7:49
+	<TD ALIGN=CENTER> 80,000	<TD ALIGN=CENTER>60,000
+</TR>
+<TR>
+	<TD ALIGN=CENTER>3
+	<TD ALIGN=CENTER> FAT 32	<TD>
+	<TD ALIGN=CENTER> 350:0:0	<TD ALIGN=CENTER>399:7:49
+	<TD ALIGN=CENTER> 140,000	<TD ALIGN=CENTER>20,000
+</TR>
+<TR>
+	<TD ALIGN=CENTER>4
+	<TD ALIGN=CENTER>NONE
+</TR>
+</TABLE>
+<P>
+In older versions of DOS the starting/ending addresses were specified
+as cylinder/sector/head.  As disks got larger, this became less practical,
+and they moved to logical block numbers.
+<P>
+The addition of disk partitioning also changed the structure of the boot
+record.  The first sector of a disk contains the Master Boot Record (MBR)
+which includes the FDISK table, and a bootstrap that finds the active
+partition, and reads in its first sector (Partition Boot Record).  Most
+people (essentially everyone but Bill Gates :-) make their MBR bootstrap
+ask what system you want to boot from, and boot the active one by default
+after a few seconds.  This gives you the opportunity to choose which OS
+you want to boot.  Microsoft makes this decision for you ... you want 
+to boot Windows.
+<P>
+The structure of the Partition Boot Record is entirely operating system
+and file system specific ... but for DOS FAT file system partitions, it
+includes a BIOS Parameter block as described above.
+<P>
+<H4>4. File Descriptors (directories)</H4>
+<P>
+In keeping with their desire for simplicity, DOS file systems
+combine both file description and file naming into a single
+file descriptor (directory entries).  A DOS directory is 
+a file (of a special type) that contains a series of fixed
+sized (32 byte) directory entries.  Each entry describes a single
+file:
+<UL>
+	<LI> an 11-byte name (8 characters of base name, plus
+	     a 3 character extension).
+	<LI> a byte of attribute bits for the file, which include:
+	<UL>
+		<LI> Is this a file, or a sub-directory.
+		<LI> Has this file changed since the last backup.
+		<LI> Is this file hidden.
+		<LI> Is this file read-only.
+		<LI> Is this a system file.
+		<LI> Does this entry describe a volume label.
+	</UL>
+	<LI> times and dates of creation and last modification, and
+		date of last access.
+	<LI> a pointer to the first logical block of the file.
+		(This field is only 16 bits wide, and so when Microsoft
+		introduced the FAT32 file system, they had to put the
+		high order bits in a different part of the directory
+		entry).
+	<LI> the length (number of valid data bytes) in the file.
+</UL>
+<P>
+<TABLE BORDER>
+<TR>
+	<TH>Name (8+3)
+	<TH>Attributes
+	<TH>Last Changed
+	<TH>First Cluster
+	<TH>Length
+</TR>
+<TR>
+	<TD ALIGN=CENTER>.
+	<TD ALIGN=CENTER>DIR
+	<TD ALIGN=CENTER>08/01/03 11:15:00
+	<TD ALIGN=CENTER>61
+	<TD ALIGN=CENTER>2,048
+</TR>
+
+<TR>
+	<TD ALIGN=CENTER>..
+	<TD ALIGN=CENTER>DIR
+	<TD ALIGN=CENTER>06/20/03 08:10:24
+	<TD ALIGN=CENTER>1
+	<TD ALIGN=CENTER>4,096
+</TR>
+
+<TR>
+	<TD ALIGN=CENTER>MARK
+	<TD ALIGN=CENTER>DIR
+	<TD ALIGN=CENTER>10/15/04 21:40:12
+	<TD ALIGN=CENTER>130
+	<TD ALIGN=CENTER>1,800
+</TR>
+
+<TR>
+	<TD ALIGN=CENTER>README.TXT
+	<TD ALIGN=CENTER>FILE
+	<TD ALIGN=CENTER>11/02/04 04:27:36
+	<TD ALIGN=CENTER>410
+	<TD ALIGN=CENTER>31,280
+</TR>
+
+</TABLE>
+<P>
+If the first character of a files name is a NULL (0x00) the
+directory entry is unused.  The special character (0xE5) in
+the first character of a file name is used to indicate that
+a directory entry describes a deleted file.  (See the section
+on Garbage collection below)
+<P>
+<H5>Note on times and dates:</h5>
+<P>
+DOS stores file modification times and dates as a pair of 16-bit
+numbers:
+<UL>
+	<LI> 7 bits of year, 4 bits of month, 5 bits of day of month
+	<LI> 5 bits of hour, 6 bits of minute, 5 bits of seconds (x2).
+</UL>
+<P>
+All file systems use dates relative to some epoch (time zero).  For
+DOS, the epoch is midnight, New Year's Eve, January 1, 1980.  A seven
+bit field for years means that the the DOS calendar only runs til 2107.
+Hopefully, nobody will still be using DOS file systems by then :-)
+<P>
+<H4>5. Links and Free Space (File Allocation Table)</H4>
+<P>
+Many file systems have very compact (e.g. bitmap) free lists,
+but most of them use some per-file data structure to keep track
+of which blocks are allocated to which file.  The DOS File
+Allocation Table is a relatively unique design.
+It contains one entry for each logical block in the volume.
+If a block is free, this is indicated by the FAT entry.
+If a block is allocated to a file, the FAT entry gives the
+logical block number of the <strong>next</strong> logical
+block in the file.
+<P>
+<H4>5.1 Cluster Size and Performance</h4>
+<P>
+Space is allocated to files, not in (physical) blocks, but
+in (logical) multi-block clusters.  The number of clusters per
+block is determined when the file system is created.
+<P>
+Allocating space to files in larger chunks improves I/O performance,
+by reducing the number of operations required to read or write a 
+file.  This comes at the cost of higher internal fragmentation
+(since, on average, half of the last cluster of each file is left 
+unused).  As disks have grown larger, people have become less
+concerned about internal fragmentation losses, and cluster sizes
+have increased.
+<P>
+The maximum number of clusters a volume can support depends on
+the width of the FAT entries.  In the earliest FAT file systems
+(designed for use on floppies, and small hard drives).  An 8-bit
+wide FAT entry would have been too small (256 * 512 = 128K bytes)
+to describe even the smallest floppy, but a 16-bit wide FAT entry
+would have been ludicrously large (8-16 Megabytes) ... so Microsoft
+compromised and adopted 12-bit wide FAT entries (two entries in 
+three bytes).  These were called FAT-12 file systems.  As disks 
+got larger, they created 2-byte wide (FAT-16) and 4-byte wide 
+(FAT-32) file systems.
+<P>
+<H4>5.2 Next Block Pointers</h4>
+<P>
+A file's directory entry contains a pointer to the first cluster of
+that file.  The File Allocation Table entry for that cluster tells
+us the cluster number <strong>next</strong> cluster in the file.
+When we finally get to the last cluster of the file, its FAT entry
+will contain a -1, indicating that there is no next block in the
+file.
+<P>
+<CENTER>
+<IMG src="dosfat.gif">
+</CENTER>
+<P>
+The "next block" organization of the FAT means that
+in order to figure out what physical cluster is the third logical
+block of ar file, must know the physical cluster number of the second
+logical block.
+This is not usually a problem, because almost all file access is
+sequential (reading the first block, and then the second, and then 
+the third ...).  
+<P>
+If we had to go to disk to re-read the FAT each time we needed to
+figure out the next block number, the file system would perform
+very poorly.  Fortunately, the FAT is so small (e.g. 512 bytes
+per megabyte of file system) that the entire FAT can be kept in 
+memory as long as a file system is in use.  This means that 
+successor block numbers can be looked up without the need to do
+any additional disk I/O.
+It is easy to imagine
+<P>
+<H4>5.3 Free Space</h4>
+<P>
+The notion of "next block" is only meaningful for clusters that
+are allocated to a file ... which leaves us free to use the
+FAT entries associated with free clusters as a free indication.
+Just as we reserved a value (-1) to mean <strong>end of file</strong>
+we can rerserve another value (0) to mean
+<strong>this cluster is free</strong>.
+<P>
+To find a free cluster, one has but to search the FAT for an
+entry with the value -2.  If we want to find a free cluster
+near the clusters that are already allocated to the file, 
+we can start our search with the FAT entry after the entry
+for the first cluster in the file.
+<P>
+<CENTER>
+<IMG src="dosfree.gif">
+</CENTER>
+<P>
+<H4>5.4 Garbage Collection</h4>
+<P>
+Older versions of FAT file systems did not bother to free blocks
+when a file was deleted.  Rather, they merely crossed out the first
+byte of the file name in the directory entry (with the reserved
+value 0xE5).  
+This had the advantage of greatly reducing the amount of I/O 
+associated with file deletion ... but it meant that DOS file systems 
+regularly ran out of space.
+<P>
+When this happened, they would initiate garbage collection.  Starting
+from the root directory, they would find every "valid" entry.  They
+would follow the chain of next block pointers to determine which clusters
+were associated with each file, and recursively enumerate the contents
+of all sub-directories.  After completing the enumeration of all
+allocated clusters, they inferred that any cluster not found in some
+file was free, and marked them as such in the File Allocation Table.
+<P>
+This "feature" was probably motivated by a combination of laziness
+and a desire for performance.  It did, however, have an advantage.
+Since clusters were not freed when files were deleted, they could not
+be reallocated until after garbage colection was performed.  This
+meant that it might be possible to recover the contents of deleted
+files for quite a while.  The opportunity this created was large 
+enough to enable Peter Norton to start a very successful company.
+<P>
+<H4>6. Descendents of the DOS file system</H4>
+<P>
+The DOS file system has evolved with time.  Not only have wider 
+(16- and 32-bit) FAT entries been used to support larger disks,
+but other features have been added.  The last stand-alone DOS
+product was DOS 6.x.  After this, all DOS support was under Windows,
+and along with the change to Windows came an enhanced version of
+the FAT file system called Virtual FAT (or simply VFAT).
+<P>
+<A name=directory>
+<H4>6.1 Long File Names</H4>
+<P>
+Most DOS and Windows systems were used for personal productivity,
+and their users didn't demand much in the way of file system 
+features.  Their biggest complaints were about the 8+3 file
+names.  Windows users demanded longer and mixed-case file names.
+<P>
+The 32 byte directory entries didn't have enough room to hold
+longer names, and changing the format of DOS directories would
+break hundreds or even thousands of applications.  It wasn't
+merely a matter of importing files from old systems to new
+systems.  DOS diskettes are commonly used to carry files between
+various systems ... which means that old systems still had to
+be able to read the new directories. They had to find a way to 
+support longer file names without making the new files unreadable
+by older systems.
+<P>
+The solution they came up was to put the extended filenames in
+additional (auxiliary) directory entries.  Each file would be
+described by an old-format directory entry, but supplementary
+directory entries (following the primary directory entry) could 
+provide extenstions to the file name.  
+To keep older systems from being confused by the new directory
+entries, they were tagged with a very unusual set of attributes
+(hidden, system, read-only, volume label).  Older systems 
+would ignore new entries, but would still be able to access new
+files under their 8+3 names in the old-style directory entries.  
+New systems would recognize the new directory entries, and be 
+able to access files by either the long or the short names.
+<P>
+<CENTER>
+<IMG src="doslongdir.gif">
+</CENTER>
+<P>
+The addition of long file names did create one problem for
+the old directory entries.  What would you do if you had two
+file names that differred only after the 8th character (e.g.
+datafileread.c and datafilewrite.c)?  If we just used the
+first 8 characters of the file name in the old directory
+entries (datafile), we would have two files with the same
+name, and this is illegal.  For this reason, the the short
+file names are not merely the first eight characters of the
+long file names.  Rather, the last two bytes of the short
+name were merely made unambiguous (e.g. "~1", "~2", etc).
+<P>
+<H4>6.2 Alternate/back-up FATs</H4>
+<P>
+The File Allocation Table is a very concise way of keeping track
+of all of the next-block pointers in the file system.  If anything
+ever happened to the File Allocation Table, the results would be
+disastrous.  The directory entries would tell us where the first
+blocks of all files were, but we would have no way of figuring out
+where the remainder of the data was.
+<P>
+Events that corrupt the File Allocation Table are extremely
+rare, but the consequences of such an incident are catastrophic.
+To protect users from such eventualities, MicroSoft added support
+for alternate FATs.  Periodically, the primary FAT would be copied
+to one of the pre-reserved alternat FAT locations.  Then if something
+bad happened to the primary FAT, it would still be possible to read
+most files (files created before the copy) by using the back-up FAT.
+This is an imperfect solution, as losing new files is bad ... but
+losing all files is worse.
+<P>
+<H4>6.3 ISO 9660</H4>
+<P>
+When CDs were proposed for digital storage, everyone recognized
+the importance of a single standard file system format.  Dueling
+formats would raise the cost of producing new products ... and this
+would be a lose for everyone.  To respond to this need, the International
+Standards Organization chartered a sub-committee to propose such
+a standard.
+<P>
+The failings of the DOS file system were widely known by this time,
+but, as the most widely used file system on the planet, the committee
+members could not ignore it.  Upon examination, it became clear that
+the most ideomatic features of the DOS file system (the File Allocation
+Table) were irrelevent to a CDROM file system (which is written only
+once):
+<UL>
+	<LI> We don't need to keep track of the free space on a 
+	     CD ROM.  We write each file contiguously, and the
+	     next file goes immidiately after the last one.
+	<LI> Because files can be written contiguously, we don't
+	     need any "next block" pointers.  All we need to know
+	     about a file is where its first block resides.
+</UL>
+<P>
+It was decided that ISO 9660 file systems would (like DOS file systems)
+have tree structured directory hierarchies, and that (like DOS) each 
+directory entry would describe a single file (rather than having some
+auxiliary data structure like and I-node to do this).  9660 directory
+entries, like DOS directory entries, contain:
+<UL>
+   <LI>	file name (within the current directory)
+   <LI> file type (e.g. file or directory)
+   <LI>	location of the file's first block
+   <LI> number of bytes contained in the file
+   <LI> time and date of creation
+</UL>
+<P>
+They did, however, learn from DOS's mistakes:
+<P>
+<UL>
+   <LI>	
+	Realizing that new information would be added to directory 
+	entries over time, they made them variable length.  
+	Each directory entry begins with a length field 
+	(giving the number of bytes in this directory entry, 
+	and thus the number of bytes until the next directory entry).
+   <LI>
+	Recognizing the need to support long file names,
+	they also made the file name field in each entry
+	a variable length field.
+   <LI>
+	Recognizing that, over time, people would want to associate
+	a wide range of attributes with files, they also created
+	a variable length extened attributes section after the
+	file name.  Much of this section has been left unused,
+	but they defined several new attributes for files:
+	<UL>
+	   <LI> file owner
+	   <LI>	owning group
+	   <LI> permissions
+	   <LI> creation, modification, effective, and expiration times
+	   <LI> record format, attributes, and length information
+	</UL>
+</UL>
+<P>
+But, even though 9660 directory entries include much more information
+than DOS directory entries, it remains that 9660 volumes resemble DOS
+file systems much more than they resemble any other file system format.
+And so, the humble DOS file system is reborn in a new generation of
+products.
+<P>
+<H4>7. Summary</h4>
+<P>
+DOS file systems are very simple,  They don't support multiple
+links to a file, or symbolic links, or even multi-user access
+control.
+They are also and very economical in terms of the space they take up.
+Free block lists, and file block pointers are combined into a 
+single (quite compact) File Allocation Table.  File descriptors
+are incorporated into the directory entries.
+And for all of these limitations, they are probably the most 
+widely used file system format on the planet.  Despite their
+primitiveness, DOS file systems were used as the basis for much
+newer CD ROM file system designs.
+<P>
+What can we infer from this?  That most users don't need alot of
+fancy features, and that the DOS file system (primitive as it
+may be) covers their needs pretty well.  
+<P>
+It is also noteworthy that when Microsoft was finally forced 
+to change the file system format to get past the 8.3 upper
+case file name limitations, they chose to do so with a klugy
+(but upwards compatible) solution using additional directory
+entries per file.  The fact that they chose such an implementation
+clearly illustrates the importance of maintaining media 
+interchangability with older systems.  This too is a problem
+that all (successful) file systems will eventually face.
+<P>
+
+<H4>8. References</H4>
+<P>
+DOS file system information
+<UL>
+    <LI>
+	PC Guide's <A HREF=http://www.pcguide.com/ref/hdd/file/fat_Long.htm>
+	Overview of DOS FAT file systems</A>.  (this is a pointer to the
+	long filename article ... but the entire library is nothing short
+	of excellent).
+    <LI>
+	Free BSD sources, PCFS implementation,
+	<A Href=freebsd/bpb_h.txt>
+BIOS Parameter block format</A>, and (Open Solaris)
+	<A Href=opensolaris/fdisk_h.txt>
+FDISK table format</A>.
+    <LI>
+	Free BSD sources, PCFS implementation,
+	<A Href=freebsd/direntry_h.txt>
+	Directory Entry format</A>
+</UL>
+<P>
+9660 file system information
+<UL>
+    <LI>
+	WIkipedia Introduction to
+	<A Href=http://en.wikipedia.org/wiki/ISO_9660>
+	ISO 9660 file systems</A>
+    <LI>
+	Free BSD sources, ISOFS implementation, 
+	<A Href=freebsd/iso_h.txt>
+	ISO 9660 data structures</A>.
+</UL>
+
+</BODY>
+</HTML>
+

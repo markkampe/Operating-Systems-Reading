@@ -1,0 +1,391 @@
+<HTML>
+<HEAD>
+<TITLE>An Introduction to Early UNIX Volumes and File Structure</TITLE>
+</HEAD>
+
+<BODY>
+<H2>An Introduction to Early UNIX Volume and File Structure</H2>
+<H4>
+Mark Kampe
+<A HREF="mailto:markk@cs.ucla.edu">markk@cs.ucla.edu</A>
+</h4>
+
+<H4>1. Introduction</H4>
+<P>
+By the time Ken Thompson and Dennis Richie wrote UNIX in the 1970s, 
+file systems with fixed-sized blocks and tree-structured directories
+were already common.  A key goal for UNIX was to provide the
+power and generality of larger timesharing systems (most notably
+Multics) with a much smaller and simpler implementation.  
+Their original UNIX file system design 
+provided very reasonable functionality with relatively simple
+mechanisms.  Their file system implementatin, like so many 
+other parts of UNIX, emphasized simplicity over functionality.
+UNIX file systems worked pretty well, and for many years the
+only changes made to them were to move to larger block sizes
+(to provide better throughput).
+<P>
+Over the next decade, many users bemoaned some of the 
+functional and performance limitations of the basic UNIX 
+file system.  A team of researchers at UC Berkeley decided 
+to address these issues in their (now legendary) Fourth 
+Software Distribution (4BSD).  
+The functionality (long file names and symbolic links) 
+and performance (cylinder clusters
+and bit-map free lists) improvements were quickly adopted
+by all of the major UNIX vendors, and the original UNIX
+file system design went the way of the dinosaurs.
+<P>
+This is description is probably only of interest to people
+who want to understand the problems that the BSD fast file
+system enhancements were responding to.
+</UL>
+
+<H4>2. Structural Overview</H4>
+<P>
+All file systems include a few basic types of data structures:
+<UL>
+	<LI> bootstrap
+	<P>
+		code to be loaded into memory and executed when
+		the computer is powered on.  MVS volumes reserve
+		the entire first track of the first cylinder for
+		the boot strap.
+	<LI> volume descriptors
+	<P>
+		information describing the size, type, and layout
+		of the file system ... and in particular how to
+		find the other key meta-data descriptors.
+	<LI> file descriptors
+	<P>
+		information that describes a file (ownership, 
+		protection, time of last update, etc.) and
+		points where the actual data is stored on the
+		disk.
+	<LI> free space descriptors
+	<P>
+		lists of blocks of (currently) unused space
+		that can be allocated to files.
+	<LI> file name descriptors
+	<P>
+		data structures that user-chosen names with
+		each file.
+</UL>
+<P>
+*** FIX ***
+
+<H4>3. Volume Descriptor (Super Block)</h4>
+<H4>5. File Descriptors (I-nodes)</H4>
+<H4>4. Free Space Descriptors (Free Lists)</H4>
+<H4>6. File Naming (directories)</H4>
+<H4>6.1 Symbolic Links
+<H4>7. Summary</h4>
+
+
+
+
+<P>
+<CENTER>
+<IMG src="mvsvol.gif">
+</CENTER>
+<P>
+In MVS volumes, each of these data structures is stored in a 
+<strong>Data Set Control Block</strong> (or more commonly a
+<strong>DSCB</strong>).  Each DSCB is 140 bytes long, and 
+they all reside in a single contiguous area called the 
+<strong>Volume Table of Contents</strong> 
+(or more commonly the <strong>VTOC</strong>).  
+The starting address (cylinder, head, record) of the VTOC 
+can be found at the beginning of the third record of the boot track.  
+The size of the VTOC is described in its first DSCB.  
+<P>
+<CENTER>
+<IMG src="mvsvtoc.gif">
+</CENTER>
+<P>
+Other than the first DSCB (which is always the volume descriptor), 
+most of the remaining DSCBs in the VTOC can be used for any purpose 
+(e.g. file descriptors and free space descriptors).  
+All of the file system meta-data is confined to the DSCBs
+in the VTOC.  
+Other than the boot track and the VTOC, the entire remainder
+of the volume is available to be allocated to user files.  
+<P>
+Since all of the meta-data in an MVS volume resides in DSCBs,
+a study of MVS volume structure inevitably turns into a 
+discussion of the various types of DSCBs.  For our purposes
+there are four important types of DSCBs (there are a few others,
+but they have rather specialized uses).  We can tell type
+a particular DSCB describes by looking at its format byte.  
+The most interesting types are: 
+<UL>
+	<LI> 0xF1: format 1 DSCBs describe files
+	<LI> 0xF3: format 3 DSCBs describe additional extents in files
+	<LI> 0xF4: format 4 DSCBs describe an MVS volume
+	<LI> 0xF4: format 5 DSCBs describe free space
+</UL>
+
+<P>
+Each of these will be discussed in the following sections.
+<P>
+
+<H4>3. Volume Descriptors (Format 4 DSCB)</h4>
+<P>
+All file systems need a volume descriptor that describes the
+size and layout of the file system.  MVS stores this information
+in a format 4 DSCB.  There can only be one format 4 DSCB in 
+a volume, and it must be the first DSCB in the VTOC.
+<P>
+The information included in the volume descriptor DSCB includes:
+<UL>
+	<LI> The number of DSCBs in the VTOC
+	<LI> The size and location of the alternate tracks area
+	<P>
+		These are spare tracks to be held in reserve until
+		they are needed.
+		In the event that a bad-spot develops on the disk,
+		alternate tracks can be given to any affected files
+		in place of the tracks that have gone bad.
+	     
+	<LI> File system type and status information.
+	<LI> Key format information (for indexed volumes)
+	<LI> VSAM data base parameters (for VSAM volumes)
+</UL>
+
+
+<H4>4. Free Space Descriptors (Format 5 DSCBs)</H4>
+<P>
+MVS files are made up of a few (e.g. not hundreds) of chunks
+of space.  Each chunk is contiguous space, and can be read or
+written with little-or-no head motion.  Successive chunks may
+or may not be close to one another.  Each of these separately
+allocated "chunks" is called an <strong>extent</strong>. 
+Different files can have different extent sizes.  The size of 
+each extent, as well as its alignment (e.g. on a track or cylinder 
+boundary) is chosen by the programmer who creates the file.
+<P>
+If I had a database that I expected to occupy somewhere in the range
+of 5-25 cylinders, I might allocate space to it in single cylinder
+extents.  When processing the entire database, I might then read
+a whole cylinder at a time (transferring several megabytes, at
+very high speed, with only a single seek at the start of the operation).
+This would enable me to process my database very efficiently.
+<P>
+Because different files can use different extent sizes, MVS
+volumes support variable partition allocation (with coalescing).
+They keep track of the (currently) free space with a free list
+comprised of format 5 DSCBs.
+<P>
+The second DSCB in the VTOC is a format 5 DSCB, which is the start
+of the free space list on that volume.  A format 5 DSCB contains
+up to 26 free extent descriptions.
+A free extent description includes
+the address of the next free extent, and its size (in cylinders
+and tracks).
+A free extent can be of arbitrary size, but must be contiguous.  
+If there are more than 26 free extents, there is also a pointer
+to the next format 5 DSCB in the free list.
+<P>
+<CENTER>
+<IMG src="mvsfree.gif">
+</CENTER>
+<P>
+When a Format 5 DSCB is empty (no longer points to any free extents)
+it is recycled by changing its format to 0 ... making it available
+to be reallocated for some other use.  If it becomes necessary to
+add new nodes to the free list (because the appropriate format 5
+DSCB is already full) a new (type 0) DSCB is found, turned into a
+type 5 DSCB, and inserted into the free list.
+<P>
+
+<H4>5. File Descriptors (Format 1 and Format 3 DSCBs)</H4>
+<P>
+Each file on an MVS volume is described by a type 1 DSCB.
+The contents of a type 1 DSCB includes:
+<UL>
+	<LI> the file name (44 bytes long)
+	<LI> the number of extents allocated to the file
+	<LI> the number of valid data bytes in the last extent
+	<LI> the extent size to be used when new extents are allocated
+	<LI> pointers to the first three extents allocated to this file
+	<LI> (optional) pointer to an additional Format 3 DSCB.
+	<LI> creation, last referenced, and expiration dates for the file
+	<LI> the "organization" and "record format" of the file
+	<P>
+		Since all of the file structure (below the level
+		of the extents) is controlled by the application,
+		this field allows applications to record a note
+		(for themselves) on how this file has been organized
+		and what size the logical records have..
+	<LI> parameters for the appropriate "access method"
+	<P>
+		Most programmers do not directly program their
+		own disk I/O.  Rather, they choose from a set
+		of standardized "access methods" (e.g. VSAM).
+		In order to know how to read and write a file,
+		several access method specific parameters may
+		also have to be specified by the programmer 
+		who creates the file.
+</UL>
+<P>
+MVS doesn't really have directories.  Each file has a unique, 
+true name, which is recorded in the file's type 1 DSCB.  These
+names are all 44 characters long.  To find a particular file,
+it is often necessary to read through all of the type 1 DSCBs
+in the VTOC until the desired file name is found.
+<P>
+A Format 1 DSCB includes only three extent pointers.
+If a file has more than three extents of space allocated to it,
+one or more Format 3 DSCBs will also be associated with the
+file (to describe the additional extents).  Each Format 3 
+DSCB describes up to 13 additional extents (giving the 
+extent number within the file, and its starting and ending 
+addresses).  There is also a pointer to the next Format 3
+DSCB ... making it possible to allocate as many extents to
+a file as desired.
+<P>
+<CENTER>
+<IMG src="mvsfile.gif">
+</CENTER>
+<P>
+When a new file is created, an unallocated (type 0) DSCB is
+located, and turned into a type 1 DSCB.  As extents are added
+to the file, they are recorded in the Format 1 DSCB.  When
+the fourth extent is added, another unallocated DSCB is found,
+and initialized into a Format 3 DSCB to describe the next 13
+extents. 
+<P>
+When a file is deleted, all of its extents are returned to the
+free list (coalescing as necessary), and the Format 1 DSCB
+(and any associated Format 3 DSCBs) are cleared (making them
+available for reallocation).
+
+
+<H4>6. Volume Index</H4>
+<P>
+As mentioned previously, MVS does not really have directories.
+Filenames may be structured in a way that suggests directories
+(e.g. USERS.KAMPE.CS111.WEB.DOCS.MVS.HTML) but this is only
+a naming convention.
+<P>
+DSCBs are allocated in a First-Come-First-Served fashion, so
+there is no guarantee that the Format 1 DSCBs for related 
+files will be anywhere near one another.  Since the order of
+DSCB allocations is unrelated to file names, finding a desired
+file by searching through all of the Format 1 DSCBs can be 
+a very slow process.  Such searches could be made much faster
+if we prepared a sorted list of file names.  
+<P>
+MVS file systems often include an index or <strong>catalog</strong>
+to optimize file opens and other  common searches.  An MVS 
+volume can be designated (in the volume descriptor) as having 
+an index.  If there is an index, it is always named 
+"SYS1.VTOCIX".  The index (which can be recreated at any time) 
+contains:
+<P>
+<UL>
+	<LI> a free track bit-map for the entire volume
+	<LI> a free DSCB bit-map for the VTOC
+	<LI> a structured and sorted list of file names
+	<LI> a bit-map for free entries in the index file
+</UL>
+<P>
+<CENTER>
+<IMG src="mvsindx.gif">
+</CENTER>
+<P>
+The <strong>Volume Index Entry Records</strong> (or <strong>VIER</strong>s)
+make up the majority of the Index, and these are used to create a 
+sorted list of file names.  The VIERs exist in a hierarchy that is
+very much like directories:
+<UL>
+	<LI> the first VIER is for the top level index, and
+	     contains a sorted list of entries.
+	<LI> if there are more file names (at this level)
+	     than can fit in a single VIER, there is a pointer
+	     to a continuation VIER.
+	<LI> if a VIER entry describes a file, the entry includes
+	     a pointer to the format 1 DSCB for the file.
+	<LI> if a VIER entry describes another sub-index, it includes
+	     a pointer to the first VIER for that sub-index.
+</UL>
+
+<CENTER>
+<IMG src="mvsindx1.gif">
+</CENTER>
+<P>
+There are, however, a few key differences between
+the <strong>Volume Index Entries</strong> in the catalog 
+and true directories:
+<UL>
+	<LI> A directory is usually a file in its own right, 
+	     whereas all of the VIERs on a volume are records 
+	     in a single file.
+	<LI> On file systems with directories, the directories
+	     are essential to locating a file.  In MVS volumes,
+	     the catalog is not necessary to open a file ... it
+	     merely speeds up the process.
+	<LI> The VIERs do not assign names to files.  They
+	    merely record (in a more efficiently searchable
+	    form) the file names that are assigned in Format
+	    1 DSCBs).
+</UL>
+<P>
+The Volume Index can be deleted at any time, with no harm
+to the volume.  It can be reconstructed any time, by scanning
+the VTOC and enumerating all of the Format 1 and Format 5
+DSCBs.
+
+<H4>7. Summary</h4>
+<P>
+From the user's perspective, the big difference between MVS volumes
+and any other file system is the number of decisions that the user
+is required to make when creating a file.  The user has to declare
+what the file's record structure will be, choose the most appropriate
+standard access method, estimate the eventual size of the file, 
+and decide what units should be used for space allocation and 
+disk I/O.  Very few other operating systems require users to 
+provide so much input into how the file should be created and
+used ... but the result (of good choices) is file I/O performance
+that very few other operating systems can match.
+<P>
+In memory allocation, the primary purpose of variable partition 
+allocation was to minimize internal fragmentation.  In the case
+of MVS volumes, the primary purpose is to give users more control
+over space allocation ... specifically to make it possible to 
+allocate space in large contiguous extents that can be read
+and written very efficiently.  
+<P>
+In memory allocation, we found that variable partition allocation 
+almost inevitably led to external fragmentation.  Over short 
+periods, coalescing can counter this trend ... but ultimately
+external framgentation is likely to win.  The same thing is true
+of MVS volumes.  For this reason, MVS data administrators have
+to back-up and rebuild their file systems occasionally ... to
+reallocate space more efficiently, and coalesce all of the 
+available free space.
+<P>
+Because the MVS volume structure is primitive (invented in
+the 1960s) it is simple.  All file system meta-data is stored
+in a pool of fixed size DSCBs, and file names are directly 
+stored in the file descriptors.  If we look at the optional
+index/catalogs (which were added later to enhance performance)
+we see data structures that are actually quite similar to the
+bit-map free lists and hierarchical directories of other file
+systems.  IBM found a way to obtain enhanced functionality
+and performance, while maintaining upwards compatibility with
+older on-disk data structures.  This is a problem that all
+file system vendors face.
+<P>
+
+<H4>8. References
+<P>
+IBM MVS/DFP V3R3 System Programming Reference<br>
+	Document SC26-4567-02.
+<A Href=http://publibz.boulder.ibm.com/cgi-bin/bookmgr_OS390/FRAMESET/IGG3S300
+>
+	IBM Library Server, book IGG3S300</A>
+
+</BODY>
+</HTML>
+
