@@ -18,7 +18,7 @@ fifty years are:
 	<li>Garbage Collection ... seeking out no-longer-in-use resources and recycling them
 	   for reuse</li>
 	<li>De-Fragmentation ... re-assigning and relocating previously allocated resources to 
-	    eliminate <em>internal fragmentation</em> to create densly allocated resources
+	    eliminate <em>external fragmentation</em> to create densly allocated resources
 	    with large contiguous pools of free space</li>
 </ol>
 These two techniques are, in principle, orthogonal ...  but we discuss them together for
@@ -130,11 +130,11 @@ in the address space it is trying to analyze.
 <A name="Defrag">
 <h2>De-Fragmentation</h2>
 <P>
-The second problem to be addressed is <em>internal fragmentation</em>.  We observed that
+The second problem to be addressed is <em>external fragmentation</em>.  We observed that
 all variable partition memory allocation algorithms eventually result in a loss of useful
-storage due to internal fragmentation ... the free memory is broken up into disconnected
+storage due to external fragmentation ... the free memory is broken up into disconnected
 shards, none of which are large enough to be useful.  In discussing those algorithms, we
-observed that coalescing of adjacent free fragments can counter internal fragmentation;
+observed that coalescing of adjacent free fragments can counter external fragmentation;
 But coalescing is only effective if adjacent memory chunks happen to be free at the same
 time.  If short-lived allocations are adjacent to a long-lived allocation, or if allocations
 and deallocations are extremely frequent, there may be very few such opportunities.
@@ -230,7 +230,7 @@ can be applied to a surprisingly wide range of resource allocation problems:
 	If you want to use Garbage Collection, you must figure out how you will make all referenced
 	resources discoverable, how you will trigger the scans, and how you will prevent race
 	conditions between the Garbage Collector and your application.</li>
-   <li> If your resource is subject to degradation or loss due to internal fragmentation, you 
+   <li> If your resource is subject to degradation or loss due to external fragmentation, you 
    	should consider whether or not periodic Defragmentation can mitigate that process.
 	If you want to use Defragmentation, you must figure out how you will drive the
 	process, and how you will accomplish the required resource reallocation and copying
