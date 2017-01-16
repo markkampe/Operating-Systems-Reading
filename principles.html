@@ -1,0 +1,678 @@
+<html>
+<head>
+<title>OS Principles</title>
+</head>
+<body>
+<center><h1>Operating Systems Principles</h1></center>
+
+<h2>1. Introduction</h2>
+<P>
+We build increasingly large amounts of increasingly complex software.  Size and complexity create numerous problems:
+<ul>
+   <li> increasingly sophisticated software means that the typical project involves
+        multiple orders of magnitude more code than projects of 20-30 years ago.</li>
+   <li> increasing complexity means that the work involved in creating a piece of software is 
+   	much worse than linear with the number of lines of code involved.</li>
+   <li>	increasing complexity makes it very difficult to learn and fully understand
+   	our software, which leads to many more errors in its construction.</li>
+   <li> systems are now assembled from numerous independently developed and 
+   	delivered pieces, and small changes in one component often result in
+	failures of other components.
+   <li> as the number of independent interacting components increases, we begin
+   	to see complex emergent behaviors that could not have been predicted
+	from our experience with smaller systems.
+   <li> increasingly rich functionality and interactions with increasingly many
+   	other external systems make complete testing combinatoricaally impossible.</li>
+   <li> our increasing dependency on this software means that failures will cause
+   	more severe problems, for more people, more often.</li>
+</ul>
+We need tools and techniques to tame this complexity.  Without such tools, we
+cannot deliver today's software ... much less tomorrow's.
+</P>
+<P>
+Operating Systems have long been among the largest and complex pieces of 
+software: 
+<ul>
+   <li>	They involve complex interactions among many sub-systems.</li>
+   <li> They involve numerous asynchronous interactions and externally originated events.</li>
+   <li> They involve the sharing of statefull resources among cooperating parallel processes.</li>
+   <li> They involve coordinated actions among heterogenous components in large 
+   	distributed systems.</li>
+   <li> They must evolve to meet ever-changing requirements.</li>
+   <li> They must be able to run, without error, for years, despite the regular
+   	failures of all components.</li>
+   <li> They must be portable to virtually all computer architectures and
+   	able to function in heterogenous environments (with many different
+	versions of many different implementations, on many different
+	platforms).
+</ul>
+Few of these problems are unique to operating systems, but operating systems
+encountered them sooner and more intensely than other software domains.  As
+a result, these problems have come to be best understood and solutions
+developed in the context of Operating Systems.  When evolving disciplines
+encounter these problems, they commonly go back to see how they have
+been characterized and solved within operating systems.
+</P>
+
+<h2>2. Complexity Management Principles</h2>
+<p>
+Software Engineering has developed numerous tools to help us manage
+the complexity of large software projects.  Many of these are 
+software development and project management techniques, but there
+are also several fundamental design principles.
+</p>
+<h3>2.1 Layered Structure and Hierarchical Decomposition</h3>
+<p>
+A complex system an easily have too many components and interactions to be held in
+a single mind, at a single time.  To make the whole system (or even individual
+components) understandable, we must break the system down into smaller components
+<em>that can be understood individually.</em>
+</p>
+<p>
+Hiearchical decomposition is the process of decomposing a system in a top-down fashion.
+If we wanted to describe the Government of the United States of America, we might:
+<ul>
+   <li>Start by dividing it into the Federal Government and the state governments.</li>
+   <li>The Federal Government can be divided into the Executive, Legislative, and Judicial Branches</li>
+   <li>The Executive branch can be divided into the White House and fifteen departments (State, Defense, Interior ...)</li>
+   <li>The White house can be divided into twenty offices (Chief of Staff, National Economic Council, National Security Advisor, ...)</li>
+   ...
+</ul>
+<P>
+At each level we can talk about the mission of each group and interactions with other groups.  
+In this way we are understanding the government one layer at a time.
+We can also pick a particular group and look at (decompose it into) the sub-groups that comprise it.
+In this way we can develop an understanding of that one group, without having to understand 
+the internal structure of all the groups with which it interacts.  
+Both of these approaches give us the opportunity to develop (some) understanding
+of the government in small installments.
+</p>
+<P>
+Hierarchical decomposition is not merely a technique for studying existing systems, but
+also a principle for designing new systems.  If every person in any part of government
+interacted directly with every other person in every other part of the government the
+processes would be impossible to understand or manage.  But if we can devise a structure
+where, at each level, there is a clear division of responsibilities among components,
+and most functions can be carried out within a particular component, the responsibilities
+and relationships are much simplified, and it becomes possible to understand, and to manage the system.
+</p>
+<p>
+This principle has been described in terms of governmental systems, which is probably
+where mankind first formulated it.  But it is highly applicable to complex software systems.
+In this course we will study and observe the hierarchical design of a complex modern operating system.
+</p>
+
+<h3>2.2 Modularity and Functional Encapsulation</h3>
+<P>
+Taking a few million people and arbitrarily assigning them to groups of ten, 
+and then arbitrarily assigning those groups into super-groups of one hundred ...
+would not be sufficient to make the system understandable or manageable.  
+We must also require that:
+<ul>
+   <li> Each group/component (at each level) have a coherent purpose.</li>
+   <li> Most functions (for which a particular group is responsible) can be performed entirely
+        within that group/component.</li>
+   <li> The union of the groups/component (within each super-group/system) is able to achieve the system's  purpose.</li>
+</ul>
+These requirements are the difference between an arbitrary decomposition and a hierarchical decomposition.
+Such a decomposition makes it possible to opaquely encapsulate the internal operation of a sub-group/component, 
+and to view it only in terms of its external interfaces (the services it performs for other groups/components).
+This enables us to look a group in two very different ways:
+<ul>
+   <li>We can examine its responsibilities, and its role in the system of which it is a part.</li>
+   <li>We can examine the internal structure and operating rules by which it fulfills its responsibilities.</li>
+</ul>
+<P>
+As long as a component is able to effectively fulfill its responsibilities, external managers and clients
+can ignore the internal structure and operating rules.  Moreover, it should be possible to change the
+internal structure and operating rules without impacting external clients and managers.  
+When it is possible to understand and use the functions of a component without understanding its
+internal structure, we call that component a <em>module</em> and say that its implementation
+details are <em>encapsulated</em> within that module.  When a system is designed so that all of
+its components have this characteristic, we say that the system design is <em>modular</em>.
+</p>
+<P>
+We can go a little further in defining the characteristics of good modularity:
+<ul>
+   <li>There are numerous ways to break up the responsibilities of a system.
+       Smaller and simpler components are easier to understand and manage than larger and more complex components.
+       Thus, there are clear benefits to dividing a system into a larger number of smaller and simpler
+       components.
+   </li>
+   <p></p>
+   <li>Many functions are closely related, typically because they perform related operations
+       on the same objects.  If operations on a single object (e.g. deposits and withdrawals
+       in a bank account) are implemented in separate components, there is a danger that 
+       a change in one component might (through unintended <em>side effects</em>) break another 
+       component.  
+       Thus it is a good idea to combine closely related functionality (operations embodying
+       common understandings, or with a high likelihood of affecting one-another) into a single module.  
+       Combining this with the previous
+       characteristic: we want the smallest possible modules consistent with the co-location
+       of closely related functionality.  This characteristic of modular design is called
+       <em>cohesion</em>, and a module that exhibits this characteristic is said to be
+       <em>cohesive</em>.
+   </li>
+   <p></p>
+   <li>There are numerous ways to apportion the functionality of a system among its components.
+       If most operations can be accomplished entirely within a single component, they are
+       likely to be accomplished more efficiently.  If many operations involve exchanges
+       of services between components:
+       <ul>
+          <li>the overhead of communication between components may reduce system efficiency.</li>
+	  <li>the increased number of interfaces to service those inter-component requests
+	      increases the complexity of the system and the opportunity for mis-understandings.</li>
+          <li>increased dependencies between components increase the likelihood of
+	      errors or misunderstandings.</li>
+       </ul>
+       Thus, the scope of component responsibilities must be designed with an eye towards
+       how well it will be possible to compartmentalize operations within that component.
+       This is another type of <em>cohesion</em>.
+   </li>
+</ul>
+<P>
+In this course, we will observe the way in which a modern operating system is 
+structured and how responsibility is apportioned among sub-systems and plug-in components.
+</P>
+<h3>2.3 Appropriately Abstracted Interfaces and Information Hiding</h3>
+<P>
+There are numerous ways to specify the interface for each piece of component functionality.
+They are not all equally good.  It seems natural (for an implementer) to define interfaces 
+that mate easily with an intended implementation.
+A faucet, for instance, delivers water at a rate and temperature that is controlled
+by a chosen mixture of hot and cold water.  So it is that, for many years, most
+faucets have had two valves (for hot and cold water).  While this interface is
+very easy for plumbers to hook up, it is not a particularly good one:
+<ul>
+  <li>I, as a user, want a certain flow of water at a certain temperature.
+      I do not want to guess at the (changing over time) amounts of hot and cold water that will provide it for me.
+      An interface that enables a client to specify parameters that are most meaningful
+	      to them and easily get the desired results is said to embody <em>appropriate abstraction</em>.
+	      An interface that does not provide a client with what they want is said to be
+	      <em>poorly abstracted</em>.  
+  </li>
+  <P></P>
+  <li>The two-valve interface is tightly coupled to a hot- and cold-water supply implementation.
+      If water temperature was controlled by a local flash-heater (or flash-cooler), a two-valve
+      set of controls would be both awkward and inefficient to implement.  An appropriately
+      abstracted interface that does not reveal the underlying implementation is said to be
+      <em>opaque</em> and to exhibit good <em>information hiding</em> (not exposing
+      implementation details that clients did not want to be forced to understand).
+  </li>
+</ul>
+Two separate controls for temperature and flow rate would more <em>opaquely encapsulate</em> 
+the water delivery mechanisms.  Changing the temperature control from a simple clockwise-hot
+knob to a temperature-calibrated dial would create a much more convenient control abstraction
+for the intended uses.  Such an interface better serves the clients, and provides
+greater flexibility to the implementers.
+</P>
+<P>
+In this course, we will examine many fundamental abstractions of software
+services and resources, how well those interfaces serve their clients
+and the need for evolution.
+</p>
+
+<h3>2.4 Powerful Abstractions</h3>
+<P>
+If every problem has to be solved from scratch, every problem will be hard to solve,
+and progress will be slow and difficult.  But if we can draw on a library of
+powerful tools, we may find that most problems are easily solved by existing tools.
+Most of classical mechanics is based on a few basic machines (wheel, lever, inclined plane,
+screw, pulley, ...) and tools (hammer, chisel, saw, drill, ... ).  
+These are not merely artifacts we can employ to build new inventions;  
+They actually set the terms in which we visualize our problems.  A new technique or tool
+(e.g. constructive fabrication with 3D-printers) can radically alter the
+way we approach problems and (perhaps more importantly) the problems we can solve.
+</p>
+<P>
+Unlike basic machines and tools (which we can observe in nature), 
+virtually all of the tools and resources in an operating system 
+are abstract concepts from the imaginations of system architects.  
+As operating systems have evolved, we continue to devise more powerful abstractions.
+A powerful abstraction is one that can be profitably applied to many situations:
+<ul>
+   <li> common paradigms (perhaps analogous to gravity, momentum, and friction) that 
+        enable us to more easily understand a wide range of phenomena.</li>
+   <li> common architectures (like spoke-and-wheel and assembly-line)
+        that can be used as fundamental models for new solutions.</li>
+   <li> common mechanisms (perhaps analogous to tools and fabrication processes)
+   	in terms of which we can visualize and construct solutions</li>
+</ul>
+</P>
+<P>
+Sufficiently powerful abstractions give us tools to understand, organize
+and control systems which would otherwise be intractably complex.  In this
+course we will study the emergent phenomena in large and complex systems,
+concepts in terms of which those phenomena can be understood, and abstractions
+in terms of which they can be managed.
+</P>
+
+<h3>2.5 Interface Contracts</h3>
+<P>
+A complex system is composed of many interacting components.
+Hierarchical decomposition and modular information hiding moves our attention
+from implementations to interfaces.  Every system, sub-system, or component
+is primarily understood in terms of the services it provides and the interfaces
+through which it provides them.  An interface specification is a contract:
+a promise to deliver specific results, in specific forms, in response to
+requests in specific forms.  If the service-providing component operates
+according to the interface specification, and the clients ensure that
+all use is within the scope of the interface specifications, then the 
+system <u>should</u> work, no matter what changes are made to the
+individual component implementations.
+</P>
+<P>
+This is particularly important in large, complex systems like an
+operating system.  
+An operating system is assembled from thousands
+of components developed by thousands of people, most of whom are
+operating independently from one-another.
+Technologies and requirements are
+continuously evolving and component implementations change
+continuously in response.  
+If a new version of a service-providing component does not fully comply with
+its interface specifications, or a new client uses a component in an
+out-of-spec way, problems are likely to arise, perhaps resulting in a 
+system failure.  
+</P>
+<P>
+It both logistically and combinatorically infeasible for every developer to test every change with
+every combination of components (and component versions) from every
+other developer.  Interface contracts are our first line of
+defense against incompatible changes.
+As long as component evolution continues
+to honor long-established interface contracts, the system should
+continue to function despite the continuous independent evolution
+of its constituent components.
+</P>
+<P>
+In this course will examine a variety of interfaces, interface standards
+and approaches for managing upwards compatible evolution.
+</P>
+
+<h3>2.6 Progressive Refinement</h3>
+<P>
+Software projects that attempt to to grand things, starting from a clean slate,
+often fail after spending many years without delivering useful results.
+<UL>
+   <li>It is very difficult to estimate the work in a large project.
+   </li>
+   <li>It is very difficult to anticipate the problems in a large project.
+   </li>
+   <li>It is very difficult to get the requirements write in a large project.
+   </li>
+   <li>They often take so long that they are obsolete before they are finished.
+   </li>
+   <li>They often lose support before they are finished.
+   </li>
+</UL>
+</P>
+<P>
+Religious wars abound in Software Engineering, but most modern 
+methodologies now seem to embrace some form of iterative or incremental development:
+<UL>
+   <li>Add new functionality in smaller, one feature at a time, projects.
+       It is much easier to identify likely problems (and solutions) in
+       a smaller project, and hence to estimate the required work and
+       likely delivery date.  Also the work can be done by a smaller
+       team with better communication, and so is likely to be done
+       more efficiently.
+   </li>
+   <li>Rather than pursue large speculative (if you build it they will come) projects,
+       identify specific users with specific needs, and build something that
+       addresses those needs (while moving us in the right direction).
+       Having a specific problem to solve leads to better requirements.
+       Delivering needed functionality to actual users yields creates
+       more value more quickly.
+   <li>Deliver new functionality as quickly as possible to get feedback
+       before moving on to the next step.  Most software requirements 
+       are speculative.  The best way to clarify them is to deliver
+       something and get feedback.  
+   </li>
+   <li>
+       It is much easier to plan the next step after we have data
+       from the previous step.
+       Real performance data or user feedback will guide us towards the
+       most important improvements.  If we are going down the wrong path,
+       it is best that we find that out as soon as possible.
+   </li>
+</UL>
+</P>
+
+<h2>3. Architectural Paradigms</h2>
+<P>
+Over many decades of building ever more powerful operating systems
+we have found a few very powerful concepts of very broad
+applicability.
+</P>
+<h3>3.1 Mechanism/Policy Separation</h3>
+<P>
+The basic concept is that the mechanisms for managing resources should
+not dictate or greatly constrain the policies according to which those
+resources are used.  The primary motivation for this principle is that
+a system is likely to be used used for a long time, in many places,
+environments and ways that the designers never anticipated.  A single
+resource management strategy that
+made sense to the designer might prove totally inappropriate for future
+users.  As such resource managers should be designed in two logical
+parts:
+<ul>
+   <li> The <em>mechanisms</em> that keep track of resources and
+   	give/revoke client access to them.</li>
+   <li> A configurable or plug-in <em>policy</em> engine that
+   	controls which clients get which resources when.</li>
+</ul>
+</p>
+<p>
+A good example of mechanism/policy separation can be seen in card-key
+lock systems:
+<ul>
+   <li>	each door has a card-key reader and a computer-controlled lock.</li>
+   <li> each user is issued a personal card-key.</li>
+   <li> to get access to a room, a user swipes a card-key past the reader.</li>
+   <li> a controlling computer will lookup the registered owner of the card-key in
+        an access control database in order to decide whether or not that user should
+	be granted access to that door at that time, and (if appropriate)
+	send an unlock signal to the associated lock.</li>
+</ul>
+The physical <em>mechanisms</em> are the card-keys, readers, locks, and controlling computer.
+The resource allocation <em>policy</em> is represented by rules in the access control data-base,
+which can be configured to support a wide range of access policies.  The mechanisms impose
+very few constraints (beyond those of the rule language) on who should be allowed to enter
+which rooms when.
+</p>
+<p>
+Mechanism/policy separation as a design principle that guides us to build systems
+that will be usable in a wide range of future contexts.  In this course we will look
+at a few examples of services whose designs exhibit this quality.
+</p>
+
+<h3>3.2 Indirection, Federation, and Deferred Binding</h3>
+<P>
+Powerful unifying abstractions often give rise to general object classes with
+multiple implementations.  Consider a file system: a collection of files that
+can be opened, read and written.  There can be many different types of file systems
+(e.g. DOS/FAT file systems on SD cards, ISO 9660 file systems on CD ROMs,
+Windows NTFS disks, Linux EXT3 disks, etc), but they all implement similar
+functionality.  One could write an operating system that understood all possible
+file system formats, but the number and range file system formats and rate of
+evolution dooms that approach to failure.  Realistically, we need a way to
+add support for new file systems independently from the operating system 
+to which they will be connected.
+</p>
+<P>
+Many services (e.g. device drivers, video codecs, browser plug-ins) have similar needs.
+The most common way to accommodate multiple implementations of similar functionality 
+is with plug-in modules that can be added to the system as needed.  Such implementations
+typically share a few features:
+<UL>
+   <li> A common abstraction (class interface) to which all plug-in modules adhere.</li>
+   <li> The implementations are not built-in to the operating system, but
+   	accessed <em>indirectly</em> (e.g. through a pointer to an
+	specific object instance).</li>
+   <li> The indirection is often achieved through some sort of
+   	<em>federation framework</em> that registers available implementations
+	and enables clients to select the desired implementation, and automatically
+	routes all future requests to the selected object/implementation.</li>
+   <li>	The <em>binding</em> of a client to a particular implementation
+   	does not happen when the software is built but rather is
+	<em>deferred</em> until the client actually needs to access
+	a particular resource.</li>
+   <li> The <em>deferred binding</em> may go beyond the client's ability
+   	to select an implementation at run-time.  The implementing module
+	may be <em>dynamically discovered</em>, and <em>dynamically loaded</em>.
+	It need not be known to or loaded 
+	into the operating system until a client requests it.
+</UL>
+</P>
+
+<h3>3.3 Dynamic Equilibrium</h3>
+<P>
+It is relatively easy to design and tune a system for a particular load.
+But most systems will be used in a wide range of different conditions, and
+their loads (both intensity and mix of activities) change over time.  
+This means that there is probably not a single, one-size-fits all 
+configuration for a complex system.
+This is widely recognized, and most complex systems have numerous
+tunable parameters that can be used to optimize behavior for
+a given load.  Unfortunately, a good set of
+tunable parameters is not enough to ensure that systems are
+well tuned:
+<UL>
+   <li>	Tuning parameters tend to be highly tied to a particular 
+   	implementation, and proper configuration often requires
+	deep understanding of complex processes.</li>
+   <p></p>
+   <li> Loads in large systems are subject to continuous change,
+   	and parameters that were right five seconds ago may be
+	wrong five seconds from now.  It is neither practical
+	nor economical to expect human beings to continuously
+	adjust system configuration in response to changing
+	behavior.</li>
+   <p></p>
+   <li> It is possible to build automated management agents that
+   	continuously monitor system behavior, and promptly
+	adjust configuration accordingly.  But such automatons
+	can misinterpret symptoms or drive the system into
+	uncontrolled oscillation.</li>
+</UL>
+</P>
+<P>
+Nature is full of very complex systems, very few of which are
+perfectly tuned.  Stability of a complex natural system
+is often the result of a <em>dynamic equilibrium</em>, where
+the state of the system is the net result of multiple opposing
+forces, and any external event that perturbs the equilibrium
+automatically triggers a reaction in the opposite direction:
+<ul>
+   <li>	The amount of water in a sealed pot is the net result
+   	of evaporation and condensation.  When the temperature
+	is raised, more evaporation takes place, which leads
+	to an increase in the steam vapor pressure, which
+	leads to an increased rate of re-condensation.</li>
+   <li>	The deer population may be the net result of food
+   	supply and predation by wolves.  If the food supply
+	increases, an increase in the deer population will
+	lead to an increase in the wolf population, which
+	will reduce the deer population.</li>
+</ul>
+</p>
+<P>
+If our resource allocations can be driven by opposing forces, we
+may be able to design systems that continuously and automatically
+adapt to a wide range of conditions.  
+In this course we will examine multiple uses of dynamic equilibrium
+to achieve stable operation in the face of ever-changing loads.
+</P>
+<h3>3.4 The Criticality of Data Structures</h3>
+<P>
+Given the amount of code we write, it is natural for programmers to focus
+much attention on algorithms and their implementation.  
+But the solution to many hard software design problems is found, not
+so much in algorithms as in data organization. 
+Most of our program state is stored in data structures, and
+it is often the case that most of our instruction cycles are spent searching, copying 
+and updating data structures.  Consequently, our data structure designs 
+(and their correctness/coherency requirements) determine:
+<ul>
+   <li> which operations are fast and which are slow </li>
+   <li> which operations are simple and which are complex </li>
+   <li> the locking requirements for each operation (and hence the achievable parallelism)</li>
+   <li> the speed (and success probability) of error recovery </li>
+</ul>
+</P>
+<P>
+Often, when confronted with a difficult performance, robustness, or correctness
+problem, the solution is found in the right data structures.  And given those
+data structures (and their correctness/coherency assertions) the algorithms often
+become obvious.  In this course we will examine the data structures that underlie
+much complex functionality, and see how the right data structures have contributed
+to system performance and robustness.
+</p>
+	
+<h2>4. Life Principles</h2>
+<P>
+Life is made up of huge projects involving a myriad of complex, parallel activities 
+among numerous independent agents.  Thus it should not be surprising if many
+of the lessons we learn from Operating Systems turn out to be applicable to
+many other aspects of our lives (and vice versa).
+</p>
+
+<h3>4.1 There Ain't No Such Thing As A Free Lunch</h3>
+<P>
+There are no Magic Ponies or perpetual motion machines. 
+Everything comes at a cost. 
+There are common situations with simple and obvious solutions,
+but those solutions don't correctly handle all situations.
+We often have multiple conflicting goals, and an approach 
+that optimizes one goal usually compromises another.
+There is almost always a down-side.
+</P>
+<P>
+Any solution we formulate is likely to involve costs, trade-offs and compromises.
+Often, the best we can do is try to anticipate the likely consequences,
+estimate their impacts, prioritize our goals, and try to optimize our
+net expected utility.
+</P>
+
+<h3>4.2 The Devil is Usually in the Details</h3>
+<P>
+Every once in a while we find a great solution:
+some beautiful set of paradigms and principles that eliminate
+nasty problems and greatly simplify the system.
+But are first articulation of that vision is seldom right,
+and it must be refined as we try to understand how we will
+apply it in all of the required situations:
+<ul>
+   <li> Enumerating (or even identifying) all of the interesting
+   	cases is a great deal of work.</li>
+   <li> In many cases, it may not be obvious how to make a particular
+   	situation fit in to our beautiful high level structure.</li>
+   <li>	Sometimes we encounter one nasty case that simply refuses
+   	to fit into the new model.</li>
+   <li>	Sometimes we can extend our model to embrace the troublesome cases.</li>
+   <li> Sometimes we can sub-case, preclude or exclude the troublesome cases.</li>
+   <li> Sometimes we conclude that, while beautiful, our idea doesn't work.</li>
+</ul>
+</P>
+<P>
+Having an inspiration is fun, exciting, and rewarding.
+But it isn't real until you have worked out all of the details.
+(Ask any String Theorist)
+</p>
+
+<h3>4.3 Keep It Simple, Stupid and If it ain't broke, don't fix it</h3>
+<P>
+Einstein was once quoted as saying:
+<ul>
+<em>Everything should be made as simple as possible, but no simpler.</em>
+</ul>
+<P>
+As should be clear from this paper, complexity is the enemy.
+The problems we face are complex enough, but sometimes we voluntarily
+add gratuitous complexity to our solutions.
+It is natural to look at a solution and recognize enhancements that
+would make it smarter, or more complete, or more elegant.  These
+insights are fun, but they often prove to be counter-productive:
+<ul>
+   <li> Many optimizations require extra work to better handle
+   	special cases, and that extra work may greatly reduce
+	the benefits of the optimization.</li>
+   <li> Many ideas that seem simple at first become more complex
+   	as we examine all of the cases that have to be correctly
+	handled.</li>
+   <li> More complex solutions are likely to have more complex
+   	behavior, including unanticipated consequences.</li>
+   <li> More complex solutions are more difficult to understand,
+   	and hence more likely to have undetected errors and more
+	difficult to maintain.</li>
+</ul>
+</P>
+<P>
+There are surely problems that call for very smart solutions, but it is
+often the case that a simpler solution both works better than a more
+clever solution.  It is best to avoid more complex solutions unless
+we have hard data that simpler solutions are not viable and that
+the smarter solution would fix the problem.
+</P>
+
+<h3>4.4 Be Clear about your Goals</h3>
+<P>
+We occasionally build software for fun, but usually we do so with
+a purpose in mind.
+It has often been said that if we do not clearly understand our goals,
+it will only be by accident that we achieve them.  
+</P>
+<P>
+As we pursue a project we will be confronted by many decisions.
+Some questions are of the form "will this work", and can
+usually be answered by research, analysis or prototyping.  
+But we will also encounter "which is better" questions.
+Some of these will have objective (e.g. measurable performance_)
+answers, but some will come down to priorities and perspectives.
+A clear understanding (and prioritization) of our goals can
+help us with these questions, by allowing us to ask how each
+of our alternatives would impact each of our goals.
+</P>
+<P>
+As we pursue a project we will see many problems and opportunities.
+We are in a creative problem solving mode, 
+and it is natural to automatically leap to approaches to address problems
+and exploit opportunities.  
+But not every opportunity we encounter is on the path to our ultimate
+goals, and not every problem we encounter is actually blocking the
+path to our ultimate goals.  If we expand the scope of our effort
+to solving non-critical problems or achieving non-goals, we may
+find that we have over-constrained our requirements ... making it
+much more difficult to achieve our goals.
+</p>
+<P>
+Having a clear understanding of our goals will enable us to
+resolve differences of opinion, make better decisions, and avoid distractions. 
+</p>
+
+<h3>4.5 Responsibility and Sustainability</h3>
+<P>
+We have a saying in my line of work: 
+<em>You only get one chance to lose someone's data</em>.
+An operating system that crashes doesn't even make a decent paper weight.
+A viable operating system must be able to run, unattended, for years.
+And it must do so without error, despite a continuous ever-changing load
+of flaky software running on flaky hardware.   
+In terms of error rates and robustness, modern server class 
+operating systems are among the post perfect things ever built by human hands.
+That certainly doesn't mean that they are error free ...
+merely that their error rates are lower than almost anything else.
+</P>
+<P>
+No software managed resource can ever be lost.  
+All memory and secondary storage will be recycled over and over again.
+Errors cannot be dismissed as unlikely events, and no error can be left un-handled.  
+Every reasonably anticipatable problem must be correctly detected and handled,
+so that the system can continue executing.
+It is commonly observed that the main differences between professional and amateur
+software are completeness and error handling.
+We are all responsible for anticipating and dealing with all the consequences of our actions.
+OS designers are not, by nature, optimists.
+</P>
+
+
+<H2>5. Conclusions</h2>
+<P>
+Despite the fact that Operating Systems encompass ever more responsibility,
+relatively few people will actually build Operating Systems software.
+But most of us will work on complex software, and we will encounter problems
+that have already been encountered, understood, and solved by Computer Scientists,
+architects, and developers in the field of Operating Systems.
+Understand these principles, learn to recognize these problems when
+you encounter them, and how to apply these solutions to new problems.
+</P>
+<UL>
+	<em>
+	Powerful tools these are.<br>
+	Learn them well.</br>
+	Serve you they will.
+	</em>
+</UL>
+</body>
+</html>
