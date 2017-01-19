@@ -76,22 +76,62 @@ organization participation (both by technology providers and consumers) and the
 the scope, number, and quality of standards.
 
 <h2> Challenges of Software Interface Standardization</h2>
-Interface standards are a two-edged sword:
+<P>
+When a technology or service achieves wide penetration, it becomes important to 
+establish standards.  Television would never have happened if each broadcaster
+and manufacturer had chosen different formats for TV signals.
+In the short term, a slightly better implementation (e.g. cleaner picture)
+may give some providers an advantage in the market place.  But ultimately
+the fragmentation of the marketplace ill-serves both producers and
+consumers.
+</P>
+If the stake-holders get together and agree on a single standard format
+for TV broadcasts, every TV set can receive every station.  
+Consumers are freed to choose any TV set they want to watch any
+stations they want.
+Since all TV sets receive the same signals, set manufacturers must
+compete on the basis of price, quality, and other features.  
+The cost of TV sets goes down and their quality goes up.
+Since all stations can reach all viewers, they must compete on the
+basis of programming.  The amount, quality, and variety of programming
+increases.  And the growing market creates opportunities for new
+products and services that were previously unimaginable.
+</P>
+Standards are a good thing:
 <ul>
-	<li>On the positive side, they give technology suppliers 
+	<li>The details are debated by many experts over long periods of
+	time.  The extensive review means they will probably be 
+	well considered, and broad enough to encompass a wide range
+	of applications.</li>
+	<li>Because the contributors work for many different organizations,
+	with different strengths, it is likely that the standards will
+	be relatively <em>platform-neutral</em>, not greatly favoring
+	or disadvantaging any particular providers.</li>
+	<li>Because they must serve as a basis for compatible implementations,
+	they tend to have very clear and complete specifications and
+	well developed conformance testing procedures.  </li>
+	<li>They give technology suppliers 
 	considerable freedom to explore alternative implementations 
 	(to improve reliability, performance, portability, maintainability), 
 	as long as they maintain the specified external behavior.  
 	Any implementation that conforms to the standard should work with all 
 	existing and future clients.</li>
-
+</ul>
+But standardization is the opposite of diversity and evolution, and so
+is a two-edged sword:
+<ul>
 	<li>At the same time, they greatly constrain the range of 
 	possible implementations.  An interface will specify who provides 
 	what information, in what form, at what time.  
 	It might be possible to provide a much better implementation of 
 	that functionality, if slightly different information could be provided at 
 	a different time.  But if the new interfaces are not 100% upwards 
-	compatible with the old ones, the improved design would be non-compliant.</li>
+	compatible with the old ones, the improved design would be non-compliant.
+	Television was pioneered in the United States, but because we were 
+	among the first to standardize (e.g. before color was imagined to be 
+	possible), a few decades later we found ourselves locked into having
+	the worst (most primitive) TV signals on earth.
+	</li>
 
 	<li>Interface standards also impose constraints on their consumers.  
 	An application that has been written to a well-supported standard 
@@ -100,7 +140,24 @@ Interface standards are a two-edged sword:
 	in any way that is not explicitly authorized by the standard.  
 	An application that uses non-standard features (or standard features 
 	in non-standard ways) is likely to encounter problems on new platforms 
-	or with new releases of the software providing those features.</li>
+	or with new releases of the software providing those features.
+	For many years, Windows users refused to upgrade to new
+	releases because of the near certainty that a few of their devices
+	and applications would stop working.
+	</li>
+
+	<li>When many different stake-holders depend on a standard, it
+	often becomes difficult to evolve those standards to meet
+	changing requirements:
+	    <ol type="a">
+	    	<li> There will be many competing opinions about exactly
+		what the new requirements should be and how to best 
+		address them.</li>
+	    	<li> It seems that any change (no matter how
+		beneficial) will adversely affect some stake-holders,
+		and they will object to the improvements.</li>
+	    </ol>
+	</li>
 </ul>
 </P>
 <P>
