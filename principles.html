@@ -22,7 +22,7 @@ We build increasingly large amounts of increasingly complex software.  Size and 
    	to see complex emergent behaviors that could not have been predicted
 	from our experience with smaller systems.
    <li> increasingly rich functionality and interactions with increasingly many
-   	other external systems make complete testing combinatoricaally impossible.</li>
+   	other external systems make complete testing combinatoricially impossible.</li>
    <li> our increasing dependency on this software means that failures will cause
    	more severe problems, for more people, more often.</li>
 </ul>
@@ -70,35 +70,52 @@ components) understandable, we must break the system down into smaller component
 </p>
 <p>
 Hiearchical decomposition is the process of decomposing a system in a top-down fashion.
-If we wanted to describe the Government of the United States of America, we might:
+If we wanted to describe the University of California, we might
 <ul>
-   <li>Start by dividing it into the Federal Government and the state governments.</li>
-   <li>The Federal Government can be divided into the Executive, Legislative, and Judicial Branches</li>
-   <li>The Executive branch can be divided into the White House and fifteen departments (State, Defense, Interior ...)</li>
-   <li>The White house can be divided into twenty offices (Chief of Staff, National Economic Council, National Security Advisor, ...)</li>
+   <li>Start by dividing it into the Regents, the Office of the President, and the campuses.</li>
+   <li>The campuses can be divided into ten university campuses (UCLA, UCSB, ...) and three laboratories (Livermore, Los Alamos, ...)</li>
+   <li>One campus (e.g. UCLA) can be divided into administration and schools (Letters and Sciences, Engineering, Medicine, ...)</li>
+   <li>Administration can be divided into departments (personnel, legal, finance, registrar, deans, ...)</li>
+   <li>Each School (e.g. Engineering) can also be divided into departments (Computer Science, Materials, ...)</li>
+   <li>A department can be divided into administrative staff, support staff, and faculty</li>
+   <li>Administrative staff can be divided into responsibility areas (payroll, purchasing, personnel, ...)
    ...
 </ul>
 <P>
 At each level we can talk about the mission of each group and interactions with other groups.  
-In this way we are understanding the government one layer at a time.
+In this way we are understanding a huge University system one layer at a time.
 We can also pick a particular group and look at (decompose it into) the sub-groups that comprise it.
 In this way we can develop an understanding of that one group, without having to understand 
 the internal structure of all the groups with which it interacts.  
 Both of these approaches give us the opportunity to develop (some) understanding
-of the government in small installments.
+of the University in small installments.
 </p>
 <P>
 Hierarchical decomposition is not merely a technique for studying existing systems, but
-also a principle for designing new systems.  If every person in any part of government
-interacted directly with every other person in every other part of the government the
+also a principle for designing new systems.  If every person in any part of the University system
+interacted regularly with every other person in every other part, the
 processes would be impossible to understand or manage.  But if we can devise a structure
 where, at each level, there is a clear division of responsibilities among components,
 and most functions can be carried out within a particular component, the responsibilities
 and relationships are much simplified, and it becomes possible to understand, and to manage the system.
 </p>
+<P>
+Hiearchical structure is a very effective approach to designing or understanding complex systems.
+But the operation of these systems is not always strictly hierarchical.
+If we drill down into the details, we see that not all interaction is constrained to follow 
+the tree.  
+Course planning involves interactions between departmental administration and
+the registrar's office.  Different departments or schools often work together to create
+programs and events in areas of shared interest. 
+The Academic Senate is comprised of department faculty, but their decisions
+may have implications for the entire system.  Such cross-communication is common in 
+hierarchically structured
+systems.   But, as we will see below, there may be advantages to trying to minimize
+non-hierarchical communication.
+</P>
 <p>
-This principle has been described in terms of governmental systems, which is probably
-where mankind first formulated it.  But it is highly applicable to complex software systems.
+This principle has been described in terms of a University system.
+But it is highly applicable to complex software systems.
 In this course we will study and observe the hierarchical design of a complex modern operating system.
 </p>
 
@@ -137,11 +154,13 @@ We can go a little further in defining the characteristics of good modularity:
    <li>There are numerous ways to break up the responsibilities of a system.
        Smaller and simpler components are easier to understand and manage than larger and more complex components.
        Thus, there are clear benefits to dividing a system into a larger number of smaller and simpler
-       components.
+       components.  Going back to the university example, even though the University has over a thousand
+       departments and a hundred-thousand employees, it is not particularly difficult to understand 
+       the role and responsibilities of any particular department or administrator.
    </li>
    <p></p>
    <li>Many functions are closely related, typically because they perform related operations
-       on the same objects.  If operations on a single object (e.g. deposits and withdrawals
+       on the same resources.  If operations on a single resource (e.g. deposits and withdrawals
        in a bank account) are implemented in separate components, there is a danger that 
        a change in one component might (through unintended <em>side effects</em>) break another 
        component.  
@@ -151,7 +170,7 @@ We can go a little further in defining the characteristics of good modularity:
        characteristic: we want the smallest possible modules consistent with the co-location
        of closely related functionality.  This characteristic of modular design is called
        <em>cohesion</em>, and a module that exhibits this characteristic is said to be
-       <em>cohesive</em>.
+       <em>cohesive</em>. 
    </li>
    <p></p>
    <li>There are numerous ways to apportion the functionality of a system among its components.
@@ -167,7 +186,10 @@ We can go a little further in defining the characteristics of good modularity:
        </ul>
        Thus, the scope of component responsibilities must be designed with an eye towards
        how well it will be possible to compartmentalize operations within that component.
-       This is another type of <em>cohesion</em>.
+       This is another type of <em>cohesion</em>.  As observed above, there are surely
+       many interactions between various administrators, but most of the day-to-day
+       operations and communications for the personnel administrator in the UCLA
+       Computer Science department are with other people in that department.
    </li>
 </ul>
 <P>
@@ -231,11 +253,12 @@ are abstract concepts from the imaginations of system architects.
 As operating systems have evolved, we continue to devise more powerful abstractions.
 A powerful abstraction is one that can be profitably applied to many situations:
 <ul>
-   <li> common paradigms (perhaps analogous to gravity, momentum, and friction) that 
-        enable us to more easily understand a wide range of phenomena.</li>
-   <li> common architectures (like spoke-and-wheel and assembly-line)
-        that can be used as fundamental models for new solutions.</li>
-   <li> common mechanisms (perhaps analogous to tools and fabrication processes)
+   <li> common paradigms (e.g. lock granularity, cache coherency, bottlenecks)
+        that enable us to more easily understand a wide range of phenomena.</li>
+   <li> common architectures (e.g. federations of plug-in modules
+   	treating all data sources as files)
+        that can be used as fundamental models for new solutions.  </li>
+   <li> common mechanisms (e.g. registries, remote procedure calls)
    	in terms of which we can visualize and construct solutions</li>
 </ul>
 </P>
@@ -262,21 +285,26 @@ system <u>should</u> work, no matter what changes are made to the
 individual component implementations.
 </P>
 <P>
+These contracts do not merely specify what we will do today,
+but they represent a commitment for what will be done in the future.
 This is particularly important in large, complex systems like an
 operating system.  
-An operating system is assembled from thousands
+An operating system will be used for a relatively long time, and
+is assembled from thousands
 of components developed by thousands of people, most of whom are
 operating independently from one-another.
 Technologies and requirements are
 continuously evolving and component implementations change
 continuously in response.  
 If a new version of a service-providing component does not fully comply with
-its interface specifications, or a new client uses a component in an
-out-of-spec way, problems are likely to arise, perhaps resulting in a 
-system failure.  
+its interface specifications (e.g. we decide to change the order of
+the parameters to the <em>open(2)</em> system call),
+or a new client uses a component in an
+out-of-spec way (e.g. exploiting an undocumented feature), problems 
+are likely to arise, in the future, perhaps resulting in a system failure.  
 </P>
 <P>
-It both logistically and combinatorically infeasible for every developer to test every change with
+It both logistically and combinatoricially infeasible for every developer to test every change with
 every combination of components (and component versions) from every
 other developer.  Interface contracts are our first line of
 defense against incompatible changes.
@@ -292,6 +320,11 @@ and approaches for managing upwards compatible evolution.
 
 <h3>2.6 Progressive Refinement</h3>
 <P>
+Linux did not start out as the fully-featured, all-platform system that
+it currently is.  It started out as an attempt to complement the Gnu
+tools with a very humble re-implementation of the most basic UNIX
+kernel functionality.  All of the wonderful features we enjoy today
+were added incrementally.
 Software projects that attempt to to grand things, starting from a clean slate,
 often fail after spending many years without delivering useful results.
 <UL>
@@ -299,7 +332,7 @@ often fail after spending many years without delivering useful results.
    </li>
    <li>It is very difficult to anticipate the problems in a large project.
    </li>
-   <li>It is very difficult to get the requirements write in a large project.
+   <li>It is very difficult to get the requirements right in a large project.
    </li>
    <li>They often take so long that they are obsolete before they are finished.
    </li>
@@ -380,6 +413,12 @@ The resource allocation <em>policy</em> is represented by rules in the access co
 which can be configured to support a wide range of access policies.  The mechanisms impose
 very few constraints (beyond those of the rule language) on who should be allowed to enter
 which rooms when.
+</p>
+<p>
+And, because the policy is independent from the mechanisms, we could also move to a very
+different mechanism implementation (e.g. RFID tags), and continue to support the 
+exact same access policies.  It should be possible to change either mechanism or policy 
+without greatly impacting the other.
 </p>
 <p>
 Mechanism/policy separation as a design principle that guides us to build systems
@@ -489,16 +528,19 @@ to achieve stable operation in the face of ever-changing loads.
 Given the amount of code we write, it is natural for programmers to focus
 much attention on algorithms and their implementation.  
 But the solution to many hard software design problems is found, not
-so much in algorithms as in data organization. 
+so much in algorithms, as in data organization. 
 Most of our program state is stored in data structures, and
 it is often the case that most of our instruction cycles are spent searching, copying 
 and updating data structures.  Consequently, our data structure designs 
 (and their correctness/coherency requirements) determine:
 <ul>
-   <li> which operations are fast and which are slow </li>
-   <li> which operations are simple and which are complex </li>
+   <li> which operations are fast and which are slow (e.g. because of the
+        number of pointers to be followed)</li>
+   <li> which operations are simple and which are complex (e.g. because
+   	of how many different data structures have to be updated)</li>
    <li> the locking requirements for each operation (and hence the achievable parallelism)</li>
-   <li> the speed (and success probability) of error recovery </li>
+   <li> the speed (and success probability) of error recovery (because
+        of the number of possible errors and their detectability/repairability)</li>
 </ul>
 </P>
 <P>
@@ -513,9 +555,10 @@ to system performance and robustness.
 <h2>4. Life Principles</h2>
 <P>
 Life is made up of huge projects involving a myriad of complex, parallel activities 
-among numerous independent agents.  Thus it should not be surprising if many
-of the lessons we learn from Operating Systems turn out to be applicable to
-many other aspects of our lives (and vice versa).
+among numerous independent agents (e.g. growing up, getting and education, getting
+married, finding and keeping a job, raising children, ...).  
+Thus it should not be surprising if many of the lessons we learn from Operating Systems 
+turn out to be applicable to many other aspects of our lives (and vice versa).
 </p>
 
 <h3>4.1 There Ain't No Such Thing As A Free Lunch</h3>
@@ -530,9 +573,11 @@ There is almost always a down-side.
 </P>
 <P>
 Any solution we formulate is likely to involve costs, trade-offs and compromises.
-Often, the best we can do is try to anticipate the likely consequences,
-estimate their impacts, prioritize our goals, and try to optimize our
-net expected utility.
+Before we can safely change an important system (e.g. an operating system), we must 
+be able to predict (though research, analysis, or prototyping) the likely
+consequences.
+The we estimate their impacts, prioritize our goals, 
+and try to optimize our net expected utility.
 </P>
 
 <h3>4.2 The Devil is Usually in the Details</h3>
@@ -558,7 +603,7 @@ apply it in all of the required situations:
 <P>
 Having an inspiration is fun, exciting, and rewarding.
 But it isn't real until you have worked out all of the details.
-(Ask any String Theorist)
+(Ask any String Theorist.)
 </p>
 
 <h3>4.3 Keep It Simple, Stupid and If it ain't broke, don't fix it</h3>
@@ -582,7 +627,10 @@ insights are fun, but they often prove to be counter-productive:
    	as we examine all of the cases that have to be correctly
 	handled.</li>
    <li> More complex solutions are likely to have more complex
-   	behavior, including unanticipated consequences.</li>
+   	behavior, including unanticipated consequences.  If
+	we cannot predict the behavior associated with changes,
+	we are likely to find that we have created new problems.
+	</li>
    <li> More complex solutions are more difficult to understand,
    	and hence more likely to have undetected errors and more
 	difficult to maintain.</li>
@@ -608,7 +656,7 @@ As we pursue a project we will be confronted by many decisions.
 Some questions are of the form "will this work", and can
 usually be answered by research, analysis or prototyping.  
 But we will also encounter "which is better" questions.
-Some of these will have objective (e.g. measurable performance_)
+Some of these will have objective (e.g. measurable performance)
 answers, but some will come down to priorities and perspectives.
 A clear understanding (and prioritization) of our goals can
 help us with these questions, by allowing us to ask how each
@@ -627,25 +675,31 @@ find that we have over-constrained our requirements ... making it
 much more difficult to achieve our goals.
 </p>
 <P>
+It is also important to keep in mind the high level goals, from 
+which our detailed goals may have been derived.  Our detailed 
+goals might be to speed up some operation and eliminate a
+confusing parameter from some interface.  But the real goal 
+was to make the system faster and easier to use.  If we myopically
+focus only on our micro-goals, without periodically assessing
+ourselves against the higher level goals, we may find that
+we have won all the battles, but lost the war.
+</P>
+<P>
 Having a clear understanding of our goals will enable us to
 resolve differences of opinion, make better decisions, and avoid distractions. 
 </p>
 
 <h3>4.5 Responsibility and Sustainability</h3>
 <P>
-We have a saying in my line of work: 
-<em>You only get one chance to lose someone's data</em>.
-An operating system that crashes doesn't even make a decent paper weight.
-A viable operating system must be able to run, unattended, for years.
-And it must do so without error, despite a continuous ever-changing load
-of flaky software running on flaky hardware.   
-In terms of error rates and robustness, modern server class 
-operating systems are among the post perfect things ever built by human hands.
-That certainly doesn't mean that they are error free ...
-merely that their error rates are lower than almost anything else.
+We are going to live for a relatively long time, 
+and when we are gone, our children will live in the world we left them.
+We need to understand the long-view consequences of our actions,
+how they will eventually effect us and others, and then act
+responsibly for the best long-run outcome.
 </P>
 <P>
-No software managed resource can ever be lost.  
+The same principles apply to operating systems.
+No software-managed resource can ever be lost.  
 All memory and secondary storage will be recycled over and over again.
 Errors cannot be dismissed as unlikely events, and no error can be left un-handled.  
 Every reasonably anticipatable problem must be correctly detected and handled,
@@ -656,14 +710,19 @@ We are all responsible for anticipating and dealing with all the consequences of
 OS designers are not, by nature, optimists.
 </P>
 
-
 <H2>5. Conclusions</h2>
 <P>
 Despite the fact that Operating Systems encompass ever more responsibility,
 relatively few people will actually build Operating Systems software.
 But most of us will work on complex software, and we will encounter problems
-that have already been encountered, understood, and solved by Computer Scientists,
+that have already been encountered, understood, and solved by computer scientists,
 architects, and developers in the field of Operating Systems.
+</P>
+<P>
+As you read about various mechanisms and issues within Operating Systems,
+study them with these principles in mind.  As we analyze implications
+and contrast alternatives, try to pull these principles into the discussion
+and see if they shed light on the problems.
 Understand these principles, learn to recognize these problems when
 you encounter them, and how to apply these solutions to new problems.
 </P>
