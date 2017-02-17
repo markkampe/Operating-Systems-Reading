@@ -1,0 +1,139 @@
+<html>
+<head>
+<title>Priority Inversion</title>
+</head>
+<body>
+<center><h1>Priority Inversion</h1></center>
+
+<H2>1. Introduction</h2>
+<P>
+Given a pencil and a piece of paper, it is simple to draw a
+dependency graph that demonstrates the existence of a deadlock.  
+In the real world, it is much more complicated.
+<ul>
+	<li>How do we know when to initiate our (likely quite expensive)
+	enumeration of all processes and resources?</li>
+	<li>If a process blocks trying to get access to a system resource 
+	(e.g. a file or semaphore), we can know what resource the
+	process is trying to obtain, and perhaps even who the current
+	owner is.  </li>
+	<li>If a process blocks to await a message that has
+	not been sent, or because it is waiting for a large region of
+	memory to come free it may be much more difficult to determine
+	which process is responsible for failing to release the required
+	resource. </li>
+	<li>In a distributed system, many of the actors (and their
+	resources and resource needs) may be outside of our 
+	ability to examine them, if they are even known to us. </li>
+	<li>Even if we could determine the identities of all participating
+	processes and resources (to show the presence of a deadlock),
+	what would we do to correct it?  Kill them all and hope
+	that it doesn't happen again?</li>
+</ul>
+These are only a few (among the many) reasons that deadlock
+detection has not been embraced by many real systems.
+But there is another situation ...
+<ul>
+   <li>	where computation does not progress as expected,</li>
+   <li> involving a circular set of resource dependencies,</li>
+   <li> whose possibility is immediately obvious, and can be
+   	confirmed by a very inexpensive analysis,</li>
+   <li> which, once identified, can be easily, promptly 
+   	and effectively corrected</li>
+</ul>
+This is worthy of study, both as practical problem that arrises in real systems, 
+and as an example of the complexity of ensuring <em>Quality of Service</em>.
+
+<h2>2. Priority Inversion</h2>
+<P>
+A high priority process should be run before lower priority processes,
+and may even have the ability to preempt them.  But what if, at the
+time when the high priority process wants to run, a low priority 
+process happens to own a resource (e.g. a mutex) that the high priority
+process needs.  The high priority process will block.  Priority 
+doesn't mean much if you aren't runnable.
+</p>
+<P>
+Well, after the high priority process blocks, then the low priority
+process can continue running, and release the needed resource, 
+at which point the high priority process will un-block and run.
+Right?  Probably, unless there are other processes in the system
+that out-rank the low priority process ... which may have to
+wait a very long time before it gets a chance to run.
+</p>
+<p>
+When a high priority process blocks for a resource held by a
+lower priority process, the high priority process effectively
+becomes a low priority process, who cannot run until after
+the low priority process completes.
+</P>
+<P>
+This is called <em>priority inversion</em>.
+</p>
+
+<h2>3. How we Detect it?</h2>
+<P>
+If we are strictly concerned with priority inversion associated with locks,
+it is very easy to detect:
+<pre><tt>
+	if (lock is available)
+		all is right with the world
+	elif (lock->owner->priority < myproc->priority)
+		we have priority inversion
+	fi
+</tt></pre>
+</p>
+<ul>
+	It is obvious when we should perform this check ... when we fail to get a lock.<br>
+	It is obvious what resource we should examine ... the lock we just failed to get.<br>
+	It is obvious which process to examine ... the one who currently owns that lock.<br>
+	It is obvious whether or not we have priority inversion ... my priority is better than 
+	that of the current lock owner.
+</ul>
+<P>
+If you look at mutex implementations, you will see that many of them include a field
+to track the current holder of the lock.  One of the reasons for tracking this information
+is to enable us to detect (and manage) priority inversion.
+</P>
+
+<h2>4. What can we do about it?</h2>
+<P>
+If I am waiting for a lock that is owned by a lower priority process, I have
+effectively been demoted to that lower priority.  The solution is to temporarily
+<em>brevet</em> the resource owner up to my own priority level ... so that it will
+be scheduled as if it had my priority ... and I am no longer waiting for a lower
+priority process to complete.
+But as soon as that process releases the lock, it will be restored to its 
+normal priority, allowing me to preempt it.
+</p>
+
+<h2>5. Conclusions</h2>
+<p>
+Priority Inversion can happen whenever processes (or threads) of different priority
+share a serialized resource.  In the collisions are rare, and the lower priority
+process runs (and completes) soon enough, the problem may go unnoticed.
+But eventually, a situation will arrise wherein the imposed delays cause
+externally observable problems.  It is often the case with timing errors
+that they happen regularly, but are only discovered when the consequences
+are serious enough to be noticed.   If we know that a certain computation
+will have a very high priority, we should carefully examine all of the
+resources it requires to make sure that we are not creating an opportunity
+for priority inversion.
+</p>
+<P>
+Another interesting conclusion we can draw from this is that the execution
+speed of a process is not merely a function of scheduling priority.
+If a high priority process spends most of its time waiting for 
+completions (locks, messages, memory allocation, file I/O, ...)
+we may find that scheduling priority has only a small effect on
+processing speed.  If it is important that a process execute
+quickly, it is important that all service requests made by that
+process be satisfied quickly.  This is why <em>quality of service</em>
+is often referred to as an <em>end-to-end</em> problem;
+A chain is only as strong as its weakest link, and 
+high priority processes must receive expedited handling 
+for all of the services they require.
+
+</P>
+</body>
+</html>
