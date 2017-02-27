@@ -1,0 +1,304 @@
+<html>
+<head>
+<title>File Types and Attributes</title>
+</head>
+<body>
+<center><h1>File Types and Attributes</h1></center>
+
+<H2>1. Introduction</h2>
+<P>
+Many operating systems (including Unix derivatives) attempt to represent
+all data sources and sinks as files.
+Files are most commonly discussed as byte streams or one-dimensional arrays,
+and this is a fair description of much of the file processing done by
+applications software.  But many of those byte-streams contain highly
+structured data (e.g. a load module, an MPEG-4 video or a datablase).
+Some very interesting sources of data (e.g. directories and key-value stores),
+while serializable, are are not even indended to be processed as byte streams,
+but with very different APIs.  Many files have interesting attributes beyond
+the data they contain.
+</p>
+<P>
+This is a brief exploration of the range of different types of data
+that are commonly gathered under the general heading of <em>files</em>.
+</P>
+
+<h2>2. Ordinary Files</h2>
+<P>
+Even the simplest files are understood by 
+imposing structure and semantics on a binary
+byte stream:
+<ul>
+   <li> A text file is a byte stream, but when we 
+	process it we generally break it into lines 
+	(deliminted by <em>\n</em> or <em>\r\n</em>), and 
+	render it as characters (e.g. according to the 
+	ASCII or ISO 8859 character set).</li>
+
+   <li>	An archive (e.g. zip or tar) is a single file that
+	contains many others.  It is an alternating sequence
+	of headers (that describe the next file in the archive)
+	and data blobs (that are the contents of the described
+	file).</li>
+
+   <li> A load module is similar to an archive (in that it
+   	is an alternating sequence of section headers and
+	contents) but the different sections represent
+	different parts of a program (code, initialized
+	data, symbol table, ...).</li>
+
+   <li> an MPEG stream is a sequence of audio, video,
+   	frames, containing compressed (e.g.
+	Discrete Cosine Transoform) program information,
+	which require considerable processing in order
+	to reconstruct the encoded program.
+	</li>
+</ul>
+<P>
+An ordinary file is just a blob of ones and zeroes.
+They only have meaning when rendered by a program that understands
+the underlying data format.
+</P>
+
+<h3>2.1 Data Types and Associated Applications</h3>
+<P>
+If a file can only be interpreted by a program that understands the
+<em>meaning</em> that has been encoded in the byte stream, our first
+problem is finding the right program to interpret each file (or
+byte stream).  There are a few general approaches:
+<ul>
+   <li> Require the user to specifically invoke the correct
+   	command to process the data.  This is common in 
+	Unix-derived systems:
+	<ul>
+	   <li>	to edit a file you type <tt>vi</tt> <em>filename</em></li>
+	   <li> to compile a program you type <tt>gcc</tt> <em>filename</em></li>
+	</ul>
+   </li>
+   <li>	Consult a registry that associates a program with a file type:
+   	<ul>
+	   <li> there may be a system-wide registry that associates
+	   	programs with file types (e.g. Windows).</li>
+	   <li> there may be a program-specific registry that associates
+	   	programs with file types (e.g. configuring browser plug-ins).</li>
+	   <li> the owning program may be an attribute of the file
+	   	(e.g. classic Mac OS).</li>
+	</ul>
+   </li>
+
+</ul>
+<P>
+A registry solution presupposes that we know what the type of the file is.
+There are a few approaches to <em>classing</em> files:
+<ul>
+   <li>	The simplest approach is based on file name suffix 
+   	(e.g. <tt>.c</tt>, <tt>.png</tt>, <tt>.txt</tt>).
+	This may be simply an organizing convention (e.g. in Unix-derived systems)
+	or a hard-rule (in Windows it may be impossible to process a file
+	that has been renamed to the wrong suffix).</li>
+   <li> Another common approach (very popular with Unix-derived systems)
+   	is a <em>magic number</em> at the start of the file.
+	Each type of file (or even file system) begins with a 
+	reserved and registed magic number that identifies the
+	file's type.  For more information on this approach,
+	look at the 
+	<A href="http://man7.org/linux/man-pages/man1/file.1.html">file(1)</a> command.</li>
+   <li> In systems that support 
+   	<A href="https://en.wikipedia.org/wiki/Extended_file_attriubutes">extended attributes</a> 
+	the file type can be an attribute of the file, not dependent on a suffix or 
+	magic-number registry.</li>
+</ul>
+</p>
+
+<h3>2.2 File Structure and Operations</h3>
+<P>
+Even ASCII text byte streams have structure, and some streams (e.g. an MPEG-4 video)
+have a very rich structure.   In these cases the file can be viewed as a serialized
+representation of data that is intended to be viewed by a particular program
+(e.g. a text editor or video player).   It is meaningful to talk about doing
+<em>read(2)</em> and <em>write(2)</em> operations on these files.  
+But not all files are intended to be accessed via these operations.  
+In some cases, however, the structure
+of the data is not merely an implementation decision, but fundamental to the
+manner in which the data is intended to be used:
+<ul>
+   <li> the earliest databases were 
+   	<A href="https://en.wikipedia.org/wiki/ISAM">indexed sequential files</A>.
+   	These were organized into records, each with a unique <em>index key</em>.
+	While these files could be processed sequentially (one record at a time),
+	it was more common to <em>get</em> and <em>put</em> records based on their keys.</li>
+   <li> these evolved into 
+   	<A href="https://en.wikipedia.org/wiki/Relational_database">Relational databases</A>,
+	accessed via 
+	<A href="https://en.wikipedia.org/wiki/SQL">Structured Query Languages</A>.</li>
+   <li> the complexity (and non-scalability) of SQL databases gave rise to much
+   	simpler (and more scalable) 
+	<A href="https://en.wikipedia.org/wiki/Key-value_database">Key-Value Stores</A>
+	accessed only by <em>get, put,</em> and <em>delete</em> operations.</li>
+</ul>
+While all of these wind up being implemented 
+(usually by some middle-ware layer)
+on top of byte streams, that is certainly not how they are accessed by their clients.
+</p>
+
+<H2>3. Other types of files</h2>
+<P>
+It can be argued that all of the above types of ordinary files are still just
+blobs of data, differing in their binary representations and the operations
+in terms of which they are written and read back.  But there are other types
+of files that are not merely blobs of data, to be written and re-read.
+</P>
+<h3>3.1 Directories</h3>
+<P>
+Directories do not contain blobs of client data.  
+Rather they represent name-spaces, the association of names with blobs of data.
+They are, in this respect, somewhat similar to key-value stores, but they
+the namespace is much more highly structured, and the operations are 
+quite different.  One very important difference is that a key-value store,
+as a single file, typically contains data owned by a single user.  
+The namespace implemented by directories includes files owned by 
+numerous users, each of whom wants to impose different sharing/privacy
+constraints on the access to each referenced file.
+</P>
+<P>
+Because of how important directories are to the system operation and
+integrity, all directory operations tend to be implemented within the
+operating system.  To ensure the correctness and security of the directory 
+structure there are only a few supported update operations (e.g. 
+<em>mkdir(2), rmdir(2), link(2), unlink(2), create(2)</em> and <em>open(2)</em>),
+each of which involves considerable permission checking and 
+integrity assurance.
+</P>
+<P>
+But despite these differences, directories exist in same namespace as files,
+and have the same notions of user/group ownership, and file protection.
+They can even be accessed (if you know what you are doing) with
+<em>open(2)</em> and <em>read(2)</em>.
+</p>
+<h3>3.2 Inter-Process Communications Ports</h3>
+<P>
+An inter-process communications port (e.g. a pipe) is not so much a container
+in which data is stored, as it is a channel through which data is passed.
+That data is exchanged via <em>write(2)</em> and <em>read(2)</em>
+system calls on file descriptors that can be manipulated with
+the <em>dup(2)</em> and <em>close(2)</em> operations.  
+And in the case of named pipes they can be accessed via the
+<em>open(2)</em> system call.
+</P>
+<P>
+With directories we saw something that was implemented as on-disk
+byte streams, but accessed with very different operations.
+With inter-process communications ports, we have something with
+a very different implementation, but that is accessed 
+(as a byte stream)
+with normal file I/O opeartions.
+</p>
+<h3>3.3. I/O Devices</h3>
+<P>
+I/O devices connect a computer to the outside world.
+Many operating systems put devices in the file namespace.
+In Unix/Linux systems the special file associated with a device
+can be anywhere and have any name.
+</P>
+<P>
+Many sequential access devices (e.g. keyboards and printers) are 
+fit naturally into the byte-stream <em>read(2)/write(2)</em> model.
+Other random access devices (e.g. disks) easily fit into a 
+<em>read(2)/write(2)/seek(2)</em> access model.
+Communications interfaces often behave like byte streams
+(or perhaps message streams) that also support additional
+control functions (like controlling line speed,
+setting MAC address, etc), which we can handle with 
+<em>ioctl(2)</em> operations.
+</P>
+<P>
+But not all I/O devices can be fit into a byte-stream 
+access model.  Consider a 3D rendering engine comprised
+of a few thousand GPUs.  Rather than deal with this as
+a byte stream, we simply map gigabytes of display memory
+and control registers into our address space and 
+maniuplate them directly.  With more primitive devices, 
+we may choose to deal directly with digital and analog signals
+that sample the state of the external world and control
+external actuators.  
+Beyond the fact that we used the <em>open(2)</em> system
+call to get access to them, these devices may bear no relation
+to persistent byte streams.
+</P>
+
+<H2>4. File Attributes</h2>
+<P>
+Most of the above has treated files as containers (or access portals) 
+for data.  But even a file of ASCII text (e.g. this HTML) is more than 
+than the bytes it contains.  In addition to <em>data</em>, files also
+have <em>meta-data</em> ... data that describes data.
+</p>
+<H3>4.1 System Attributes</h3>
+<P>
+Unix/Linux files all have a standard set of attributes:
+<ul>
+   <li>	type: regular, directory, pipe, device, symbolic link, ...</li>
+   <li> ownership: identity of the owning user and owning group</li>
+   <li> protection: permitted access (read, write execute), by 
+   	the owner, the owning group, and others</li>
+   <li> when the file was created, last updated, last accessed</li>
+   <li> size (for regular files) ... the number of bytes in the file (which may be sparse).</li>
+</ul>
+Other operating systems may support more or different attributes.
+What is important about this list is:
+<ul>
+   <li>	all files have these attributes</li>
+   <li> the operating system depends on these attributes (e.g. to correctly implement access control)</li>
+   <li>	the operating system maintains these attributes</li>
+</ul>
+</p>
+
+<H3>4.2 Extended Attributes</h3>
+<P>
+There may be other information (beyond the basic system attributes)
+that is vitally important to correct file processing.  Examples might be:
+<ul>
+   <li>	if the file has been encrypted or compressed, by what algorithm(s)? </li>
+   <li> if a file has been signed, what is the associated certificate?</li>
+   <li> if a file has been check-summed, what is the correct check-sum?</li>
+   <li> if a program has been internationalized, where are its localizations? </li>
+</ul>
+All of the above examples are <em>meta-data</em>.  
+They are not part of the file's contents ... but rather descriptive information
+that may be necessary to properly process the file's contents.
+There have been two basic approaches taken to supporting extended attributes:
+<ul>
+   <li>	associate a limited number/size of <em>name</em>=<em>value</em> attributes
+   	with each file.</li>
+   <li>	pair each file with one or more shadow files (sometimes called
+   	<em>resource forks</em>) that contain additional resources
+	and information.</li>
+</ul>
+</P>
+<P>
+The operating system may even need to make use of extended attributes.
+If we were required to extend Unix/Linux owner/group/other protection
+to support generalized
+<A href="https://en.wikipedia.org/wiki/Access_control_list">Access Control Lists</A>
+we might choose store the additional information in (protected) extended attributes.
+</P>
+
+<H2>5. Diversity of Semantics</h2>
+<P>
+The Posix operations for file and directory operations are standardized and relatively universal 
+(although some file systems do not support some types of links).  
+The Posix standards even include a <em>readdir(3)</em> operation for 
+file-system and operating system independent scanning of directories.
+It is not difficult to write portable software that operates on 
+ordinary files and directories.
+</P>
+<P>
+The operations on and behavior of other types of files 
+(e.g. inter-process communications ports and devices) are not at all standardized.
+</p>
+<P>
+While the need for extended attributes is widely recognized, there are many 
+different implementations, and not (yet) any widely accepted standard.
+</p>
+</body>
+</html>
