@@ -253,5 +253,45 @@ under-damped feed-back loops).  If these phenomena do not
 happen in smaller systems, we can only learn about them
 through (hard) experience.
 </P>
+
+<h3>Peter Deutsch's "Seven Falacies" of Distributed Computing</h3>
+<P>
+In 1994, Peter Deutsch looked back at a decade of failed distributed computing projets 
+and attempted to distil lessons.  He came to the conclusion that many projects had
+failed because of a few naive assumptions that proved to be disastrously false.
+He enumerated them in an often cited paper:
+</p>
+<DL>
+   <DT>1. The network is reliable.</DT>
+   	<DD>Subroutine calls always happen.  Messages and responses are not guaranteed to be delivered.</DD>
+   <DT>2. Latency is zero.</DT>
+        <DD>The time to make a subroutine call is negligible.  The time for a a message exchange can easily be 1,000,000X greater.</DD>
+   <DT>3. Bandwidth is Infinite.</DT>
+        <DD>In-memory data copies can be performed at phenomenal rates.  
+	    Network throughput is limited, and large numbers of clients can easily saturate NICs, switches and WAN links.</DD>
+   <DT>4. The network is secure.</DT>
+   	<DD>While not perfect, operating systems are sufficiently well protected that we (relatively) seldom have
+	    to worry about malicious attacks within our own computer.  Once we put a computer on a network it
+	    becomes susceptable to penetration attempts, man-in-the-middle attacks, and denial-of-service attacks.</DD>
+   <DT>5. Topology does not change.</DT>
+   	<DD>In a distributed system, routes change and new clients/servers appear and disappear continuously.
+	    Distributed applications must be able to deal with an ever-changing set of connections to an
+	    ever-changing set of partners.</DD>
+   <DT>6. There is one administrator.</DT>
+   	<DD>There may not be a single database of all know clients.
+	    Different systems may be administered with different privileges.
+	    Independently managed routers and firewalls may prevent some messages to/from some clients.</DD>
+   <DT>7. Transport cost is zero.</DT>
+	<DD>Network infrastructure is not free, and the capital and operational costs of equipment and channels 
+	    to transport all of our data can dramatically increase the cost of a proposed service.</DD>
+</DL>
+And, not in Deutsch's original list, but added shortly thereafter ...
+<DL>
+   <DT>8. The network is homogenous.</DT>
+   	<DD>Nodes on the network are running different versions, of different operating systems,
+	    on machines with different Instruction Set Architectures, word lengths, and byte orders,
+	    whose users speak different languages, use different character sets, and have 
+	    very different means of representing even very standard information (e.g. dates).</DD>
+</DL>
 </body>
 <html>
