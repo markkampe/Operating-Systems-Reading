@@ -196,10 +196,20 @@ The key elements of this algorithm are:
         it ... since recycling of young pages indicates we may be thrashing.</li>
    <li> If a page is older than the target age, we take it away from its
         current owner, and give it to a new (needy) process.</li>
-   <li> If there are no pages older than the target age, we 
-        probably have too many processes to fit in the available
-	memory, and we need to start swapping some of them out.</li>
 </ul>
+If there are no pages older than the target age, we 
+apparently have too many processes to fit in the available
+memory:
+  <ul>
+	<li> If we complete a full scan without finding anything
+        that is older than the target age, we can replace
+	the oldest page in memory.  This works, but at
+	the cost of the very expensive complete scan
+	that the clock algorithm was supposed to avoid.</li>
+	<li> If we believe that our target age was well chosen
+	(to avoid thrashing) we probably need to reduce the
+	number of processes in memory.</li>
+   </ul>
 
 <h2>Dynamic Equilibrium to the rescue</h2>
 <P>
