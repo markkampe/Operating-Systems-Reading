@@ -1,0 +1,103 @@
+<html>
+<head>
+<title>Auth Servers</title>
+</head>
+<body>
+<center><H1>Authentication Servers</H1></center>
+<P>
+In a large distributed systems, keeping track of information about all of the
+authorized users and what each is authorized to do may be a great deal of work.  
+We have discussed Public Key Certificates as a means of authenticating 
+ones' self to a server that was not previously aware of us or able to 
+engage us in a password dialog.  But ...
+<UL>
+   <li> it may not be practical to require all actors to have
+   	registered public/private key pairs, or for all
+	servers to use them as the basis for authentication.</li>
+   <li> even if we have an authenticated identity for an actor,
+   	we still may need to be able to access and interpret
+	a large access control database to determine whether or
+	not they are allowed to perform a particular operation.</li>
+</UL>
+At some point, it becomes unreasonable to expect application level
+services to be able to decide who should be allowed to do what.
+And we ask if Authentication and Authorization checking can be
+turned into services.
+</P>
+<H2>Authentication and Authorization as a Service</H2>
+<P>
+We introduced the concept of Certificate Authorities, as trusted agents
+who we trusted to authenticate Public Key Certificates ... and,
+by implication, the identity of the owner of the associated
+private key.  This concept of delegated trust can be applied to a
+wider range of authentication and authorization decisions.
+</P>
+<P>
+A public key certificate is one type of <em>credential</em>, which we trust
+because it was signed by someone we trust.  We could use a similar
+technique to get trusted <em>capabilities</em>:
+<ul>
+   <li> an actor would contact an authentication server, and 
+   	describe the actions to be performed.</li>
+   <li> the authentication server would both authenticate the
+   	actor and determine whether or not that actor was
+	allowed to do the proposed operations.</li>
+   <li> after a successful access check, the authentication 
+   	server would create a <em>work ticket</em> describing
+	the actor, the permitted operation, and any other
+	relevent information (e.g. "good until date"), and
+	then sign it (e.g. with his private key)</li>
+   <li>	the actor would present the <em>work ticket</em> to
+   	the appropriate server along with the request.</li>
+   <li> the server would not have to do any authentication
+   	or authorization checking beyond verifying the
+	validity of the work ticket.</li>
+</ul>
+</P>
+<P>
+Such a model relieves application servers of all responsibility for
+authentication and authorization checking.  It also completely 
+isolates them from the particular mechanisms and policies by which
+identities are authenticated and privileges ascertained.
+</P>
+<H2>Work Tickets</H2>
+<P>
+The above described <em>work tickets</em> are unforgeable, in that the
+signature prevents random agents from creating work tickets.  If they
+include expiration dates, they cannot be reused.  But, as described,
+they are transferrable (or stealable).  A server would honor any 
+request described by a valid ticket.  How can we ensure that the ticket
+can only be used by the authorized agent/actor?
+</p>
+<P>
+We could certainly include the public key of the authorized agent in 
+the ticket, but this would get the server back into the authentication 
+business.  Another common approach is to have the authentication server
+generate a session key, and encrypt a copy for the client with the 
+client's public key, and a copy for the server with the server's public
+key.  In this way, each party can be confident that it is talking to
+the authorized agent.
+</P>
+<H2>Work Tickets without Public Key Encryption</H2>
+<P>
+The above has been described in terms of public key encryption, but 
+similar processes can be implemented with symmetric encryption. 
+In Kerberos, each actor had a symmetric key which was shared only
+with the authentication server.  These keys could be used:
+<ol type="a">
+   <li> to authenticate a ticket as having come from the authentication server</li>
+   <li> to communicate information which can only be read by actors
+        of the authorized agent</li>
+<ol>
+</P>
+<H2>Summary</H2>
+<P>
+An authentication service can completely eliminate the need for application
+servers to know about authorized actors and how to authenticate them.
+Work tickets are examples of unforgeable capabilities that can eliminate
+the need for applications to make authorization decisions.
+Even in closed systems (where authentication and authorization checking
+are not issues), work tickets are a common representation for granted leases.
+</P>
+</body>
+</html>
