@@ -229,6 +229,19 @@ for the intended uses.  Such an interface better serves the clients, and provide
 greater flexibility to the implementers.
 </P>
 <P>
+Obviously a better abstracted interface is easier for the intended clients.
+But even if the internal implemention was well suited to the intended clients,
+exposing implementation details would:
+<ol type="a">
+   <li>	expose more complexity to the client, making the interface
+   	more difficult to describe/learn.</li>
+   <li> limit the provider's flexibility to change the interface in
+   	the future, because the previously exposed interface included
+	many aspects of the implementation.  A different implementation
+	would expose clients to an incompatible interface.</li>
+</ol>
+</p>
+<P>
 In this course, we will examine many fundamental abstractions of software
 services and resources, how well those interfaces serve their clients
 and the need for evolution.
