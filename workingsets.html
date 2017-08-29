@@ -51,7 +51,7 @@ will make poor decisions.  Global LRU and Round-Robin scheduling
 are great algorithms, but they do not work well as a team.
 It might make sense to give each process its own
 dedicated set of page frames.  When that process needed a new
-page, we would LRU replace the oldest page in that set.
+page, we would let LRU replace the oldest page in that set.
 This would be <em>per-process</em> LRU, and that might work 
 very well with Round-Robin scheduling.
 </P>
@@ -141,7 +141,7 @@ throughput (efficiency).
 <h2>Implementing Working Set replacement</h2>
 <P>
 Regularly scanning all of memory to identify the least recently used
-page is a very expensive process.  With global LRU, we saw that a 
+page is a very expensive process.  With Global LRU, we saw that a 
 clock-like scan was a very inexpensive way to achieve a very 
 similar affect.  The clock hand position was a surrogate for age:
 </P>
