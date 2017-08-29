@@ -12,7 +12,7 @@ Object Modules, Linkage Editing, Libraries
 One of the most fundamental abstract resources implemented by an operating system is the process.  A process is often defined as an executing instance of a program.  If we want to understand what a process is, it is very helpful to understand what a program is.  We most often think of a program as one or more files (e.g. C, Java, Python).  These are not executable programs, but rather source files that can be translated into machine language and combined with other machine language modules to create executable programs.
 </p>
 <p>
-From the Operating System’s perspective, a program is a file full of ones and zeros, that when loaded into memory, become machine-language instructions that can be executed by the computer on which we are running.   
+From the operating system’s perspective, a program is a file full of ones and zeros, that when loaded into memory, become machine-language instructions that can be executed by the computer on which we are running.   
 <ul>
 	<li> How do our source modules come to be translated into machine language instructions?</li>
 	<li> How do they come to be combined with other machine language modules to form complete programs?</li>
@@ -225,7 +225,7 @@ Fig 6.  Virtual Address Space with Statically Linked Libraries
 Because of this permanence, this process is referred to as static linking.  It has at least two significant disadvantages:
 <ul>
 	<li>Many libraries (e.g. libc) are used by almost every program on the system.  Thousands of identical copies of the same code increase the required down-load time, disk space (to store them), start-up time (to read them into memory) and memory (while they are executing).  It would be much more efficient if we could somehow allow all of the programs that used a popular library to share a single copy.</li>
-	<li>Popular libraries change over time with enhancements, optimizations, and bug fixes.   Some enhancements may be very important (e.g. enabling applications to work with a new version of the operating system).   In most cases, a newer version of a library is probably better than an older version.  But with static linking, each program is built with a frozen version of each library, as it was at the time the program was linkage edited.  It might be better (for software reliability) if it was possible to automatically load the latest library versions each time a program was started.</li>
+	<li>Popular libraries change over time with enhancements, optimizations, and bug fixes.  Some enhancements may be very important (e.g. enabling applications to work with a new version of the operating system).  In most cases, a newer version of a library is probably better than an older version.  But with static linking, each program is built with a frozen version of each library, as it was at the time the program was linkage edited.  It might be better (for software reliability) if it was possible to automatically load the latest library versions each time a program was started.</li>
 </ul>
 </p>
 <p>
