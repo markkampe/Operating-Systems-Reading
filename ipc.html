@@ -42,7 +42,7 @@ All such uses have a few key characteristics in common:
    <li> Each program accepts a byte-stream input, and produces a
         byte-stream output that is a well defined function of
 	the input.</li>
-   <li> Each program in the pipe-line operates independently, and
+   <li> Each program in the pipeline operates independently, and
         is unaware that the others exist or what they might do.</li>
    <li> Byte streams are inherently unstructured.  If there is any 
         structure to the data they carry (e.g. newline-delimited 
@@ -85,7 +85,7 @@ initial input files and final output files.  There is generally
 no authentication or encryption of the data being passed between
 successive processes in the pipeline.
 </P>
-<H2>Named Pipes and Mail-Boxes</H2>
+<H2>Named Pipes and Mailboxes</H2>
 <P>
 A named-pipe (<em>fifo(7)</em>) is a baby-step towards explicit connections.
 It can be thought of as a persistent pipe, whose reader and writer(s) can
@@ -143,12 +143,12 @@ communications APIs.  The associated Linux APIs ar:
 These APIs directly provide a range of different communications options:
 <UL>
    <li> byte streams over reliable connections (e.g. TCP)</li>
-   <li> best effort data-grams (e.g. UDP)</li>
+   <li> best effort datagrams (e.g. UDP)</li>
 </UL>
 But they also form a foundation for higher level communication/service models.
 A few examples include:
 <UL>
-   <LI>Remote Procedure Calls ... distribued request/response APIs.</li>
+   <LI>Remote Procedure Calls ... distributed request/response APIs.</li>
    <LI>RESTful service models ... layered on top of HTTP GETs and PUTs.</li>
    <LI>Publish/Subscribe services ... content based information flow.</li>
 </UL>
@@ -214,7 +214,7 @@ is through shared memory:
 </ul>
 <P>
 Once the shared segment has been created and mapped into the participating
-process' address spaces, the Operating System plays no role in the
+process' address spaces, the operating system plays no role in the
 subsequent data exchanges.
 Moving data in this way is extremely efficient and blindingly fast ... 
 but (like all good things) this performance comes at a price:
