@@ -12,7 +12,7 @@ Leases represent a very different, and much more robust approach to serializatio
 </P>
 <h2>Challenges of Distributed Locking</h2>
 <P>
-Among Deutsch's Seven Falacies of distributed computing were:
+Among Deutsch's Seven Fallacies of distributed computing were:
 <ul>
 	<li> zero latency </li>
 	<li> reliable delivery </li>
@@ -98,7 +98,7 @@ It does not matter why a lease may have expired:
    <li> the owning process is running slowly </li>
    <li> the network connection to the owning node has failed </li>
 </ul>
-What ever the reason for the expiration, the lease is no longer valid,
+Whatever the reason for the expiration, the lease is no longer valid,
 operations from the previous owner will no longer be accepted, and 
 the lease can be granted to a new requestor.
 This means that the system can automatically recover from any failure
