@@ -111,7 +111,7 @@ the performance of (much more expensive) custom-built hardware.
 If a horizontally scalable system is comprised of many servers,
 and new servers can be added at any time, it is essential that
 they all have appropriate network connectivity (for client-facing
-traffic, back-side servers, and peer-to-perr replication).  It is
+traffic, back-end servers, and peer-to-peer replication).  It is
 not practical to rack new switches and connect new cables each time
 a new server is to be integrated into a particular service.  
 Rather, large computing facilities are moving towards
@@ -180,7 +180,7 @@ made known to a network switch that starts sending it requests.
 <UL>
    <li>	Since HTTP is a stateless protocol, the switch can 
    	route any request to any server. This routing may be 
-	as simple as round-robbin, or it may be load-balanced 
+	as simple as Round-Robbin, or it may be load-balanced 
 	based on measured response times to recent requests.</li>
    <li> Parallel servers have no need to communicate with one-another, 
    	and the only configuration a web server requires is knowing 
@@ -199,11 +199,11 @@ Even non-RESTful services can benefit from horizontal scaling.
 Consider the <em>shopping carts</em> supported by many product web sites.
 The front-end web-servers are indeed horizontally scaled and stateless.
 Shopping cart display and update operations are forwarded from the
-responding web-server to a back-end data-base server.  The back-end
-data-base server may be highly stateful, and not at all horizontally
+responding web-server to a back-end database server.  The back-end
+database server may be highly stateful, and not at all horizontally
 scalable.  But if 99.9% of all requests can be satisfied by the
 front line of web servers, it may be much easier to build a
-(perhaps vertically scaled) data-base server to handle the
+(perhaps vertically scaled) database server to handle the
 shopping cart requests.
 </P>
 <P>
@@ -217,7 +217,7 @@ some servers fail.  Imposing a low cap on the number of servers
 involved in any particular transaction enables the protocols to
 scale to thousands of nodes with no degradataion in performance.
 When we need to add capacity, we do not add more servers for a 
-particular shard; Rather we increase the number of shards into 
+particular shard; rather, we increase the number of shards into 
 which the name space is divided, and assign the new shards to
 new servers.
 Similar techniques have been employed to improve the scalability of 
