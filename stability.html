@@ -161,7 +161,7 @@ If you are going to be delivering binary software to non-developers
 what ever platform they run it on will correctly implement all of
 the interfaces on which your program depends.
 <P>
-The same argument applies, tho not quite as strongly, to independent
+The same argument applies, though not quite as strongly, to independent
 components in a single system.  If components exchange services, and
 I make an incompatible change to the interfaces of one component, this
 has the potential to break other components in the same system.  I can
@@ -169,7 +169,7 @@ fix the other components in our system to work with the new changes
 but:
 <UL>
    <LI> this complicates the making of the change.
-   <LI> we have to ensure that mis-matched component sets are impossible.
+   <LI> we have to ensure that mismatched component sets are impossible.
 </UL>
 <P>
 <H2>Is every interface carved in stone?</H2>
@@ -181,8 +181,8 @@ specification (a faster or more robust implementation).  In
 many cases you can add upwards-compatible extensions (all old
 programs will still work the same way, but new interfaces enable
 new software to access new functionality).  There are a few
-ways to add incompatable changes to old interfaces without
-breaking <em>backwards compatability</em>:
+ways to add incompatible changes to old interfaces without
+breaking <em>backwards compatibility</em>:
 <UL>
 <DL>
 <DT><strong>Interface Polymorphism</strong></DT>
@@ -195,12 +195,12 @@ breaking <em>backwards compatability</em>:
 	(e.g. by the number and types of their parameters), it may be 
 	possible to provide new interfaces to meet new requirements,
 	while continuing to support the older interfaces for
-	backwards compatability with older applications.
+	backwards compatibility with older applications.
     </P></DD>
 <DT><strong>Versioned Interfaces</strong></DT>
     <DD><P>
-	Backwards comptability requirements do not prevent us from
-	changing interfaces; They merely require us to continue
+	Backwards comptibility requirements do not prevent us from
+	changing interfaces; they merely require us to continue
 	providing old interfaces to old clients.
 	In many cases, it may be possible for an application to call
 	out which version of an interface it requires:

@@ -1,10 +1,10 @@
 <html>
 <head>
-<title>Garbage Collection and De-Fragmentation</title>
+<title>Garbage Collection and Defragmentation</title>
 </head>
 <body>
 <center>
-<h1>Garbage Collection and De-Fragmentation</h1>
+<h1>Garbage Collection and Defragmentation</h1>
 </center>
 <h2>Introduction</h2>
 <P>
@@ -17,8 +17,8 @@ fifty years are:
 <ol type="1">
 	<li>Garbage Collection ... seeking out no-longer-in-use resources and recycling them
 	   for reuse</li>
-	<li>De-Fragmentation ... re-assigning and relocating previously allocated resources to 
-	    eliminate <em>external fragmentation</em> to create densly allocated resources
+	<li>Defragmentation ... reassigning and relocating previously allocated resources to 
+	    eliminate <em>external fragmentation</em> to create densely allocated resources
 	    with large contiguous pools of free space</li>
 </ol>
 These two techniques are, in principle, orthogonal ...  but we discuss them together for
@@ -128,7 +128,7 @@ in the address space it is trying to analyze.
 </P>
 
 <A name="Defrag">
-<h2>De-Fragmentation</h2>
+<h2>Defragmentation</h2>
 <P>
 The second problem to be addressed is <em>external fragmentation</em>.  We observed that
 all variable partition memory allocation algorithms eventually result in a loss of useful
@@ -145,24 +145,24 @@ How important is contiguous allocation?
    <li>	if we are allocating blocks of disk, the only cost of non-contiguous allocation may
         be more and longer seeks, resulting in slower file I/O.</li>
    <li> if we are allocating memory to an application that needs to create a single 1024 byte
-        data structure, the program will not work with four dis-contiguous 256 byte chunks
+        data structure, the program will not work with four discontiguous 256 byte chunks
 	of memory.</li>
    <li> Solid State Disks (based on NAND-Flash technology) may allocate space one
-        4K block at a time; but before that block can be re-written with new data
+        4K block at a time; but before that block can be rewritten with new data
 	it must be erased ... and erasure operations might be performed 64MB at a
 	time.
 </ul>
 </P>
 <P>
 Garbage Collection analyzes the allocated resources to determine which ones are still
-in use.  De-Fragmentation goes farther.  It actually changes which resources are allocated.
+in use.  Defragmentation goes farther.  It actually changes which resources are allocated.
 Consider two applications of de-fragmentation:
 <UL>
    <LI> Flash Management
         <p>
 	NAND Flash is a pseudo-Write-Once-Read-Many medium.  After a block has been written,
 	some serious processing and voltage will be required to erase it before it can be
-	re-written with new data.  When the operating system does a write to an SSD, 
+	rewritten with new data.  When the operating system does a write to an SSD, 
 	firmware in the Flash Controller assigns a new block to receive the new data 
 	(leaving the old contents no longer referenced).
 	As more and more 4K blocks become stale.  Half of all the blocks in the SSD
@@ -185,10 +185,10 @@ Consider two applications of de-fragmentation:
    <LI> Disk Space Allocation
         <p>
 	File reads and writes can progress orders of magnitude more quickly if logically
-	consecutibe blocks are stored contiguously on disk (so they can be read in a
+	consecutive blocks are stored contiguously on disk (so they can be read in a
 	single operation with no head movement).  But eventually, after many generations
 	of files being created and deleted, the free space, and many files become
-	dis-contiguous, and the file systems become slower and slower.
+	discontiguous, and the file systems become slower and slower.
 	</p>
    	<p>
 	To clean up the free space and restore our previous performance, we need to follow
@@ -215,7 +215,7 @@ In neither of these examples is defragmentation a one-time process.  Internal fr
 In the first (flash management) example the process is (like progressive garbage collection) a continuous one.
 In older file systems (e.g. Windows FAT file systems), the process was more likely periodic; Once or twice a year 
 we take the file system down to run defragmentation, after which performance should be good for a few more months.
-But in some newer file systems (e.g. the B-TRee File System) de-fragmentation is also a continuously ongoing process.
+But in some newer file systems (e.g. the B-TRee File System) defragmentation is also a continuously ongoing process.
 </p>
 <h2>Conclusions</h2>
 <P>
@@ -231,7 +231,7 @@ can be applied to a surprisingly wide range of resource allocation problems:
 	resources discoverable, how you will trigger the scans, and how you will prevent race
 	conditions between the Garbage Collector and your application.</li>
    <li> If your resource is subject to degradation or loss due to external fragmentation, you 
-   	should consider whether or not periodic Defragmentation can mitigate that process.
+   	should consider whether or not periodic defragmentation can mitigate that process.
 	If you want to use Defragmentation, you must figure out how you will drive the
 	process, and how you will accomplish the required resource reallocation and copying
 	without disrupting the running applications.</li>
