@@ -37,8 +37,8 @@ bigger computer every year.
 </P>
 <P>
 Long ago it was possible to make computers faster by shrinking the gates, speeding up the
-clock, and improving the cooling.  But eventually we reach a point of dimmisnishing
-returns where  physics (the speed of light,
+clock, and improving the cooling.  But eventually we reach a point of diminishing
+returns where physics (the speed of light,
 information theory, thermodynamics) makes it ever more difficult to build faster
 CPUs.  Recently, most of our improvements in processing speed have come from:
 <UL>
@@ -61,7 +61,7 @@ job of exploiting them.
 </P>
 <H2>Multi-Processor Hardware</H2>
 <P>
-The above general defintion covers a wide range of architectures, that actually
+The above general definition covers a wide range of architectures, that actually
 have very different characteristics.  And so it is useful, to overview the most
 prominent architectures.
 
@@ -70,7 +70,7 @@ prominent architectures.
 CPUs are much faster than memory.  
 A 2.5GHz CPU might be able to execute more than 5 Billion instructions for second.
 Unfortunately, 80ns memory can only deliver 12 Million fetches or stores per second.  
-This is almost a 1000x mis-match in performance.
+This is almost a 1000x mismatch in performance.
 The CPU has multiple levels of cache to ensure that we seldom have to go to memory,
 but even so, the CPU spends a great deal of time waiting for memory.
 </P>
@@ -78,7 +78,7 @@ but even so, the CPU spends a great deal of time waiting for memory.
 The idea of hyper-threading is to give each core two sets of general registers, and the ability
 to run two independent threads.  When one of those threads is blocked (waiting for memory)
 the other thread can be using the execution engine.   Think of this as non-preemptive
-time-sharing at the micro-code level.  It is comon for a pair of hyper-threads
+time-sharing at the micro-code level.  It is common for a pair of hyper-threads
 to get 1.2-1.8 times the instructions per second that a single thread would have gotten on
 the same core.  It is theoretically possible to get 2x hyper-threading, but a thread might
 run out of L1 cache for a long time without blocking, or perhaps both hyper-threads
@@ -189,7 +189,7 @@ what resources to allocate to them.
 <P>
 When we looked at distributed systems, we saw (e.g. 
 <a href="https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing">
-Deutsch's Seven Falacies</a>) that the mere fact that a network is
+Deutsch's Seven Fallacies</a>) that the mere fact that a network is
 capable of distributing every operation to an arbitrary node 
 does not make doing so a good idea.  
 It will be seen that the same caveat applies to multi-processor systems.
@@ -223,7 +223,7 @@ available.  The operating system will try to make intelligent decisions,
 but if the developers understand how work can best be allocated 
 among multi-processor cores, they can advise the operating system
 with operations like
-<em>sched_setaffinity(2)</em> and <em>pthead_setaffinity_np(3)</em>.
+<em>sched_setaffinity(2)</em> and <em>pthread_setaffinity_np(3)</em>.
 </p>
 
 <H3>Synchronization</H3>
@@ -322,7 +322,7 @@ copy of a (read only) load module among all processes that were
 running that program.  This ceases to be true when those processes
 are running on distinct NUMA nodes.  Code and other read-only data
 should be have a separate copy (in local memory) on each NUMA node.
-The cost (in terms of wasted memory) is neglibile in comparison
+The cost (in terms of wasted memory) is negligible in comparison
 performance gains from making all code references local.
 </P>
 <P>
@@ -372,3 +372,4 @@ maintainability over performance and scalability.
 </P>
 
 </BODY>
+</HTML>

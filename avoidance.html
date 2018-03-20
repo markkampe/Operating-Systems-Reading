@@ -51,8 +51,8 @@ reserve their resources before they actually need them.
 </P>
 <P>
 Consider the <em>sbrk(2)</em> system call.  It does not actually 
-allocate any more memory to the process.  It requests the Operating
-System to change the size of the data segment in the process' virtual
+allocate any more memory to the process.  It requests the operating
+system to change the size of the data segment in the process' virtual
 address space.  The actual memory assignments will not happen until
 the process begins referencing those newly authorized pages.
 If we can determine that the requested reservation would over-tax
@@ -99,7 +99,7 @@ demand that we cannot gracefully handle.
 	99.9% of the time.</li>
     <li>In operating systems, the notion of killing random
         processes is so abhorrent that most operating systems
-	simply refuse to over-book.  Infact, it is common
+	simply refuse to over-book.  In fact, it is common
 	to under-book (e.g. reserve the last 10% for 
 	emergency/super-user use).</li>
 </ul>

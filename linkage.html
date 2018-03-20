@@ -50,7 +50,7 @@ Consider the recursive factorial implementation:
 </tt></pre>
 </ul>
 </p>
-If I call <tt>factoria(4)</tt>, just before the final invocation
+If I call <tt>factorial(4)</tt>, just before the final invocation
 of <tt>factorial</tt> returns, there would be four instances of
 <tt>factorial</tt> on the stack, in addition to the call frames
 for the code that called <tt>factorial</tt> in the first place.
@@ -86,9 +86,9 @@ The basic elements of subroutine linkage are:
 	<li> subroutine call ... save the return address (in the calling routine)
 		on the stack, and transfer control to the entry point (of the called routine).</li>
 	<li> register saving ... saving the contents of registers that the linkage
-		conventions delclare to be <em>non-volatile</em>, so that they can
-		be restored when the called routine returne.</li>
-	<li> allocating space for the local variables (and perhaps computationsl
+		conventions declare to be <em>non-volatile</em>, so that they can
+		be restored when the called routine returns.</li>
+	<li> allocating space for the local variables (and perhaps computational
 		temporaries) in the called routine.</li>
 </ul>
 When the called routine completes, the process of returning is fairly symmetric:
@@ -210,7 +210,7 @@ The key differences between a procedure call and an interrupt/trap are:
 </UL>
 </P>
 <P>
-A typical interrupt or trap mechanisnm works as follows:
+A typical interrupt or trap mechanism works as follows:
 <UL>
    <LI> there is a number (0, 1, 2 ...) associated with every possible
 	external interrupt or execution exception.</li>
