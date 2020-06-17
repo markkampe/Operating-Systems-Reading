@@ -50,7 +50,7 @@ But it is reasonable to ask whether or not 16x3B instructions per second is actu
 equivalent to 48B instructions per second?  The answer (see
 <A href=" https://en.m.wikipedia.org/wiki/Amdahl%27s_law">Amdahl's Law</A>)
 depends on whether or not your application can be divided into 16 or more 
-parallely executable sub-tasks.  Fortunately, modern operating systems tend
+parallelly executable sub-tasks.  Fortunately, modern operating systems tend
 to run large numbers of processes, and expensive computations are
 increasingly designed to be executable in multiple parallel threads..
 </P>
@@ -82,7 +82,7 @@ time-sharing at the micro-code level.  It is common for a pair of hyper-threads
 to get 1.2-1.8 times the instructions per second that a single thread would have gotten on
 the same core.  It is theoretically possible to get 2x hyper-threading, but a thread might
 run out of L1 cache for a long time without blocking, or perhaps both hyper-threads
-are bocked waiting for memory.
+are blocked waiting for memory.
 </P>
 <P>
 From a performance point-of-view, it is important to understand that both
@@ -292,7 +292,7 @@ cores handle which I/O operations:
    <li>	as with scheduling, sending all operations for a particular
 	device to a particular core may result in more L1/L2
 	cache hits and more efficient execution.</li>
-   <li>	syncrhonization between the synchronous (resulting
+   <li>	synchronization between the synchronous (resulting
    	from system calls) and asynchronous (resulting from
 	interrupts) portions of a device driver if they are
 	all executing in the same CPU.</li>
@@ -343,7 +343,7 @@ or cost of remote memory references associated with those shared
 data structures?  If the updates are few, sparse and random, there 
 may be little we can do to optimize them ... but their costs will
 not be high.  When more intensive use of shared data structures
-is required, there are two general appoaches:
+is required, there are two general approaches:
 <ol type=1>
    <li>move the data to the computation
 	<UL>
