@@ -56,11 +56,11 @@ loadable:
 In the abstract, a program needs an implementation and calls a <em>Factory</em> to
 obtain it.  But how does the Factory know what implementation class to instantiate?
 <UL>
-   <li>	for a browser plugin, there might be a MIME-type assocated with the
+   <li>	for a browser plugin, there might be a MIME-type associated with the
    	data to be handled, and the browser can consult a registry to find
 	the plug-in associated with that MIME-type.  This is a very general
 	mechanism ... but it presumes that data is tagged with a type, and
-	that somebody is maintaining a tag-to-plugin registery.</li>
+	that somebody is maintaining a tag-to-plugin registry.</li>
    <li>	at the other extreme, the Factory could load all of the known
    	plug-ins and call a <em>probe</em> method in each to see which (if any)
 	of the plug-ins could identify the data and claim responsibility for
@@ -70,7 +70,7 @@ obtain it.  But how does the Factory know what implementation class to instantia
 <P>
 Long ago, dynamically loadable device drivers used the probing process, but 
 this was both unreliable (might incorrectly accept the wrong device) and
-dangerious (touching random registers in random devices).  Today most
+dangerous (touching random registers in random devices).  Today most
 I/O busses support self-identifying devices.  Each device has type,
 model, and even serial number information that can be queried in a 
 standard way (e.g. by <em>walking the configuration space</em>).  
@@ -124,7 +124,7 @@ For a dynamically loaded device driver, the initialization method might:
        and assign them to the devices to be managed.</li>
    <li>register all of the device instances it supports.
    	Part of this registration would involve providing a vector
-	(of pointers to standard device drvier entry points) that client
+	(of pointers to standard device driver entry points) that client
 	software could call in order to use these device instances.
    </li>
 </ul>
@@ -222,7 +222,7 @@ operating system.
 </P>
 <P>
 There is often a tension between the conflicting needs to support new
-hardware and software features while retaining compatability
+hardware and software features while retaining compatibility
 with old device drivers.
 </P>
 <H2>Hot-Pluggable Devices and Drivers</H2>
