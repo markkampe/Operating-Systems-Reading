@@ -76,8 +76,8 @@ Unlike <em>malloc(3)</em>, these other operations do not tell
 us how much new resource the process wants to consume.  But
 in each of these cases there is a request (to which we can 
 return an error) before we reach actual resource exhaustion.
-And it is this failable request that gives us the opporutunity to 
-consider, and avoid a resouce-exhaustion deadlock.
+And it is this failable request that gives us the opportunity to
+consider, and avoid a resource-exhaustion deadlock.
 </P>
 <H2>Over-Booking</H2>
 <P>
@@ -111,8 +111,8 @@ What should a process do when some resource allocation request
 <ul>
 	<li> A simple program might log an error message and exit.</li>
 	<li> A stubborn program might continue retrying the request
-	    (in hope tht the problem is transient).</li>
-	<li>A more robust program might return errors for requsts that cannot
+	    (in hope that the problem is transient).</li>
+	<li>A more robust program might return errors for requests that cannot
 	be processed (for want of resources), but continue trying to serve
 	new requests (in the hope that the problem is transient).</li>
 	<li>A more civic-minded program might attempt to reduce its 
