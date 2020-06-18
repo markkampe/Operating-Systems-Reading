@@ -100,7 +100,7 @@ Like most UNIX-derived file systems, BSD file systems:
 </UL>
 <P>
 In a classic UNIX file system (UFS) the file descriptors (I-nodes)
-all appear near the begining of the volume, with the data blocks
+all appear near the beginning of the volume, with the data blocks
 after them.  Disk activity instrumentation showed that the disk
 spent a great deal of time seeking back-and forth between the I-node
 area and the data blocks.  This led to one of the most significant
@@ -120,7 +120,7 @@ can be opened and read with minimal head motion.
 The mini-file systems are not truly independent.  A directory in one cylinder
 group can refer to an I-node in another cylinder group, and an I-node can
 point to blocks on any cylinder group.  When this happens, however, the
-system incurrs additional head motion when processing those files, and
+system incurs additional head motion when processing those files, and
 I/O performance is reduced.
 
 <H4>3. Volume Descriptor (Super Block)</h4>
@@ -134,7 +134,7 @@ a severely damaged file system.
 <P>
 The primary superblock can be found in the second block (block 1) of
 the volume.  Realize, however, that file systems can support a wide
-range of bolck sizes ... so the superblock may be 512 bytes into the
+range of block sizes ... so the superblock may be 512 bytes into the
 volume, or it may be 64K bytes into the volume (depending on what the
 file system block size is).  When opening a new file system, the OS
 may have to probe multiple locations in order to find the superblock
@@ -166,7 +166,7 @@ its contents is).
 <H4>3.2 File System Layout Parameters</h4>
 <P>
 In order to interpret the bits of any UNIX file system, we need
-to know how the file system is layed out.  Because they are divided
+to know how the file system is laid out.  Because they are divided
 into cylinder groups, BSD file systems have many more layout 
 parameters than most file systems:
 <P>
@@ -210,9 +210,9 @@ files.
 <P>
 <H4>3.4 File System Tuning Parameters</h4>
 <P>
-We are often forced to make trade-offs between how rappidly we can
+We are often forced to make trade-offs between how rapidly we can
 perform various operations, and how efficiently we use space.  BSD
-file systems have per file system tuning paremeters that permit
+file systems have per file system tuning parameters that permit
 system managers to make different trade-offs on different file
 systems.  A temporary file system, for instance, might be optimized
 for allocation speed, while a project archival file system might
@@ -274,7 +274,7 @@ same administrative information in their I-nodes:
 		access, for the owning user, the owning group,
 		and anyone else.
 	<LI> The integer user-ID of the user who owns the file.
-	<LI> The ingeger group-ID of the group who owns the file.
+	<LI> The integer group-ID of the group who owns the file.
 	<LI> The time when the file was last accessed.
 	<LI> The time when the file was last modified.
 	<LI> The time when the I-node was last updated.
@@ -471,7 +471,7 @@ can contain pointers to files on other file systems, whose contents
 may change in ways that later invalidate the symbolic links.
 <P>
 Detecting loops in paths that span multiple file systems and 
-machines is both dificult and expensive.  When the Berkeley team
+machines is both difficult and expensive.  When the Berkeley team
 added symbolic links to UNIX, they added a very simple feature
 that counts the number of I-node fetches associated with a single
 open ... and if that number gets too big (e.g. greater than 100)
@@ -498,7 +498,7 @@ studying BSD file systems:
 	<strong>symbolic</strong> links.
    <LI>
 	that sometimes, it may be acceptable to make non-upwards
-	compatable changes ... but not very often, and they have 
+	compatible changes ... but not very often, and they have 
 	to be made in a way that programmers will be willing to
 	adopt (e.g. using a more general mechanism to walk 
 	directory trees).
@@ -508,7 +508,7 @@ The functionality requirements that motivated the BSD changes are
 common.  The functionality, performance, and robustness supported 
 by BSD file systems is often considered the base-line against which 
 other file systems are judged.  The decision about whether or not
-new features justify non-upwards compaible extensions is one that
+new features justify non-upwards compatible extensions is one that
 most OS vendors have had to face.
 
 <H4>8. References</h4>
