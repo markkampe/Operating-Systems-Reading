@@ -18,7 +18,7 @@ Device drivers represent both:
    	</p>
    <dt>simplifying abstractions</dt>
 	<P>
-	<dd>	providing an implemention of standard class interfaces
+	<dd>	providing an implementation of standard class interfaces
 		while opaquely encapsulating the details of how to
 		effectively and efficiently use a particular
 		device.</dd>
@@ -28,7 +28,7 @@ Device drivers represent both:
 <P>
 For reasons of performance and control, Operating Systems tend not to be 
 implemented in object oriented languages (does anybody remember JavaOS?).
-Yet despite being implemented in simpler langauges (often C), Operating
+Yet despite being implemented in simpler languages (often C), Operating
 Systems, in device drivers, offer highly evolved examples of a different
 realization of class interfaces, derivation, and inheritance.
 </P>
@@ -45,7 +45,7 @@ of these devices creates tremendous demands for object oriented code reuse:
    <li> We would like to minimize the cost of developing drivers
     	to support new devices.  This is most easily done if the
 	majority of the functionality is implemented in common
-	code that can be inherrited by the individual drivers.</li>
+	code that can be inherited by the individual drivers.</li>
    <li> As system functionality and performance are improved, we
    	would like to ensure that those benefits accrue not only
 	to new device drivers, but also to older device drivers.</li>
@@ -164,7 +164,7 @@ Unix.  But as system functionality evolved, the operating system
 began to implement higher level services for other sub-classes of
 devices:
 <UL>
-   <li> input editing and outut translation for terminals and virtual terminals</li>
+   <li> input editing and output translation for terminals and virtual terminals</li>
    <li> address binding and packet sending/receipt for network interfaces</li>
    <li> display mapping and window management for graphics adaptors</li>
    <li> character-set mapping for keyboards</li>
@@ -198,7 +198,7 @@ The rewards for this structure are:
 	software.</li>
    <li> The system behaves identically over a wide range of different
    	devices.</li>
-   <li> Most functionality enhancements to will be in the higher
+   <li> Most functionality enhancements will be in the higher
    	level code, and so should automatically work on all devices
 	within that sub-class.</li>
 </ul>
@@ -236,7 +236,7 @@ for the DDI entry points.  If an operating system eliminates or incompatibly
 changes a DKI function, device drivers that depend on that function may
 cease working.  The requirement to maintain stable DKI entry points may 
 greatly constrain our ability to evolve our operating system implementation.
-Similar issues arrise for other classes of dynamically loadable kernel
+Similar issues arise for other classes of dynamically loadable kernel
 modules (such as network protocols and file systems).
 </p>
 <h2>Conclusion</h2>
@@ -244,7 +244,7 @@ modules (such as network protocols and file systems).
 Device drivers demonstrate an evolution from a basic super-class (character
 devices) into an ever-expanding hierarchy of derived sub-classes.  But unlike
 traditional class derivation, where sub-class implementations inherit most of
-their implemntation from their parent, we see a different sort of inheritance.
+their implementation from their parent, we see a different sort of inheritance.
 While each new sub-class and instance is likely to be a new implementation,
 what they inherit is pre-existing higher level frameworks that do 
 do most of their work for them.

@@ -50,7 +50,7 @@ In most clusters, a node has to be explicitly configured or
 provisioned into the cluster ... so that the set of potential
 members is well known, and perhaps even closed to new members.
 There are, however, some types of clusters where any node is
-welcooe to join at any time.
+welcome to join at any time.
 
 <H2>Degree of Coupling</H2>
 <P>
@@ -103,7 +103,7 @@ tell that they are not all running on a single computer.
 <P>
 In a clustered system, work is divided among the active members.
 To reduce distributed synchronization, it is common to <em>partition</em>
-the work (e.g. desigate each server responsible for a certain
+the work (e.g. designate each server responsible for a certain
 subset (e.g. a file system, a range of keys, etc) of requests, 
 and route all requests to their designated owner).  
 In such systems, we can talk about <em>primaries</em>
@@ -128,10 +128,10 @@ availability:
 </P>
 <P>
 An active/active architecture achieves better resource utilization, and so
-may be more cost-effective.  But when a failure occurrs, the load on the
+may be more cost-effective.  But when a failure occurs, the load on the
 surviving nodes is increased and so performance may suffer.
 An active/stand-by architecture normally has idle capacity, but may not suffer
-any performance degradataion after a failure.
+any performance degradation after a failure.
 </P>
 <P>
 We can also look at how quickly a successor is able to take over a 
@@ -159,7 +159,7 @@ cluster, or are about to leave it.  This is not always the case:
 <P>
 Since we cannot be sure that member will notify the other members before
 he leaves the cluster, we need a means of detecting a member who has
-dropped unexpectedly out of the cluster.  The most common techique is
+dropped unexpectedly out of the cluster.  The most common technique is
 called a "heart beat".  A heart beat is a message, regularly exchanged
 between cluster members.  These may be special messages, or they may
 be piggy-backed on other traffic. If too much time passes without our having
@@ -182,7 +182,7 @@ master:
    <LI> Coming to a mutual agreement between multiple nodes can be
 	a complex process (e.g. Three Phase Commits).  If one node
 	is designated a cluster master, that node can serve as a
-	central point of syncrhronization and/or control for operations
+	central point of synchronization and/or control for operations
 	in the cluster.</li>
    <LI> Rather than requiring all nodes to heart-beat one-another,
 	it is more economical to simply have all nodes heart-beat
@@ -192,7 +192,7 @@ master:
 <P>
 The election of a cluster master may, itself, be a complex process ...
 but having performed that process may eliminate the need for any
-further negotiations.  There are numerous well established election/concensus
+further negotiations.  There are numerous well established election/consensus
 algorithms.  One of the best known is Leslie Lamport's 
 <A Href=http://en.wikipedia.org/wiki/Paxos_algorithm>Paxos algorithm</A>.
 
@@ -217,7 +217,7 @@ There are two standard approaches to preventing "split-brain":
 <P>
 If there are N potential members in a cluster, we can build in a rule
 that says a cluster cannot form with fewer than (N/2)+1 members.  This
-acomplishes two purposes:
+accomplishes two purposes:
 <UL>
    <LI> It makes it impossible for any partitioning to result in two
 	viable sub-clusters (because N nodes cannot be divided into two
@@ -253,7 +253,7 @@ formed by a single node ... because the voting device would prevent split-brain.
 
 <H2>Fencing</h2>
 <P>
-What if, you were not only sufferring from schizophrenia, but the other
+What if, you were not only suffering from schizophrenia, but the other
 side of your brain had actually gone rogue, and was trying to commit acts
 of mayhem against you and others?
 In some clustered systems, it must be assumed that if a node has fallen

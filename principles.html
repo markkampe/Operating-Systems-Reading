@@ -22,7 +22,7 @@ We build increasingly large amounts of increasingly complex software.  Size and 
    	to see complex emergent behaviors that could not have been predicted
 	from our experience with smaller systems.
    <li> increasingly rich functionality and interactions with increasingly many
-   	other external systems make complete testing combinatoricially impossible.</li>
+   	other external systems make complete testing combinatorically impossible.</li>
    <li> our increasing dependency on this software means that failures will cause
    	more severe problems, for more people, more often.</li>
 </ul>
@@ -35,7 +35,7 @@ software:
 <ul>
    <li>	They involve complex interactions among many sub-systems.</li>
    <li> They involve numerous asynchronous interactions and externally originated events.</li>
-   <li> They involve the sharing of statefull resources among cooperating parallel processes.</li>
+   <li> They involve the sharing of stateful resources among cooperating parallel processes.</li>
    <li> They involve coordinated actions among heterogenous components in large 
    	distributed systems.</li>
    <li> They must evolve to meet ever-changing requirements.</li>
@@ -69,7 +69,7 @@ components) understandable, we must break the system down into smaller component
 <em>that can be understood individually.</em>
 </p>
 <p>
-Hiearchical decomposition is the process of decomposing a system in a top-down fashion.
+Hierarchical decomposition is the process of decomposing a system in a top-down fashion.
 If we wanted to describe the University of California, we might
 <ul>
    <li>Start by dividing it into the Regents, the Office of the President, and the campuses.</li>
@@ -100,7 +100,7 @@ and most functions can be carried out within a particular component, the respons
 and relationships are much simplified, and it becomes possible to understand, and to manage the system.
 </p>
 <P>
-Hiearchical structure is a very effective approach to designing or understanding complex systems.
+Hierarchical structure is a very effective approach to designing or understanding complex systems.
 But the operation of these systems is not always strictly hierarchical.
 If we drill down into the details, we see that not all interaction is constrained to follow 
 the tree.  
@@ -230,7 +230,7 @@ greater flexibility to the implementers.
 </P>
 <P>
 Obviously a better abstracted interface is easier for the intended clients.
-But even if the internal implemention was well suited to the intended clients,
+But even if the internal implementation was well suited to the intended clients,
 exposing implementation details would:
 <ol type="a">
    <li>	expose more complexity to the client, making the interface
@@ -317,7 +317,7 @@ out-of-spec way (e.g. exploiting an undocumented feature), problems
 are likely to arise, in the future, perhaps resulting in a system failure.  
 </P>
 <P>
-It both logistically and combinatoricially infeasible for every developer to test every change with
+It both logistically and combinatorically infeasible for every developer to test every change with
 every combination of components (and component versions) from every
 other developer.  Interface contracts are our first line of
 defense against incompatible changes.

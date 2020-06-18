@@ -12,9 +12,9 @@ all data sources and sinks as files.
 Files are most commonly discussed as byte streams or one-dimensional arrays,
 and this is a fair description of much of the file processing done by
 applications software.  But many of those byte-streams contain highly
-structured data (e.g. a load module, an MPEG-4 video or a datablase).
+structured data (e.g. a load module, an MPEG-4 video or a database).
 Some very interesting sources of data (e.g. directories and key-value stores),
-while serializable, are are not even indended to be processed as byte streams,
+while serializable, are are not even intended to be processed as byte streams,
 but with very different APIs.  Many files have interesting attributes beyond
 the data they contain.
 </p>
@@ -31,7 +31,7 @@ byte stream:
 <ul>
    <li> A text file is a byte stream, but when we 
 	process it we generally break it into lines 
-	(deliminted by <em>\n</em> or <em>\r\n</em>), and 
+	(delimited by <em>\n</em> or <em>\r\n</em>), and 
 	render it as characters (e.g. according to the 
 	ASCII or ISO 8859 character set).</li>
 
@@ -49,7 +49,7 @@ byte stream:
 
    <li> an MPEG stream is a sequence of audio, video,
    	frames, containing compressed (e.g.
-	Discrete Cosine Transoform) program information,
+	Discrete Cosine Transform) program information,
 	which require considerable processing in order
 	to reconstruct the encoded program.
 	</li>
@@ -99,7 +99,7 @@ There are a few approaches to <em>classing</em> files:
    <li> Another common approach (very popular with Unix-derived systems)
    	is a <em>magic number</em> at the start of the file.
 	Each type of file (or even file system) begins with a 
-	reserved and registed magic number that identifies the
+	reserved and registered magic number that identifies the
 	file's type.  For more information on this approach,
 	look at the 
 	<A href="http://man7.org/linux/man-pages/man1/file.1.html">file(1)</a> command.</li>
@@ -191,7 +191,7 @@ byte streams, but accessed with very different operations.
 With inter-process communications ports, we have something with
 a very different implementation, but that is accessed 
 (as a byte stream)
-with normal file I/O opeartions.
+with normal file I/O operations.
 </p>
 <h3>3.3. I/O Devices</h3>
 <P>

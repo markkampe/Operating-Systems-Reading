@@ -40,7 +40,7 @@ a few reasons:
 How does an allocated resource come to be returned to the free pool?
 <ul>
     <li>With many resources, and in many programming languages, allocated resources are
-    	freed by an explict or implicit action on the client's part.  Example
+    	freed by an explicit or implicit action on the client's part.  Example
 	include:
 	<ul>
 		<li> calling <em>close(2)</em> on a file</li>
@@ -53,13 +53,13 @@ How does an allocated resource come to be returned to the free pool?
    </p>
    <li>If a resource is sharable by multiple concurrent clients (e.g. an
        open file or a shared memory segment), we cannot
-       free it simply becuase one client called close.
+       free it simply because one client called close.
        The resource manager (e.g. the operating system) may maintain a 
        active reference count for each resource:
        <ul>
        		<li> increment the reference count whenever a new 
 		     reference to the object is obtained.</li>
-		<li> decrement the reference count whenevever a
+		<li> decrement the reference count whenever a
 		     reference is released (e.g. by calling close).</li>
 		<li> automatically free the object when the reference
 		     count reaches zero.</li>
@@ -78,7 +78,7 @@ But these two approaches are not always practical:
 		track of when which resources are no longer needed can be a lot of work.  For
 		this reason, many languages (e.g. Lisp, Java, Python) do not require
 		programs to explicitly free some resources (e.g. memory).  This not only
-		reduces developer task loading, but it also eliminages a great many
+		reduces developer task loading, but it also eliminates a great many
 		bugs.</li>
 	<li> some resources (e.g. DHCP addresses) may never be explicitly freed,
 		and so must be automatically recycled after they have gone unused
@@ -99,7 +99,7 @@ explicit or reference count based freeing.  In such a system ...
 			<li>begin with a list of all of the resources that originally existed.</li>
 			<li>scan the process to find all resources that are still reachable.</li>
 			<li>each time a reachable resource is found, remove it from the original resource list.</li>
-			<li>at the end of the scan, anything that is still in the list of original resouces,
+			<li>at the end of the scan, anything that is still in the list of original resources,
 			    is no longer referenced by the process, and can be freed.</li>
 			<li>after freeing the unused resources, normal program operation can resume.</li>
 		</ol>
@@ -215,7 +215,7 @@ In neither of these examples is defragmentation a one-time process.  Internal fr
 In the first (flash management) example the process is (like progressive garbage collection) a continuous one.
 In older file systems (e.g. Windows FAT file systems), the process was more likely periodic; Once or twice a year 
 we take the file system down to run defragmentation, after which performance should be good for a few more months.
-But in some newer file systems (e.g. the B-TRee File System) defragmentation is also a continuously ongoing process.
+But in some newer file systems (e.g. the B-Tree File System) defragmentation is also a continuously ongoing process.
 </p>
 <h2>Conclusions</h2>
 <P>

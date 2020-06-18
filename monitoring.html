@@ -68,7 +68,7 @@ ways to do this:
 	 being responded to correctly and in a timely fashion.</li>
 </ul>
 <P>
-Any of these techiques could alert us of a potential deadlock,
+Any of these techniques could alert us of a potential deadlock,
 livelock, loop, or a wide range of other failures.  But each
 of these techniques has different strengths and weaknesses:
 <ul>
@@ -115,7 +115,7 @@ recovery, and fail-over:
    <li> The software should be designed so that any process
    	in the system can be killed and restarted at any time.
 	When a process restarts, it should be able to reestablish 
-	communiction with the other processes and resume working
+	communication with the other processes and resume working
 	with minimal disruption. </li>
     <li>The software should be designed to support multiple
         levels of restart. Examples might be:
@@ -157,7 +157,7 @@ perhaps:
    <li> the operation that caused process A to fail is still
    	listed in the database, and when process A restarts,
 	it may attempt to re-try the same operation and fail
-	agian.</li>
+	again.</li>
    <li> the operation that caused process A to fail may have
         been mirrored to other systems, that will also 
 	experience or cause additional failures.</li>

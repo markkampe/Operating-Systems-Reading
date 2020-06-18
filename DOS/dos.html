@@ -107,7 +107,7 @@ disks and (unpartitioned) floppies, and between various releases
 of DOS and Windows ... but conceptually, the boot record:
 <UL>
 	<LI> begins with a branch instruction 
-		(to the start of the real boostrap code).
+		(to the start of the real bootstrap code).
 	<LI> followed by a volume description (BIOS Parameter Block)
 	<LI> followed by the real bootstrap code
 	<LI> followed by an optional disk partitioning table
@@ -130,7 +130,7 @@ It describes the device geometry:
 		<LI> number of tracks per cylinder
 		<LI> total number of sectors on the volume
 	</UL>
-It also describes the way the file system is layed out on the volume:
+It also describes the way the file system is laid out on the volume:
 	<ul>
 		<LI> number of sectors per (logical) cluster
 		<LI> the number of reserved sectors (not part of file system)
@@ -355,7 +355,7 @@ file.
 <P>
 The "next block" organization of the FAT means that
 in order to figure out what physical cluster is the third logical
-block of ar file, must know the physical cluster number of the second
+block of a file, must know the physical cluster number of the second
 logical block.
 This is not usually a problem, because almost all file access is
 sequential (reading the first block, and then the second, and then 
@@ -376,7 +376,7 @@ The notion of "next block" is only meaningful for clusters that
 are allocated to a file ... which leaves us free to use the
 FAT entries associated with free clusters as a free indication.
 Just as we reserved a value (-1) to mean <strong>end of file</strong>
-we can rerserve another value (0) to mean
+we can reserve another value (0) to mean
 <strong>this cluster is free</strong>.
 <P>
 To find a free cluster, one has but to search the FAT for an
@@ -410,12 +410,12 @@ file was free, and marked them as such in the File Allocation Table.
 This "feature" was probably motivated by a combination of laziness
 and a desire for performance.  It did, however, have an advantage.
 Since clusters were not freed when files were deleted, they could not
-be reallocated until after garbage colection was performed.  This
+be reallocated until after garbage collection was performed.  This
 meant that it might be possible to recover the contents of deleted
 files for quite a while.  The opportunity this created was large 
 enough to enable Peter Norton to start a very successful company.
 <P>
-<H4>6. Descendents of the DOS file system</H4>
+<H4>6. Descendants of the DOS file system</H4>
 <P>
 The DOS file system has evolved with time.  Not only have wider 
 (16- and 32-bit) FAT entries been used to support larger disks,
@@ -446,7 +446,7 @@ The solution they came up was to put the extended filenames in
 additional (auxiliary) directory entries.  Each file would be
 described by an old-format directory entry, but supplementary
 directory entries (following the primary directory entry) could 
-provide extenstions to the file name.  
+provide extensions to the file name.  
 To keep older systems from being confused by the new directory
 entries, they were tagged with a very unusual set of attributes
 (hidden, system, read-only, volume label).  Older systems 
@@ -461,7 +461,7 @@ able to access files by either the long or the short names.
 <P>
 The addition of long file names did create one problem for
 the old directory entries.  What would you do if you had two
-file names that differred only after the 8th character (e.g.
+file names that differed only after the 8th character (e.g.
 datafileread.c and datafilewrite.c)?  If we just used the
 first 8 characters of the file name in the old directory
 entries (datafile), we would have two files with the same
@@ -483,7 +483,7 @@ Events that corrupt the File Allocation Table are extremely
 rare, but the consequences of such an incident are catastrophic.
 To protect users from such eventualities, MicroSoft added support
 for alternate FATs.  Periodically, the primary FAT would be copied
-to one of the pre-reserved alternat FAT locations.  Then if something
+to one of the pre-reserved alternate FAT locations.  Then if something
 bad happened to the primary FAT, it would still be possible to read
 most files (files created before the copy) by using the back-up FAT.
 This is an imperfect solution, as losing new files is bad ... but
@@ -501,13 +501,13 @@ a standard.
 The failings of the DOS file system were widely known by this time,
 but, as the most widely used file system on the planet, the committee
 members could not ignore it.  Upon examination, it became clear that
-the most ideomatic features of the DOS file system (the File Allocation
-Table) were irrelevent to a CDROM file system (which is written only
+the most idiomatic features of the DOS file system (the File Allocation
+Table) were irrelevant to a CDROM file system (which is written only
 once):
 <UL>
 	<LI> We don't need to keep track of the free space on a 
 	     CD ROM.  We write each file contiguously, and the
-	     next file goes immidiately after the last one.
+	     next file goes immediately after the last one.
 	<LI> Because files can be written contiguously, we don't
 	     need any "next block" pointers.  All we need to know
 	     about a file is where its first block resides.
@@ -542,7 +542,7 @@ They did, however, learn from DOS's mistakes:
    <LI>
 	Recognizing that, over time, people would want to associate
 	a wide range of attributes with files, they also created
-	a variable length extened attributes section after the
+	a variable length extended attributes section after the
 	file name.  Much of this section has been left unused,
 	but they defined several new attributes for files:
 	<UL>
@@ -574,7 +574,7 @@ widely used file system format on the planet.  Despite their
 primitiveness, DOS file systems were used as the basis for much
 newer CD ROM file system designs.
 <P>
-What can we infer from this?  That most users don't need alot of
+What can we infer from this?  That most users don't need a lot of
 fancy features, and that the DOS file system (primitive as it
 may be) covers their needs pretty well.  
 <P>
@@ -584,7 +584,7 @@ case file name limitations, they chose to do so with a kludgy
 (but upwards compatible) solution using additional directory
 entries per file.  The fact that they chose such an implementation
 clearly illustrates the importance of maintaining media 
-interchangability with older systems.  This too is a problem
+interchangeability with older systems.  This too is a problem
 that all (successful) file systems will eventually face.
 <P>
 
@@ -612,7 +612,7 @@ FDISK table format</A>.
 9660 file system information
 <UL>
     <LI>
-	WIkipedia Introduction to
+	Wikipedia Introduction to
 	<A Href=http://en.wikipedia.org/wiki/ISO_9660>
 	ISO 9660 file systems</A>
     <LI>

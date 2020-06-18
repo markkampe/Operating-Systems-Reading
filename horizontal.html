@@ -51,7 +51,7 @@ a few basic (and highly inter-related) goals:
    	and requiring little or no configuration.</li>
    <li> service protocols that are designed to minimize the potential
    	modes of failure and enable simple recoveries.</li>
-   <li> service protcols that are optimized for throughput (vs latency) 
+   <li> service protocols that are optimized for throughput (vs latency) 
    	over very large (e.g. continental) distances.</li>
    <li> service protocols that exploit the numerous optimizations 
    	(e.g. web cache servers) and other features that
@@ -66,7 +66,7 @@ systems.
 <H2>Horizontally Scalable Hardware Platforms</H2>
 <P>
 All services in horizontally scalable systems are exchanged via
-network messages.  A node in such a system is simpy a computer
+network messages.  A node in such a system is simply a computer
 that implements the specified protocols.  
 The <em>unit of deployment</em> in most horizontally scalable
 systems is the node;  When a new service or more capacity is
@@ -215,7 +215,7 @@ to a small group (e.g. 3) of servers.  Assigning multiple servers
 to each shard enables us to maintain data availability even if
 some servers fail.  Imposing a low cap on the number of servers
 involved in any particular transaction enables the protocols to
-scale to thousands of nodes with no degradataion in performance.
+scale to thousands of nodes with no degradation in performance.
 When we need to add capacity, we do not add more servers for a 
 particular shard; rather, we increase the number of shards into 
 which the name space is divided, and assign the new shards to
@@ -240,7 +240,7 @@ but it is very well aligned with horizontally scalable architectures:
    	abstract/logical and thin-provisioned.  Horizontally scaled
 	architectures are well suited to implementing and delivering
 	such services.</li>
-   <li> The flexibility to continously add, remove, and rebalance
+   <li> The flexibility to continuously add, remove, and rebalance
    	resources in a horizontally scalable system, makes it 
 	possible for a cloud service provider to easily accommodate
 	great fluctuations in demand.</li>

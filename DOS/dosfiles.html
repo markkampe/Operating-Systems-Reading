@@ -109,7 +109,7 @@ Logical sector number 0 is sector 1 in track 0 on side 0.  Since this sector
 can always be located without knowing the disk structure, it is often used to
 store information about the disk structure. This is important for floppy
 disks, which are removable.  Many floppy disk drives can accommodate disks
-with more than one format.  The file system codecan read logical sector 0 to
+with more than one format.  The file system code can read logical sector 0 to
 find out how to locate other sectors.
 <P>
 As the logical sector number increases, the heads must be moved only when the
@@ -465,14 +465,14 @@ The very first byte of a directory entry has another function.  If it is
 hexadecimal E5, the entry represents a deleted file, subdirectory or volume
 label.  All other parts of the entry are valid and represent the status of the
 entry just before it was deleted.  If the first byte is zero (not an ASCII
-zero, which has the value hexdecimal 30, but an ASCII NUL), the entry is a
+zero, which has the value hexadecimal 30, but an ASCII NUL), the entry is a
 terminating entry.  It has never been used since the directory was created,
 and there are no entries after it in the same directory.
 <P>
 When DOS 3.0 came along, characters from the IBM extended character set were
 permitted in file names and extensions.  Unfortunately, this created an
 ambiguity for hexadecimal E5, which represents an IBM extended character and
-also represents a deleted entry.  For compatiblity between DOS 3.0 and disks
+also represents a deleted entry.  For compatibility between DOS 3.0 and disks
 formatted under previous versions of DOS, DOS 3.0 converts the extended
 character represented by hexadecimal E5 into 05 before writing it to the
 directory entry when it appears as the first character of a file name.
@@ -522,7 +522,7 @@ with the same name and extension as an existing file in the same directory,
 and the file mode permits, the new entry will simply replace the old one.  A
 new volume label in the root directory simply replaces the old one, if any.
 <P>
-When an entry is deleted, its first byte is replaced by hexedecimal E5 to mark
+When an entry is deleted, its first byte is replaced by hexadecimal E5 to mark
 it as deleted.  The rest of the entry is left unchanged.  If the entry
 represented a file or subdirectory, all clusters associated with it are marked
 as empty in the file allocation table.  The data in the clusters is not

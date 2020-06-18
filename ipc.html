@@ -122,7 +122,7 @@ network protocols.
 <H2>General Network Connections</H2>
 <P>
 Most operating systems now provide a fairly standard set of network
-communications APIs.  The associated Linux APIs ar:
+communications APIs.  The associated Linux APIs are:
 <UL>
    <li><em>socket(2)</em> ... create an inter-process communication end-point
    	with an associated protocol and data model.
@@ -156,7 +156,7 @@ A few examples include:
 Using more general networking models enables processes to interact with
 services all over the world, but this adds considerable complexity:
 <UL>
-   <LI>Ensuring interoperability with software running under differerent
+   <LI>Ensuring interoperability with software running under different
        operating systems on computers with different instruction set architectures.</li>
    <LI>Dealing with the security issues associated with exchanging data and
        services with unknown systems over public networks.</li>
@@ -234,7 +234,7 @@ a message (announcing the completion) to the waiter.
 But what if there are megabytes of queued requests, and we want to 
 send a message to abort those queued requests?
 Data sent down a network connection is FIFO ... and one of the
-problems with FIFO schdeduling is the delays 
+problems with FIFO scheduling is the delays 
 waiting for the processing of earlier but longer messages.
 Occasionally, we would like to make it possible for an
 important message to go directly to front of the line.
@@ -242,7 +242,7 @@ important message to go directly to front of the line.
 <P>
 If the recipient was local, we might consider sending a
 signal that could invoke a registered handler, and flush
-(without processing) all of the bufferred data.  This
+(without processing) all of the buffered data.  This
 works because the signals travel over a different
 channel than the buffered data.  Such communication
 is often called <em>out-of-band</em>, because it
@@ -258,8 +258,8 @@ The server on the far end periodically polls the
 out-of-band channel before taking requests from the
 normal communications channel.  This adds a little
 overhead to the processing, but makes it possible
-to preempt queued operations.  The choosen polling
-interal represents a trade-off between added overhead
+to preempt queued operations.  The chosen polling
+interval represents a trade-off between added overhead
 (to check for out-of-band messages) and how long
 we might go (how much wasted work we might do)
 before noticing an out-of-band message.
