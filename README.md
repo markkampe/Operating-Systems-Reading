@@ -31,6 +31,22 @@ My more general articles:
    - ipc.html ... a high level introduction to (user-level) inter-process
      communication mechanisms.
    - gc_defrag.html ... a discussion of garbage collection and defragmentation
+   - BSD/bsd.html ... an overview of the (relatively original) 4BSD Fast File system,
+     interesting for (head-motion optimizing) cylinder clusters, symbolic links, and
+     long file names.
+     - the FREEBSD sub-directory includes copies of (open source) header files for
+       the basic file system data structures.
+   - BSD/EXT3.html ... an overview of the (much newer) Linux EXT3 file system.
+   - DOS/dos.html ... an overview of the (original and extended) DOS FAT file systems,
+     interesting for its simplicity, and very different approaches to directory 
+     structure and block allocation.
+     - the OPENSOLARIS sub-directory includes a copy of an (open source) header
+       file for the FDISK table (used by many operating systems) to partition disks.
+   - MVS/mvs.html ... an overview of the (venerable) IBM System/360 file systems,
+     interesting for their support of large contiguous extents.
+   - VSAM/vsam.html ... an overview of the (only slightly less ancient) IBM VSAM
+     file structure, interesting as a (simple but crude) illustration of how to
+     indexed key-structured data.
 
  - distributed systems
    - distsystems.html ... an introduction to why we build distributed systems,
@@ -67,24 +83,6 @@ My more general articles:
    - workingsets.html ... a discussion of the performance risks associated with
      demand paging and the use of working sets to address them.
 
-My file system descriptions:
- - BSD/bsd.html ... an overview of the (relatively original) 4BSD Fast File system,
-   interesting for (head-motion optimizing) cylinder clusters, symbolic links, and
-   long file names.
-   - the FREEBSD sub-directory includes copies of (open source) header files for
-     the basic file system data structures.
- - BSD/EXT3.html ... an overview of the (much newer) Linux EXT3 file system.
- - DOS/dos.html ... an overview of the (original and extended) DOS FAT file systems,
-   interesting for its simplicity, and very different approaches to directory 
-   structure and block allocation.
-   - the OPENSOLARIS sub-directory includes a copy of an (open source) header
-     file for the FDISK table (used by many operating systems) to partition disks.
- - MVS/mvs.html ... an overview of the (venerable) IBM System/360 file systems,
-   interesting for their support of large contiguous extents.
- - VSAM/vsam.html ... an overview of the (only slightly less ancient) IBM VSAM
-   file structure, interesting as a (simple but crude) illustration of how to
-   indexed key-structured data.
-
 Peter Reiher's articles:
  - Reiher/Security_introduction.pdf ... an introduction to the basic goals of the 
    security mechanisms to be supported by an operating system, and the basic
@@ -110,61 +108,3 @@ Other People's articles I have made copies of:
    the Kerberos authentication service.
  - PUBKEY/pubkey.html ... a more detailed introduction to Public Key Encryption,
    signatures, and certificates from (long gone) Netscape.
-
-authservers.html
-avoidance.html
-BSD
-clusterconcepts.html
-distsystems.html
-DOS
-driverclasses.html
-driver_clients.jpg
-driver_ddi.jpg
-driver_sub_ddi.jpg
-dynamicmodules.html
-factorial4.gif
-filetypes.html
-FREEBSD
-gc_defrag.html
-horizontal.html
-interfaces.html
-inversion.html
-ipc.html
-KERBEROS
-kerberos_tickets.jpg
-leases.html
-linkage.html
-loadstress.html
-monitoring.html
-mp_hw.png
-multiprocessor.html
-MVS
-numa_hw.gif
-obj_dynamic.png
-ObjectModulesLinkageEditingandLibraries.pdf
-obj_extref.png
-obj_loading.png
-objmods.html
-obj_pgmstages.png
-obj_relocate.png
-obj_shlib.png
-obj_static.png
-obj_swtools.png
-OLD
-OPENSOLARIS
-principles.html
-PUBKEY
-README.md
-realtime.html
-Reiher
-schedule.html
-SSL
-stability.html
-thrashing.png
-Thumbs.db
-trap_ctl.gif
-trap_stack.gif
-usermodethreads.html
-VSAM
-workingsets.html
-workingsets.plot
