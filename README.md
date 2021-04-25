@@ -7,7 +7,7 @@ collected for the Operating Systems Principles course (UCLA CS111, HMC CS134):
  - a few are (pubically posted) overview articles written by others, which I 
    have copied here only to give them stable URLs.
 
-My more general articles:
+My articles:
 
  - general topics in operating systems
    - principles.html ... an introduction to (general) principles about
