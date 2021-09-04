@@ -1,0 +1,165 @@
+
+<!-- saved from url=(0057)http://web.cs.ucla.edu/classes/spring18/cs111/sample.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Sample Questions</title>
+</head>
+<body>
+<center><h1>Sample Exam Questions</h1></center>
+<p>
+These are examples of a few different types of questions that have been asked
+on other mid-terms, along with examples of full-credit, 2/3 credit, and 1/3 credit
+answers to those questions.  The purpose of these examples is to show you:
+</p><ul>
+   <li> What kinds of questions I am likely to ask </li>
+   <li> What kinds of answers I am expecting to see </li>
+</ul>
+<p></p>
+<h2> General considerations </h2>
+<p>
+For full credit I am generally looking to see that:
+</p><ul type="a">
+	<li>You understand the question, including a clear understanding of
+	    the meanings of all terms used in the question.</li>
+	<li>You understand the concepts and issues that the question is exploring.</li>
+	<li>You understand or are able to determine what the most important factors are.</li>
+	<li>You can clearly express your understanding in a way that directly responds
+	    to the question.</li>
+</ul>
+While the details are highly problem specific, partial credit will generally be awarded 
+in proportion to how well you were able to demonstrate how many of these things.
+In the examples below:
+<ul>
+	<li>2/3 credit was given for answers that clearly responded to the question,
+	    but showed little depth or mastery of detail.</li>
+	<li>1/3 credit was given for answers that, while correct, were vague
+	    and superficial.</li>
+	<li>0 credit would be given for answers that were incorrect, or that
+	    failed to respond to the question.</li>
+</ul>
+<p></p>
+
+<h2> "Principles" question </h2>
+<p>
+<strong>Why is it important to keep interface definitions distinct from implementations? <br>
+	Give an example of a bad thing that could happen if this
+	principle were violated.</strong>
+</p>
+<h3>Full Credit Answer</h3>
+<p>
+If the interface is an implementation-agnostic specification of expected
+behavior, it will be much easier to change the implementation, while
+maintaining interface compatability.  Otherwise, it may be difficult
+to know what the actual interface is.
+</p>
+<p>
+If the interface definition was "the current behavior of module X":
+</p><ol type="a">
+   <li> individual clients are left to examine behavior and try
+   	to guess the interface specifications.  This greatly increases the
+	likelihood that future changes will break old clients.
+	</li>
+   <li> implementors are likely to find it impossible to change
+   	the implementation without breaking some clients.
+	This will greatly constrain their ability to evolve
+	their software.
+	</li>
+</ol>
+<h3>2/3 Credit Answer</h3>
+<p>
+Without a clear interface specification, nobody will be sure what the
+right interface is, and a much greater chance that future implementations
+will break some clients.
+</p>
+<h3>1/3 Credit Answer</h3>
+<p>
+Better interace definitions, and fewer fewer upwards compatability problems.
+</p>
+
+<h2> "Description" question </h2>
+<strong> List the primary types of segments found in a process' virtual
+	address space and two characteristics (not contents) of each.</strong>
+<h3>Full Credit Answer</h3>
+The key segments in a process' address space are:
+<ul>
+   <li> text ... executable, read-only</li>
+   <li> data ... read/write size, can change at run-time </li>
+   <li> stack ... read/write, grown/shrunk by os as needed</li>
+   <li> DLLs/shared libs ... executable, read-only other code segments loaded at load- or run-time</li>
+   <li> thread stacks ... like program stacks, 
+	but are probably allocated in the data segment and
+	may not be managed by OS</li>
+</ul>
+<h3>2/3 Credit Answer</h3>
+<ul>
+    <li> text ... executable code </li>
+    <li> data ... read/write program data </li>
+    <li> stack ... read/write, grows down</li>
+</ul>
+<h3>1/3 Credit Answer</h3>
+<ul>
+    <li> code </li>
+    <li> data </li>
+    <li> stack</li>
+</ul>
+
+<h2> "Process" question </h2>
+<strong> Describe or illustrate (in detail) the sequence of operatins involved
+	in the processing of an illegal-address trap from a user-mode program
+	with a registered segmentation fault handler.</strong>
+<h3>Full Credit Answer</h3>
+<ol type="1">
+   <li>	illegal address raises fault in CPU</li>
+   <li> CPU loads new PC/PS from associated trap vector</li>
+   <li> CPU pushes PC/PS at time of trap onto supervisor mode stack</li>
+   <li> first level handler saves registers and status, forwards to 2nd level handler</li>
+   <li> 2nd level handler determines it was a user-mode segmentation fault and that there
+        is a registered signal handler</li>
+   <li> push PC/PS at time of trap onto user mode stack, and changes the return PC
+   	(on the supervisor mode stack) to be the signal handler.</li>
+   <li> 2nd level handler returns to 1st level handler</li>
+   <li> 1st level handler restores registers and returns to user mode </li>
+   <li> user mode execution resumes in the registered signal handler</li>
+</ol>
+
+<h3>2/3 Credit Answer</h3>
+<ol>
+   <li> CPU loads new PC/PS from associated trap vector</li>
+   <li> CPU pushes PC/PS at time of trap onto supervisor mode stack</li>
+   <li> OS trap handler saves registers and identifies cause of trap</li>
+   <li> Trap handler finds signal handler and changes stack to return to it</li>
+   <li> Restore registers, and return (to user-mode signal handler)</li>
+</ol>
+<h3>1/3 Credit Answer</h3>
+<ul>
+   <li>	trap into operating system</li>
+   <li> OS identifies cause </li>
+   <li> OS identifies handler </li>
+   <li> OS invokes signal handler </li>
+</ul>
+
+<h2> "Comparison" question </h2>
+<strong> (a) List two key similarities between a (trap) system call and a procedure call.<br>
+         (b) List two key differences between a (trap) system call and a procedure call.</strong>
+<h3>Full Credit Answer</h3>
+<ol type="a">
+   <li>	System calls are like procedure calls in that they pass parameters, perform a
+   	service, and return a result when the operation is complete.</li>
+   <li> System calls run with different privileges, in a different address space.
+   	Procedure calls are made with direct call instructions, while system calls are
+	a requested with an illegal instruction that is recognized by the trap handler.
+	Consquently, system calls are much more expensive than procedure calls.</li>
+</ol>
+<h3>2/3 Credit Answer</h3>
+<ol type="a">
+   <li>	parameter passing and return values </li>
+   <li> subroutines are fast, system calls go into OS, which is slow </li>
+</ol>
+
+<h3>1/3 Credit Answer</h3>
+<ol type="a">
+   <li>	both are made from subroutine calls in C </li>
+   <li> subroutines are in libraries, system calls are in OS </li>
+</ol>
+
+
+</body></html>
