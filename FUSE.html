@@ -1,0 +1,115 @@
+<html>
+<TITLE>FUSE</TITLE>
+<head>
+</head>
+<body>
+<CENTER>
+<H1>File systems in USEr mode</H1>
+	Mark Kampe<br>
+</CENTER>
+<P>
+<H2> Introduction </h2>
+<P>
+Since the earliest Operating Systems implementations, their most fundamental
+services have been:
+<ul>
+   <li> the creation and management of processes</li>
+   <li> the creation and persistence of the data on which they operate</li>
+</ul>
+This second set of services included both APIs for file access, and implementations
+of the file systems (generally on <em>Direct Access Storage Devices</em>) in which
+they could be safely and efficiently stored.
+These were originally implemented as part of the OS kernel, but it is now
+possible to implement file systems in user-mode programs, making those implementations
+much easier, and thereby enabling the creation of a wide range of new services.
+</P>
+<H2> Motivations </h2>
+<P>
+While file systems have traditionally been implemented as part of the
+OS Kernel, it is no longer clear why this should be necessary:
+<ul>
+   <li>File system implementations may need to do a great deal of
+       performance-critical I/O to <em>direct access</em> storage
+       devices. Most operating systems now provide high performance
+       asynchronous I/O services for use by user-mode programs.</li>
+
+   <li>File systems will be asked to check and enforce authorization
+       rules (for what operations a given user can perform on a given
+       object).  These decisions are dependent on user authentication,
+       and knowing which user is making each request.  But
+       given such identification, a file system can make and enforce
+       access control rules with no further use of system services.</li>
+
+   <li>Beyond these, there is little reason that a file system implementation
+       should require access to any in-kernel data or services.</li>
+</ul>
+</P>
+<P>
+Implementing and supporting a file system (that runs within the operating 
+system kernel) can be extremely difficult:
+<ul>
+   <li>The services (e.g. for synchronization and memory management) are
+       complex and quite different from those used by user-mode processes.</li>
+   <li>The tools for debugging a running OS kernel are nowhere nearly as
+       convenient or powerful as those for user-mode processes.</li>
+   <li>The performance and correctness requirements for kernel code are much
+       stricter than those for most user-mode software, and the review processes
+       to get new kernel code accepted are correspondingly much more demanding.</li>
+   <li>Updating kernel software (e.g. for bug fixes or new features) may involve
+       installing a new OS version and rebooting the system ... much more
+       difficult than simply loading and running a new program.</li>
+</ul>
+</P>
+<P>
+For all of these reasons, it is much simpler and easier to implement some 
+file systems as user-mode programs.  Providing this capability makes it
+possible for a much wider range of people to implement and distribute a much
+wider range of file-system-like services.
+</P>
+<H2> Kernel-FUSE Integration </h2>
+<P>
+Most operating systems have been designed to support many alternative
+file systems, allowing each file system implementation to be a plug-in
+(usually dynamically loadable) module.  Each file system implementation
+supports the same basic system calls (e.g. <tt>create/unlink, open/close, 
+read/write, mkdir/rmdir</tt>), but uses different <em>on-disk</em>
+representations for this data (e.g. EXT3, NTFS, ISO9660) or uses
+remote access protocols (e.g. <tt>NFS</tt>) to forward those requests
+to remote servers.
+</P>
+<P>
+User-mode file system (<tt>FUSE</tt>) implementations can be enabled 
+by another such plug-in file system implementation.  The <tt>FUSE</tt>
+file system plug-in acts as a router, translating file access system 
+calls into messages that will be sent to some user-mode process that
+knows how to implement them.
+</P>
+<IMG src="FUSE_architecture.jpg" alt="FUSE/libfuse architecture">
+<P>
+On the other side of those messages, a new library (<em>libfuse</em>) has
+been developed to:
+<ul>
+   <li> facilitate the registration of new file system implementations,
+        and the mounting of their instances</li>
+   <li> receive request messages from the kernel <tt>FUSE</tt> module</li>
+   <li> translate them into subroutine calls (to a local implementation)</li>
+   <li> translate the returned results back into messages to be sent bac to the kernel <tt>FUSE</tt> module,
+        which will, in turn, deliver those results back to the requesting process.</li>
+</ul>
+</P>
+<H2> FUSE Examples </h2>
+<P>
+Some traditional (on-disk) file systems (e.g. Windows <tt>NTFS</tt>) have
+been implemented as <tt>FUSE</tt> daemons, but <tt>FUSE</tt> is more
+commonly used for less-traditional services.  
+<tt>FUSE</tt> wrappers have made it possible for ordinary programs to
+use the standard POSIX APIs to:
+<ul>
+   <li>access individual files in standard containers (e.g. <tt>.tar.gz</tt> files)</li>
+   <li>access remote files via a wide range of protocols (e.g. FTP, SSH, S3).</li>
+   <li>read and write data in scalable, high performance, clustered file systems
+       (e.g. <tt>GlusterFS</tt>, <tt>CephFS</tt>)</li>
+</ul>
+</P>
+</body>
+</html>
