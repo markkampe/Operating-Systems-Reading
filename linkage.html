@@ -107,45 +107,39 @@ The code in <font color="green">green</font> is executed by <em>callees</em>.
 The code in <font color="red">red</font> is executed by <em>callers</em>.
 </p>
 <ul><pre>
-_factorial:
+factorial:
 </pre><font color="green"><pre>
-	pushl	%ebp		// save previous frame pointer
-	movl	%esp, %ebp	// top of stack becomes new frame pointer
-	pushl	%ebx		// save non-volatile EBX register
+	subq	$8, %rsp	// 4-byte local, 16-byte frame alignment
 </pre></font><pre>
-	movl	8(%ebp), %ebx	// copy parameter off stack into EBX
-	movl	$1, %eax	// get a constant 1
-	cmpl	$1, %ebx	// compare value with 1
-	jle	L2		// if less than or equal ...
-	leal	-1(%ebx), %eax	// EAX = EBX - 1
+	movl	%edi, 4(%rsp)	// keep local copy of value
+	cmpl	$1, %edi	// compare value with one
+	jg	.L2		// if greater, recurse
+	movl	4(%rsp), %eax	// recursion has ended, result is parameter
+	jmp	.L3		// and return
+
+   .L2:	movl	4(%rsp), %eax	// recover value
+   	subl	$1, %eax	// value - 1
 </pre><font color="red"><pre>
-	subl	$12, %esp	// extend stack for recursive call
-	pushl	%eax		// push parameter onto stack
-	call	_factorial	// call factorial
-	addl	$12, %esp	// clean off the call frame
+	movl	%eax, %edi	// value-1 as new parameter
+	call	factorial
 </pre></font><pre>
-	imull	%ebx, %eax	// multiply value by return value
-    L2:				// return value is in eax
+	imul	4(%rsp), %eax	// multiply result by value
 </pre><font color="green"><pre>
-	movl	-4(%ebp), %ebx	// restore saved EBX register
-	movl	%ebp, %esp	// restore top of stack
-	popl	%ebp		// restore saved frame pointer
-	ret			// return to caller
+   .L3:
+   	addq	$8, %rsp	// restore stack to value at entry
+	ret
 </pre></font>
 </ul>
 X86 Register Conventions:
 <ul>
-	<li><tt>%esp</tt> is the hardware-defined stack pointer.</li>
-	<li>the X86 stack grows downwards.  A push operation causes
-		the top of stack to be the next lower address. A Pop operation
-		causes the top of stack to be the next higher address.
-	<li><tt>%ebp</tt> is typically used as a frame pointer ... it points at the
-		start of the current stack frame (where the top of stack was
-		at the time of entry).</li>
-	<li><tt>%eax</tt> is a volatile register that is expected to contain the
+	<li><tt>%rsp</tt> is the hardware-defined stack pointer.</li>
+	<li>the X86 stack grows downwards:<br>
+		A push operation causes the top of stack to be the next lower address.<br>
+		A Pop operation causes the top of stack to be the next higher address.
+	<li><tt>%eax/%rax</tt> is a volatile register that is expected to contain the
 		return value when the called routine returns.</li>
-	<li>parameters are pushed onto the stack immediately before
-		the caller's return address.</li>
+	<li>the first six parameters are passed in registers,
+	    the first being passed in <tt>%rdi</tt> (or in this case <tt>%edi</tt>)</li>
 	<li>the <tt>call</tt> instruction pushes the address of the
 		next instruction onto the stack, and then transfers
 		control to the next location.</li>
@@ -155,11 +149,15 @@ X86 Register Conventions:
 
 While these details can be ISA specific, we also observe that:
 <ul>
-	<li>Register saving is the responsibility of the called routine.
-		This is often done, because only the called routine knows
+	<li>If the called routine needs to use any non-volatile registers
+		<u>it must save them</u>.
+		This is done because only the called routine knows
 		which registers it will use (and therefore which it needs
-		to save and restore.</li>
-	<li>Cleaning parameters off of the stack is the responsibility
+		to save and restore).</li>
+	<li>Cleaning callee-allocated locals (and saved registers) off the stack is the
+		callee's responsibility.  It knows what it allocated, so it must deallocate
+		them, returning the stack to its state at entry.</li>
+	<li>Cleaning (stack-passed) parameters off of the stack is the responsibility
 		of the calling routines.  This is often done, because only
 		the calling routine knows how many parameters is actually
 		passed.</li>
@@ -169,9 +167,8 @@ While these details can be ISA specific, we also observe that:
 		written in another language (e.g. FORTRAN).</li>
 </ul>
 <p>
-There is little point in memorizing the detailed linkage conventions
-of an obsolete Instruction Set Architecture.
-There is still, however, value in understanding each step of the above process,
+Even though the details may be different in other Instruction Set Architectures
+there is value in understanding each step of the above process,
 because the same basic steps (some, perhaps automated by hardware)
 can be seen in almost all linkage conventions.   After you have 
 understood one set of linkage conventions, you should have little
