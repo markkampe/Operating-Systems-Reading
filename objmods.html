@@ -274,58 +274,75 @@ Routines to be included in simple shared libraries must be designed with these l
 Shared Libraries are very powerful and convenient, but they too have proved to be too limiting for many applications:
 <ul>
 	<li> There may be very large/expensive libraries that are seldom used; Loading/mapping such libraries into the process’ address space at program load time unnecessarily slows down program start-up and increases the memory footprint.  In some cases, it might be preferable to delay the loading of a module until it is actually needed.</li>
-	<li> While loading is delayed until program load time, he name of the library to be loaded must be known at linkage editing time.  There are situations (e.g. MIME data types or browser plug-ins) where extensions will be designed and delivered independently from the client that exploits them.</li>
+	<li> While loading is delayed until program load time, he name of the library to be loaded must be known at linkage editing time.  There are situations (e.g. MIME data types or browser plug-ins) where extensions will be designed and delivered independently from (and subsequent to) the client that exploits them.</li>
 </ul>
 </p>
 <p>
-These lead us to Dynamically Loadable Libraries (DLLs): libraries that are not loaded (or perhaps even chosen) until they are actually needed.  Again, there are many implementations, but the general model is:
-<ul>
-	<li>The application chooses a library to be loaded (perhaps based on some run-time information like the MIME type in a message).</li>
-	<li>The application asks the operating system to load that library into its address space.</li>
-	<li>The operating system returns addresses of a few standard entry points (e.g. initialization and shut-down).</li>
-FIX THIS IS WRONG ... BETTER DESCRIBE HOW DLLs AND PLTs WORK
-	<li>The application calls the supplied initialization entry point, and the application and DLL bind to each other (e.g. by creating session data structures, exchanging vectors of service entry points).</li>
-	<li>The application requests services from the DLL by making calls through the dynamically established vector of service entry points.  When the application has no further need of the DLL, it calls the shut-down method and asks the operating system to un-load this module.</li>
-FIX THE ABOVE NEEDS WORK
-</ul>
-</p>
-<p>
-The Linux support for user mode Dynamically Loadable Libraries is described in dlopen(3).  This sort of mechanism is used in user mode (e.g. to support different MIME times) as well as inside the operating system (to dynamically load device drivers or file system implementations).   In either case it makes it possible for pre-compiled applications to exploit plug-ins to support functionality that was not implemented (or even envisioned) at the time the original application was built.  This is very powerful.
-</p>
-<p>
-FIX BETTER TALK ABOUT RUN-TIME-LOADER
-Calls from the client application into a shared or Dynamically Loaded library are generally handled through a table or vector of entry points, much like object method invocation.  There is much more diversity in the handling of calls from a library back into the application:
-<ul>
-	<li>An application can register a call-back routine by passing its address to an appropriate library registration method.</li>
-	<li>The same approach can be generalized to a large number of functions by having the application call the library to register a vector of entry points to perform standard functions.</li>
-	<li>Dynamically loaded kernel modules (e.g. device drivers and file systems) are allowed to access a myriad of functions and data structures within the kernel into which they have been loaded.  This is often enabled by a run-time-loader that effectively linkage edits the newly loaded module against the operating system, filling in the addresses of all unresolved external references from the dynamically loaded module into the operating system.  The Linux kernel run-time loader is described in ld.so(8).</li>
-</ul>
+These lead us to Dynamically Loadable Libraries (DLLs): libraries that are not loaded (or perhaps even chosen) until they are actually needed.  There are two means by which a Dynamically Loaded Library can become incorporated
+into a process:
+<ol>
+	<li> implicitly: the application may not be aware that references are being resolved from a DLL, 
+	     but the linkage editor will make provisions for the library to be automatically
+	     loaded the first time one of its methods is called.
+	</li>
+	<li> explicitly: the application may choose the library to be loaded (perhaps based on
+	     some run-time information like a MIME-type found in a message) and request the
+	     operating system to load it for use.
+	</li>
+</ol>
 </p>
 <h2>Implicitly Loaded Dynamically Loadable Libraries</h2>
-It should be noted that there are Dynamically Loadable Library implementations that appear (to the client) more like standard libraries:
+The client may not be aware that references to external methods are being resolved from a DLL:
 <ul>
-	<li>Applications are linkage edited against a set of stubs, which create Program Linkage Table (PLT) entries in the client load module.  </li>
-	<li>The PLT entries are initialized to point to calls to a Run-Time Loader.</li>
-	<li>The first time one of these entry points is called, the stub calls the Run-Time Loader to open and load the appropriate Dynamically Loadable Library.</li>
-	<li>After the required library has been loaded, the PLT entry is changed to point to the appropriate routine in the newly loaded library.  From then on, all calls through that PLT entry go directly to the now-loaded routine.</li>
-FIX MENTION CALLS FROM ONE DLL TO ANOTHER
+	<li>applications are linkage edited against a set of stubs, which create (writeable)
+	    <em>Program Linkage Table</em> (PLT) entries in the client load module.  </li>
+	<li>PLT entries are initialized to point to calls to a <em>Run-Time Loader</em>,
+	    being passed the name of the desired library and method.</li>
+	<li>the first time one of these entry points is called, the stub calls the <em>Run-Time Loader</em> to open and load the appropriate Dynamically Loadable Library.</li>
+	<li>after the required library has been loaded, the PLT entry is changed to directly call the appropriate entry-point within the newly loaded library.</li>
+	<li>all subsequent calls through that PLT entry go directly to the now-loaded routine.</li>
 </ul>
 </p>
 <p>
-Such implicitly loaded DLLs are (from the client perspective) almost indistinguishable from statically loaded libraries or shared libraries.  From this perspective, both Dynamically Loadable and shared libraries can reduce the size of load modules (vs. statically linked libraries) and allow a single on-disk/in-memory code segment to be shared by multiple concurrently running programs.
+Such implicitly loaded DLLs are (from the client perspective) almost indistinguishable from statically loaded libraries or shared libraries.  Both Dynamically Loadable and shared libraries can reduce the size of load modules (vs. statically linked libraries) and allow a single on-disk/in-memory code segment to be shared by multiple concurrently running programs.
 </p>
 <h2>Explicitly Loaded Dynamically Loadable Libraries</h2>
 <p>
 The greater functionality and performance benefits of Dynamically Loadable Libraries are only available when the client applications become aware of them:
-FIX TALK ABOUT dlopen and dlsym
 <ul>
-	<li>Shared libraries allow delayed (program load time) binding to some version of a library that was chosen at linkage-edit time.  Dynamically Loadable Libraries allow the library to be loaded to be chosen at run time.</li>
-	<li>Shared libraries consume memory for the entire time that the process is running.  Dynamically Loadable Libraries can be unloaded when they are no longer needed.</li>
-FIX THIS ONE NEEDS WORK
-	<li>Shared libraries impose numerous constraints and simple interfaces on the code they contain.  Dynamically Loadable Libraries are capable of performing complex initialization and supporting complex (bi-directional) calls between the client application and library.</li>
-	<li>Shared libraries are (from the client applications perspective) indistinguishable from statically loaded libraries, and very simple to use.  Dynamically Loadable Libraries may require considerably more work (from the client application) to load the library, register the interfaces, and establish work sessions.</li>
+	<li>when the client program decides it needs a new library, makes a call to <em>dlopen(3)</em>
+	    passing it the name of the desired library (and a few options).</li>
+	<li>the <em>run-time loader</em> will open the desired library, load it into the process' address space,
+	    and return a <em>handle</em> that the application can use to access its entry-points.</li>
+	<li>when the application needs to make calls to some (known) entry point within the DLL, it
+	    uses <tt>dlsym(void *handle, char *symbol)</tt> to get a pointer to the desired entry point,
+	    and then makes the calls through those returned pointers.
+	<li>if the application later decides that it no longer needs that DLL, it can call
+	    <tt>dlclose(handle)</tt> to unload it from its address space.</li>
 </ul>
 </p>
+<h2>External References from DLLs</h2>
+<p>
+In the simplest model the hosting application makes calls into the DLL, but the DLL never uses any
+information or methods (other than parameters it has been passed) from the hosting application.
+But many run-time loaders support the ability for DLLs to use the services of other libraries, or
+even to call global methods or access global information in the hosting application:
+<ul>
+	<li>
+	If a DLL needs to reference code/data from other libraries (or the hosting application),
+	the linkage editor will generate PLT entries to
+	facilitate those loading of and linkage to the desired entry points.
+	</li>
+	<li>
+	If a DLL needs to make calls back into the client program
+	(e.g. dynamically loaded device drivers using kernel services)
+	the hosting program can be linkage edited with an option that will make
+	those externally required symbols available to <em>run-time loader</em> 
+	calls from the DLL.
+	</li>
+</ul>
+</p>
+
 <p>
 Shared Libraries are a more efficient mechanism for binding libraries to client applications.  Dynamically Loadable Libraries are a mechanism to dynamically extend the functionality of a client application based on resources and information that may not be available until the moment they are needed.
 </p>
