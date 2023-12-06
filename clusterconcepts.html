@@ -247,11 +247,6 @@ provide service (and hence is not eligible to form a cluster).  But what if
 two nodes can both talk to the disk, but cannot communicate with one-another?
 They may be able to use the disk as a voting device ... e.g. by writing a 
 recent time-stamp into a well-known block.
-<P>
-Some clusters include resources that can easily serve as voting devices.
-There are also specially built (very reliable) voting devices that exist
-solely for this purpose.  If there is a voting device, a cluster could be
-formed by a single node ... because the voting device would prevent split-brain.
 
 <H2>Fencing</h2>
 <P>
