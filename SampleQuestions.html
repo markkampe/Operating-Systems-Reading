@@ -1,10 +1,9 @@
 
-<!-- saved from url=(0057)http://web.cs.ucla.edu/classes/spring18/cs111/sample.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 <title>Sample Questions</title>
 </head>
 <body>
-<center><h1>Sample Exam Questions</h1></center>
+<center><h1>Sample Exam (midterm/final part I) Questions</h1></center>
 <p>
 These are examples of a few different types of questions that have been asked
 on other mid-terms, along with examples of full-credit, 2/3 credit, and 1/3 credit
@@ -161,5 +160,77 @@ The key segments in a process' address space are:
    <li> subroutines are in libraries, system calls are in OS </li>
 </ol>
 
+<center><h1>Sample Exam (XC/final part II) Questions</h1></center>
+<p>
+More open-ended questions generally fall into categories like:
+<ul>
+   <li> Explaining and examining non-trivial processes.</li>
+   <li> Deriving equations to describe non-simple events.</li>
+   <li> Explain how you would implement a proposed feature or solve a posed problem.</li>
+   <li> Considering the implementation/implications of a proposed implementation.</li>
+</ul>
+These are examples of a few such questions that have been asked on other
+final exams:
+<p></p>
+<h2> Process Understading</h2>
+In Kerberos, the authentication is done by an impartial third party.  The SSL protocol 
+does not involve a third host.  
+<ol type="a">
+   <li>
+    What knowledge or secret do the client and server have in an SSL connection have that 
+    enables them to do this authentication, and what is the corresponding knowledge or 
+    secret in a Kerberos Authentication Server?
+   </li>
+   <li>
+    Are there implicit third parties in the SSL authentication process?  If so, identify 
+    them and compare their knowledge and roles with those of the Kerberos Authentication 
+    Server.  If not explain how the SSL participants came to possess the knowledge that 
+    enabled them to authenticate their partners, and why they trust that knowledge.
+   </li>
+   <li>
+    In SSL, the session key is securely negotiated with the use of public/private key pairs.  
+    Kerberos uses symmetric (DES) encryption, which requires both sides to know the same key.
+    How is it possible for a Kerberos client and server (often called a verifier) to 
+    securely agree on a session key, when they do not (initially) share any secrets?
+   </li>
+   <li>
+   Both mechanisms authenticate participants, and create a private channels between them 
+   (symmetrically encrypted with aprivate session keys).
+   Are there any significant differences in the privacy of the negotiations, or in the 
+   sureness of the authentications?  If so describe them?  If not, explain why anyone 
+   would choose Kerberos over SSL or vice versa.
+   </li>
+</ol>
 
+<h2> Problem Examination </h2>
+Short vs Long-Term Variable Partition Allocation
+<ol type="a">
+    <li> To which type of fragmentation is variable-partition allocation subject?</li>
+
+    <li> If most of the dynamically allocated memory was held for the entire life of the process,
+    	would we expect to see much fragmentation?  Why, or Why Not?</li>
+
+    <li> If memory is continuously allocated and freed throughout the life of the process,
+    	what activity (within the memory allocator) is intended to counter-act the development of fragmentation?</li>
+
+    <li> If memory is being freed at (very roughly) a similar rate to the rate at which it
+    	is being allocated, why might this prevention/repair mechanism be more or less effective?</li>
+
+    <li> If we knew that a request was to be short-term or long term, how (specifically)
+    	could we exploit this information to make variable partition memory allocation more efficient?</li>
+
+    <li> Explain why this change would perform better or more efficiently.</li>
+</ol>
+
+<h2> Problem Solution</h2>
+A warehouse database includes information about every item, and cargo
+manifests for delivery vehicles.  Some operations (e.g. scheduling an
+item for delivery) involve locking the item, and then updating the
+cargo manifest.  Other operations (e.g. loading) involve locking a
+cargo manifest and then updating referenced item.  If two such overlapping
+operations happen at the same time, a deadlock could result.
+<ol type="a">
+    <li>How can we maximally enable concurrent parallel updates while preventing deadlocks?</li>
+    <li>Why is this approach the right solution (vs attacking other necessary conditions)?</li>
+</ol>
 </body></html>
