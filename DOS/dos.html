@@ -380,7 +380,7 @@ we can reserve another value (0) to mean
 <strong>this cluster is free</strong>.
 <P>
 To find a free cluster, one has but to search the FAT for an
-entry with the value -2.  If we want to find a free cluster
+entry with the value 0.  If we want to find a free cluster
 near the clusters that are already allocated to the file, 
 we can start our search with the FAT entry after the entry
 for the first cluster in the file.
