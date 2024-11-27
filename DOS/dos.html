@@ -36,12 +36,12 @@ file system format is a descendent of the DOS file system.
 The DOS FAT file system is worth studying because:
 <UL>
 	<LI> It is heavily used all over the world, and is the
-		basis for more modern file system (like 9660).
+		basis for more modern file system (like 9660).</li>
 	<LI> It provides reasonable performance (large transfers
 		and well clustered allocation) with a very simple
-		implementation.
+		implementation.</li>
 	<LI> It is a very successful example of "linked list"
-	     space allocation.
+	     space allocation.</li>
 </UL>
 
 
@@ -55,25 +55,30 @@ All file systems include a few basic types of data structures:
 		the computer is powered on.  MVS volumes reserve
 		the entire first track of the first cylinder for
 		the boot strap.
+	</li>
 	<LI> volume descriptors
 	<P>
 		information describing the size, type, and layout
 		of the file system ... and in particular how to
 		find the other key meta-data descriptors.
+	</li>
 	<LI> file descriptors
 	<P>
 		information that describes a file (ownership, 
 		protection, time of last update, etc.) and
 		points where the actual data is stored on the
 		disk.
+	</li>
 	<LI> free space descriptors
 	<P>
 		lists of blocks of (currently) unused space
 		that can be allocated to files.
+	</li>
 	<LI> file name descriptors
 	<P>
 		data structures that user-chosen names with
 		each file.
+	</li>
 </UL>
 <P>
 DOS FAT file systems divide the volume into fixed-sized (physical)
@@ -107,11 +112,11 @@ disks and (unpartitioned) floppies, and between various releases
 of DOS and Windows ... but conceptually, the boot record:
 <UL>
 	<LI> begins with a branch instruction 
-		(to the start of the real bootstrap code).
-	<LI> followed by a volume description (BIOS Parameter Block)
-	<LI> followed by the real bootstrap code
-	<LI> followed by an optional disk partitioning table
-	<LI> followed by a signature (for error checking).
+		(to the start of the real bootstrap code).</li>
+	<LI> followed by a volume description (BIOS Parameter Block)</li>
+	<LI> followed by the real bootstrap code</li>
+	<LI> followed by an optional disk partitioning table</li>
+	<LI> followed by a signature (for error checking).</li>
 </UL>
 
 <CENTER>
@@ -125,17 +130,17 @@ After the first few bytes of the bootstrap comes the BIOS parameter
 block, which contains a brief summary of the device and file system.  
 It describes the device geometry:
 	<UL>
-		<LI> number of bytes per (physical) sector
-		<LI> number of sectors per track
-		<LI> number of tracks per cylinder
-		<LI> total number of sectors on the volume
+		<LI> number of bytes per (physical) sector</li>
+		<LI> number of sectors per track</li>
+		<LI> number of tracks per cylinder</li>
+		<LI> total number of sectors on the volume</li>
 	</UL>
 It also describes the way the file system is laid out on the volume:
 	<ul>
-		<LI> number of sectors per (logical) cluster
-		<LI> the number of reserved sectors (not part of file system)
-		<LI> the number of Alternate File Allocation Tables
-		<LI> the number of entries in the root directory
+		<LI> number of sectors per (logical) cluster</li>
+		<LI> the number of reserved sectors (not part of file system)</li>
+		<LI> the number of Alternate File Allocation Tables</li>
+		<LI> the number of entries in the root directory</li>
 	</UL>
 <P>
 These parameters enable the OS to interpret the remainder of the
@@ -221,24 +226,24 @@ sized (32 byte) directory entries.  Each entry describes a single
 file:
 <UL>
 	<LI> an 11-byte name (8 characters of base name, plus
-	     a 3 character extension).
+	     a 3 character extension).</li>
 	<LI> a byte of attribute bits for the file, which include:
 	<UL>
-		<LI> Is this a file, or a sub-directory.
-		<LI> Has this file changed since the last backup.
-		<LI> Is this file hidden.
-		<LI> Is this file read-only.
-		<LI> Is this a system file.
-		<LI> Does this entry describe a volume label.
+		<LI> Is this a file, or a sub-directory.</li>
+		<LI> Has this file changed since the last backup.</li>
+		<LI> Is this file hidden.</li>
+		<LI> Is this file read-only.</li>
+		<LI> Is this a system file.</li>
+		<LI> Does this entry describe a volume label.</li>
 	</UL>
 	<LI> times and dates of creation and last modification, and
-		date of last access.
+		date of last access.</li>
 	<LI> a pointer to the first logical block of the file.
 		(This field is only 16 bits wide, and so when Microsoft
 		introduced the FAT32 file system, they had to put the
 		high order bits in a different part of the directory
-		entry).
-	<LI> the length (number of valid data bytes) in the file.
+		entry).</li>
+	<LI> the length (number of valid data bytes) in the file.</li>
 </UL>
 <P>
 <TABLE BORDER>
@@ -380,7 +385,7 @@ we can reserve another value (0) to mean
 <strong>this cluster is free</strong>.
 <P>
 To find a free cluster, one has but to search the FAT for an
-entry with the value -2.  If we want to find a free cluster
+entry with the value zero.  If we want to find a free cluster
 near the clusters that are already allocated to the file, 
 we can start our search with the FAT entry after the entry
 for the first cluster in the file.
@@ -519,11 +524,11 @@ directory entry would describe a single file (rather than having some
 auxiliary data structure like and I-node to do this).  9660 directory
 entries, like DOS directory entries, contain:
 <UL>
-   <LI>	file name (within the current directory)
-   <LI> file type (e.g. file or directory)
-   <LI>	location of the file's first block
-   <LI> number of bytes contained in the file
-   <LI> time and date of creation
+   <LI>	file name (within the current directory)</li>
+   <LI> file type (e.g. file or directory)</li>
+   <LI>	location of the file's first block</li>
+   <LI> number of bytes contained in the file</li>
+   <LI> time and date of creation</li>
 </UL>
 <P>
 They did, however, learn from DOS's mistakes:
@@ -546,11 +551,11 @@ They did, however, learn from DOS's mistakes:
 	file name.  Much of this section has been left unused,
 	but they defined several new attributes for files:
 	<UL>
-	   <LI> file owner
-	   <LI>	owning group
-	   <LI> permissions
-	   <LI> creation, modification, effective, and expiration times
-	   <LI> record format, attributes, and length information
+	   <LI> file owner</li>
+	   <LI>	owning group</li>
+	   <LI> permissions</li>
+	   <LI> creation, modification, effective, and expiration times</li>
+	   <LI> record format, attributes, and length information</li>
 	</UL>
 </UL>
 <P>
@@ -593,32 +598,27 @@ that all (successful) file systems will eventually face.
 DOS file system information
 <UL>
     <LI>
-	PC Guide's <A HREF=http://www.pcguide.com/ref/hdd/file/fat_Long.htm>
-	Overview of DOS FAT file systems</A>.  (this is a pointer to the
-	long filename article ... but the entire library is nothing short
-	of excellent).
-    <LI>
 	Free BSD sources, PCFS implementation,
-	<A Href=freebsd/bpb_h.txt>
+	<A Href=freebsd/bpb_h.txt></li>
 BIOS Parameter block format</A>, and (Open Solaris)
 	<A Href=opensolaris/fdisk_h.txt>
-FDISK table format</A>.
+FDISK table format</A>.</li>
     <LI>
 	Free BSD sources, PCFS implementation,
 	<A Href=freebsd/direntry_h.txt>
-	Directory Entry format</A>
+	Directory Entry format</A></li>
 </UL>
 <P>
 9660 file system information
 <UL>
     <LI>
 	Wikipedia Introduction to
-	<A Href=http://en.wikipedia.org/wiki/ISO_9660>
+	<A Href=http://en.wikipedia.org/wiki/ISO_9660></li>
 	ISO 9660 file systems</A>
     <LI>
 	Free BSD sources, ISOFS implementation, 
 	<A Href=freebsd/iso_h.txt>
-	ISO 9660 data structures</A>.
+	ISO 9660 data structures</A>.</li>
 </UL>
 
 </BODY>
